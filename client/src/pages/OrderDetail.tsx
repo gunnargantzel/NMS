@@ -37,38 +37,9 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
-import axios from 'axios';
+import { mockApi, Order, TimelogEntry, SamplingRecord } from '../services/mockApi';
 
-interface Order {
-  id: number;
-  order_number: string;
-  client_name: string;
-  client_email: string;
-  vessel_name: string;
-  port: string;
-  survey_type: string;
-  status: string;
-  created_at: string;
-  created_by_name: string;
-}
-
-interface TimelogEntry {
-  id: number;
-  timestamp: string;
-  activity: string;
-  remarks: string;
-  created_by_name: string;
-}
-
-interface SamplingRecord {
-  id: number;
-  sample_type: string;
-  quantity: string;
-  destination: string;
-  seal_number: string;
-  remarks: string;
-  created_by_name: string;
-}
+// Interfaces are now imported from mockApi
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -121,14 +92,14 @@ const OrderDetail: React.FC = () => {
   const fetchOrderDetails = useCallback(async () => {
     try {
       const [orderResponse, timelogResponse, samplingResponse] = await Promise.all([
-        axios.get(`/api/orders/${id}`),
-        axios.get(`/api/timelog/order/${id}`),
-        axios.get(`/api/sampling/order/${id}`),
+        mockApi.getOrder(parseInt(id!)),
+        mockApi.getTimelogEntries(parseInt(id!)),
+        mockApi.getSamplingRecords(parseInt(id!)),
       ]);
 
-      setOrder(orderResponse.data);
-      setTimelogEntries(timelogResponse.data.entries);
-      setSamplingRecords(samplingResponse.data);
+      setOrder(orderResponse);
+      setTimelogEntries(timelogResponse.entries);
+      setSamplingRecords(samplingResponse);
     } catch (error) {
       console.error('Error fetching order details:', error);
     } finally {
@@ -138,8 +109,8 @@ const OrderDetail: React.FC = () => {
 
   const fetchActivities = async () => {
     try {
-      const response = await axios.get('/api/timelog/activities');
-      setActivities(response.data.map((a: any) => a.activity));
+      const response = await mockApi.getActivities();
+      setActivities(response.map((a: any) => a.activity));
     } catch (error) {
       console.error('Error fetching activities:', error);
     }

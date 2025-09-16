@@ -28,26 +28,9 @@ import {
   Search as SearchIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { mockApi, Order, SurveyType } from '../services/mockApi';
 
-interface Order {
-  id: number;
-  order_number: string;
-  client_name: string;
-  client_email: string;
-  vessel_name: string;
-  port: string;
-  survey_type: string;
-  status: string;
-  created_at: string;
-  created_by_name: string;
-}
-
-interface SurveyType {
-  id: number;
-  name: string;
-  description: string;
-}
+// Interfaces are now imported from mockApi
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -64,15 +47,15 @@ const Orders: React.FC = () => {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const params = new URLSearchParams({
+      const params = {
         page: page.toString(),
         limit: '10',
         ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== '')),
-      });
+      };
 
-      const response = await axios.get(`/api/orders?${params}`);
-      setOrders(response.data.orders);
-      setTotalPages(response.data.pagination.pages);
+      const response = await mockApi.getOrders(params);
+      setOrders(response.orders);
+      setTotalPages(response.pagination.pages);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -82,8 +65,8 @@ const Orders: React.FC = () => {
 
   const fetchSurveyTypes = async () => {
     try {
-      const response = await axios.get('/api/surveys/types');
-      setSurveyTypes(response.data);
+      const response = await mockApi.getSurveyTypes();
+      setSurveyTypes(response);
     } catch (error) {
       console.error('Error fetching survey types:', error);
     }

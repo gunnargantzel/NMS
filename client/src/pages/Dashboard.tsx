@@ -22,21 +22,12 @@ import {
   Category as SurveyTypesIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { mockApi } from '../services/mockApi';
 
-interface Order {
-  id: number;
-  order_number: string;
-  client_name: string;
-  vessel_name: string;
-  port: string;
-  survey_type: string;
-  status: string;
-  created_at: string;
-}
+// Interface is now imported from mockApi
 
 const Dashboard: React.FC = () => {
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [stats, setStats] = useState({
     totalOrders: 0,
     pendingOrders: 0,
@@ -52,17 +43,17 @@ const Dashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       const [ordersResponse, statsResponse] = await Promise.all([
-        axios.get('/api/orders?limit=5'),
-        axios.get('/api/orders?limit=1000'), // Get all for stats
+        mockApi.getOrders({ limit: '5' }),
+        mockApi.getOrders({ limit: '1000' }), // Get all for stats
       ]);
 
-      setRecentOrders(ordersResponse.data.orders);
+      setRecentOrders(ordersResponse.orders);
       
-      const allOrders = statsResponse.data.orders;
+      const allOrders = statsResponse.orders;
       setStats({
         totalOrders: allOrders.length,
-        pendingOrders: allOrders.filter((o: Order) => o.status === 'pending').length,
-        completedOrders: allOrders.filter((o: Order) => o.status === 'completed').length,
+        pendingOrders: allOrders.filter((o: any) => o.status === 'pending').length,
+        completedOrders: allOrders.filter((o: any) => o.status === 'completed').length,
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

@@ -24,14 +24,9 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
+import { mockApi, SurveyType } from '../services/mockApi';
 
-interface SurveyType {
-  id: number;
-  name: string;
-  description: string;
-  created_at: string;
-}
+// Interface is now imported from mockApi
 
 const SurveyTypes: React.FC = () => {
   const [surveyTypes, setSurveyTypes] = useState<SurveyType[]>([]);
@@ -49,8 +44,8 @@ const SurveyTypes: React.FC = () => {
 
   const fetchSurveyTypes = async () => {
     try {
-      const response = await axios.get('/api/surveys/types');
-      setSurveyTypes(response.data);
+      const response = await mockApi.getSurveyTypes();
+      setSurveyTypes(response);
     } catch (error) {
       console.error('Error fetching survey types:', error);
     } finally {
