@@ -101,11 +101,12 @@ npm start
 
 ### 1. Første gang
 - Gå til `http://localhost:3000`
-- **Logg inn med demodata:**
+- **Logg inn med demodata (mock-autentisering):**
   - **Brukernavn:** `admin` **Passord:** `admin123` (admin-bruker)
   - **Brukernavn:** `surveyor1` **Passord:** `admin123` (vanlig bruker)
   - **Brukernavn:** `surveyor2` **Passord:** `admin123` (vanlig bruker)
-- Systemet vil automatisk opprette nødvendige databasetabeller og fylle med demodata
+  - **Merk:** Ethvert passord med 3+ tegn fungerer for demo-formål
+- Systemet bruker mock-autentisering (ingen ekte backend-autentisering)
 
 ### 2. Hovedfunksjoner
 
@@ -153,10 +154,12 @@ Applikasjonen bruker SQLite (in-memory for demo) med følgende hovedtabeller:
 
 Applikasjonen kommer med forhåndsutfylte demodata:
 
-### Demo-brukere
-- **admin** (admin-bruker) - Passord: `admin123`
-- **surveyor1** (vanlig bruker) - Passord: `admin123`  
-- **surveyor2** (vanlig bruker) - Passord: `admin123`
+### Demo-brukere (Mock-autentisering)
+- **admin** (admin-bruker) - Passord: `admin123` (eller ethvert passord med 3+ tegn)
+- **surveyor1** (vanlig bruker) - Passord: `admin123` (eller ethvert passord med 3+ tegn)
+- **surveyor2** (vanlig bruker) - Passord: `admin123` (eller ethvert passord med 3+ tegn)
+
+**Merk:** Applikasjonen bruker mock-autentisering for demo-formål. Ingen ekte backend-autentisering er implementert.
 
 ### Demo-ordrer
 - 5 eksempelordrer fra norske oljeselskaper (Statoil, Equinor, Aker BP, etc.)
