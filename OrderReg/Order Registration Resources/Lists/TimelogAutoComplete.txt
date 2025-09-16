@@ -1,0 +1,55 @@
+Vessel berthed, all fast
+Commenced discharging
+Completed discharging
+Commenced loading
+Completed loading
+Hose connected
+Hose disconnected
+Vessel departed
+Hose connection
+Hose disconnection
+Discharging
+Stop due to shifting
+Stop due to rain
+Rainstop
+Stop due to bad weather
+Stop due to technical problems ashore
+Stop due to technical problems on board
+Stop due to internal transfer ashore
+Stop due to shifting hatches
+Stop due to hydraulic problems with crane
+Cargo holds inspection
+Cargo holds accepted for loading
+Awaiting weather improvement
+Awaiting salmonella certificate
+Surveyor on board
+End of sea passage
+NOR tendered
+Pilot on board
+All fast
+Load compartment inspection
+Empty tank inspection
+Surveyor on board/ullaging
+Estimated time of departure
+Hatches and cargo inspection
+ISPS opened
+ISPS closed
+Empty hold & hopper inspection
+Empty hold inspection
+Blowing line
+Stop due to strong wind
+Documents on board
+Ullaging / cargo calculation
+Stop due to changing shore silo
+Stop due to technical problems excavator
+Awaiting shore readiness
+Awaiting crane readiness
+Safety meeting
+Lining up shore/ship lines
+Awaiting free berth
+End of shore working hours
+Empty hold inspection completed
+Document handling
+Resume loading
+Resume discharging
+

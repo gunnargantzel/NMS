@@ -1,0 +1,16 @@
+Outturn based on ship's figure.
+Outturn based on shore tank calculation.
+Weather condition: Dry weather
+Avg cargo temp:
+Avg discharge rate:
+Cargo received acc to shore tank calculation:
+Ship's tanks visually inspected and found empty after discharge.
+Cargo hold(s) visually inspected and found empty after discharge.
+Cargo visually inspected prior to and on regular basis during discharging. 
+Cargo appeared in good condition.
+Outturn equals BL-figure
+Rainletter issued by FKRA representative.
+Letter of protest lodged to Master due to cargo loss.
+Letter of protest lodged to Master due to low discharge rate.
+Silo empty prior to discharging. Cargo flow verified according to shore stowage plan.
+Cargo flow inspected and verified acc to shore sides stowage plan.
