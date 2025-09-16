@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
+  Grid,
   Card,
   CardContent,
   Typography,
@@ -15,7 +16,6 @@ import {
   Chip,
   IconButton,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import {
   Add as AddIcon,
   Visibility as ViewIcon,
@@ -108,7 +108,7 @@ const Dashboard: React.FC = () => {
 
       <Grid container spacing={3}>
         {/* Stats Cards */}
-        <Grid xs={12} sm={6} md={4}>
+        <Grid item xs={12} sm={6} md={4}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center">
@@ -126,7 +126,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid xs={12} sm={6} md={4}>
+        <Grid item xs={12} sm={6} md={4}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center">
@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid xs={12} sm={6} md={4}>
+        <Grid item xs={12} sm={6} md={4}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center">
@@ -163,7 +163,7 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Recent Orders */}
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
