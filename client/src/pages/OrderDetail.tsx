@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Chip,
   Button,
   Tabs,
@@ -256,14 +255,14 @@ const OrderDetail: React.FC = () => {
       {/* Order Information */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6} md={3}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Order Number
               </Typography>
               <Typography variant="h6">{order.order_number}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Client
               </Typography>
@@ -273,26 +272,26 @@ const OrderDetail: React.FC = () => {
                   {order.client_email}
                 </Typography>
               )}
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Vessel
               </Typography>
               <Typography variant="body1">{order.vessel_name || '-'}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Port
               </Typography>
               <Typography variant="body1">{order.port || '-'}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Survey Type
               </Typography>
               <Typography variant="body1">{order.survey_type}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Status
               </Typography>
@@ -301,20 +300,20 @@ const OrderDetail: React.FC = () => {
                 color={getStatusColor(order.status) as any}
                 size="small"
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Created
               </Typography>
               <Typography variant="body1">{formatDate(order.created_at)}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Created By
               </Typography>
               <Typography variant="body1">{order.created_by_name}</Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 

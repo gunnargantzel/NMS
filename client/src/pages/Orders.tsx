@@ -23,7 +23,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Grid,
   Pagination,
 } from '@mui/material';
 import {
@@ -155,8 +154,8 @@ const Orders: React.FC = () => {
       {/* Filters */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={3}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <TextField
                 fullWidth
                 label="Search"
@@ -166,8 +165,8 @@ const Orders: React.FC = () => {
                   startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
               <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -182,8 +181,8 @@ const Orders: React.FC = () => {
                   <MenuItem value="cancelled">Cancelled</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
               <FormControl fullWidth>
                 <InputLabel>Survey Type</InputLabel>
                 <Select
@@ -199,8 +198,8 @@ const Orders: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 
