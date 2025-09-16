@@ -81,6 +81,7 @@ const OrderDetail: React.FC = () => {
     end_time: '',
     activity: '',
     remarks: '',
+    selected_port: '', // Add port selection for timelog entries
   });
   const [newSamplingRecord, setNewSamplingRecord] = useState({
     sample_type: '',
@@ -88,6 +89,7 @@ const OrderDetail: React.FC = () => {
     destination: '',
     seal_number: '',
     remarks: '',
+    selected_port: '' // Add port selection for sampling records
   });
   const [emailMessage, setEmailMessage] = useState('');
 
@@ -154,15 +156,19 @@ const OrderDetail: React.FC = () => {
 
   const handleAddTimelogEntry = async () => {
     try {
+      const subOrderId = newTimelogEntry.selected_port ? 
+        parseInt(newTimelogEntry.selected_port) : 
+        parseInt(id!);
+        
       await mockApi.createTimelogEntry({
-        sub_order_id: parseInt(id!), // Use sub_order_id instead of order_id
+        sub_order_id: subOrderId,
         activity: newTimelogEntry.activity,
         start_time: newTimelogEntry.start_time,
         end_time: newTimelogEntry.end_time || undefined,
         remarks: newTimelogEntry.remarks,
       });
       setOpenTimelogDialog(false);
-      setNewTimelogEntry({ start_time: dayjs().format(), end_time: '', activity: '', remarks: '' });
+      setNewTimelogEntry({ start_time: dayjs().format(), end_time: '', activity: '', remarks: '', selected_port: '' });
       fetchOrderDetails();
     } catch (error) {
       console.error('Error adding timelog entry:', error);
@@ -171,8 +177,12 @@ const OrderDetail: React.FC = () => {
 
   const handleAddSamplingRecord = async () => {
     try {
+      const subOrderId = newSamplingRecord.selected_port ? 
+        parseInt(newSamplingRecord.selected_port) : 
+        parseInt(id!);
+        
       await mockApi.createSamplingRecord({
-        sub_order_id: parseInt(id!), // Use sub_order_id instead of order_id
+        sub_order_id: subOrderId,
         sample_number: `S-${Date.now()}`,
         sample_type: newSamplingRecord.sample_type,
         laboratory: 'Demo Lab',
@@ -186,6 +196,7 @@ const OrderDetail: React.FC = () => {
         destination: '',
         seal_number: '',
         remarks: '',
+        selected_port: '',
       });
       fetchOrderDetails();
     } catch (error) {
@@ -552,6 +563,25 @@ const OrderDetail: React.FC = () => {
         <DialogTitle>Add Timelog Entry</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Port/Harbor</InputLabel>
+              <Select
+                value={newTimelogEntry.selected_port || ''}
+                label="Port/Harbor"
+                onChange={(e) => setNewTimelogEntry(prev => ({ ...prev, selected_port: e.target.value }))}
+              >
+                {order?.is_main_order && order?.sub_orders ? 
+                  order.sub_orders.map((subOrder) => (
+                    <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
+                      {subOrder.port}
+                    </MenuItem>
+                  )) :
+                  <MenuItem value={id || ''}>
+                    {order?.port || 'Current Port'}
+                  </MenuItem>
+                }
+              </Select>
+            </FormControl>
             <DateTimePicker
               label="Start Time"
               value={dayjs(newTimelogEntry.start_time)}
@@ -605,6 +635,25 @@ const OrderDetail: React.FC = () => {
         <DialogTitle>Add Sampling Record</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Port/Harbor</InputLabel>
+              <Select
+                value={newSamplingRecord.selected_port || ''}
+                label="Port/Harbor"
+                onChange={(e) => setNewSamplingRecord(prev => ({ ...prev, selected_port: e.target.value }))}
+              >
+                {order?.is_main_order && order?.sub_orders ? 
+                  order.sub_orders.map((subOrder) => (
+                    <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
+                      {subOrder.port}
+                    </MenuItem>
+                  )) :
+                  <MenuItem value={id || ''}>
+                    {order?.port || 'Current Port'}
+                  </MenuItem>
+                }
+              </Select>
+            </FormControl>
             <TextField
               fullWidth
               label="Sample Type"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -37,7 +38,6 @@ import {
   PersonAdd as PersonAddIcon,
   Business as BusinessIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import { mockApi, Customer, ContactPerson, SurveyType, OrderLine } from '../services/mockApi';
 
 interface OrderFormData {
@@ -68,7 +68,11 @@ interface OrderFormData {
 }
 
 const OrderForm: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isEditMode = Boolean(id);
+  
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -138,7 +142,8 @@ const OrderForm: React.FC = () => {
     package_type: '',
     weight: 0,
     volume: 0,
-    remarks: ''
+    remarks: '',
+    selected_port: '' // Add port selection for order lines
   });
 
   const steps = [
@@ -151,7 +156,10 @@ const OrderForm: React.FC = () => {
 
   useEffect(() => {
     fetchInitialData();
-  }, []);
+    if (isEditMode && id) {
+      fetchOrderData(parseInt(id));
+    }
+  }, [isEditMode, id]);
 
   const fetchInitialData = async () => {
     try {
@@ -165,6 +173,49 @@ const OrderForm: React.FC = () => {
     } catch (error) {
       console.error('Error fetching initial data:', error);
       setError('Failed to load form data');
+    }
+  };
+
+  const fetchOrderData = async (orderId: number) => {
+    try {
+      const order = await mockApi.getOrder(orderId);
+      
+      // Populate form data with existing order data
+      setFormData({
+        customer_id: null, // Will be set based on customer name
+        customer_name: order.client_name || '',
+        customer_email: order.client_email || '',
+        contact_person_id: null,
+        vessel_name: order.vessel_name || '',
+        vessel_imo: '', // Not available in Order interface
+        vessel_flag: '', // Not available in Order interface
+        expected_arrival: '', // Not available in Order interface
+        expected_departure: '', // Not available in Order interface
+        port: order.port || '',
+        is_multi_port: order.is_main_order && (order.total_ports || 0) > 1,
+        ports: order.is_main_order && order.sub_orders 
+          ? order.sub_orders.map(sub => sub.port)
+          : [order.port || ''],
+        survey_type: order.survey_type || '',
+        remarks: '', // Not available in Order interface
+        order_lines: [] // Will be populated from sub-orders
+      });
+
+      // Load order lines from sub-orders
+      if (order.is_main_order && order.sub_orders) {
+        const allOrderLines: OrderLine[] = [];
+        for (const subOrder of order.sub_orders) {
+          const subOrderLines = await mockApi.getOrderLines(subOrder.id);
+          allOrderLines.push(...subOrderLines);
+        }
+        setFormData(prev => ({ ...prev, order_lines: allOrderLines }));
+      } else {
+        const orderLines = await mockApi.getOrderLines(orderId);
+        setFormData(prev => ({ ...prev, order_lines: orderLines }));
+      }
+    } catch (error) {
+      console.error('Error fetching order data:', error);
+      setError('Failed to load order data');
     }
   };
 
@@ -284,6 +335,11 @@ const OrderForm: React.FC = () => {
   };
 
   const handleAddOrderLine = () => {
+    if (!newOrderLine.selected_port) {
+      setError('Please select a port for this order line');
+      return;
+    }
+    
     const totalPrice = newOrderLine.quantity * newOrderLine.unit_price;
     const orderLine: OrderLine = {
       id: Date.now(), // Temporary ID
@@ -299,7 +355,8 @@ const OrderForm: React.FC = () => {
       weight: newOrderLine.weight,
       volume: newOrderLine.volume,
       remarks: newOrderLine.remarks,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      selected_port: newOrderLine.selected_port // Store selected port for later use
     };
     
     setFormData(prev => ({
@@ -316,7 +373,8 @@ const OrderForm: React.FC = () => {
       package_type: '',
       weight: 0,
       volume: 0,
-      remarks: ''
+      remarks: '',
+      selected_port: ''
     });
     setOrderLineDialogOpen(false);
   };
@@ -376,18 +434,18 @@ const OrderForm: React.FC = () => {
           subOrderIds.push(subOrderResponse.orderId);
         }
         
-        // Distribute order lines to sub-orders
-        // For now, distribute evenly - in real implementation, user would specify which port
-        const linesPerPort = Math.ceil(formData.order_lines.length / formData.ports.length);
-        for (let i = 0; i < formData.order_lines.length; i++) {
-          const line = formData.order_lines[i];
-          const portIndex = Math.floor(i / linesPerPort);
-          const subOrderId = subOrderIds[Math.min(portIndex, subOrderIds.length - 1)];
+        // Distribute order lines to sub-orders based on selected_port
+        for (const line of formData.order_lines) {
+          // Find the sub-order ID for the selected port
+          const portIndex = formData.ports.indexOf(line.selected_port || '');
+          const subOrderId = subOrderIds[portIndex];
           
-          await mockApi.createOrderLine({
-            ...line,
-            sub_order_id: subOrderId
-          });
+          if (subOrderId) {
+            await mockApi.createOrderLine({
+              ...line,
+              sub_order_id: subOrderId
+            });
+          }
         }
       } else {
         // Single port order - create order lines directly
@@ -1075,6 +1133,23 @@ const OrderForm: React.FC = () => {
         <DialogTitle>Add Order Line</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
+              <FormControl fullWidth required>
+                <InputLabel>Port/Harbor</InputLabel>
+                <Select
+                  value={newOrderLine.selected_port}
+                  label="Port/Harbor"
+                  onChange={(e) => setNewOrderLine(prev => ({ ...prev, selected_port: e.target.value }))}
+                >
+                  {formData.is_multi_port ? 
+                    formData.ports.map((port) => (
+                      <MenuItem key={port} value={port}>{port}</MenuItem>
+                    )) :
+                    <MenuItem value={formData.port}>{formData.port}</MenuItem>
+                  }
+                </Select>
+              </FormControl>
+            </Box>
             <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
               <TextField
                 fullWidth

@@ -108,6 +108,7 @@ export interface OrderLine {
   volume?: number;
   remarks?: string;
   created_at: string;
+  selected_port?: string; // Temporary field for form handling - which port this line belongs to
 }
 
 // Mock data with hierarchical order structure
