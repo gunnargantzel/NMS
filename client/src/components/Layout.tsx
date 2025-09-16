@@ -93,8 +93,8 @@ const Layout: React.FC = () => {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          backgroundColor: 'var(--bg-primary)',
-          color: 'var(--text-primary)',
+          backgroundColor: 'var(--color-white)',
+          color: 'var(--color-gray-800)',
           boxShadow: 'var(--shadow-sm)',
         }}
       >
@@ -180,7 +180,7 @@ const Layout: React.FC = () => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: drawerWidth,
-              backgroundColor: 'var(--bg-primary)',
+              backgroundColor: 'var(--color-white)',
               borderRight: '1px solid var(--color-gray-200)',
               boxShadow: 'var(--shadow-sm)',
             },
@@ -197,7 +197,7 @@ const Layout: React.FC = () => {
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          backgroundColor: 'var(--bg-secondary)',
+          backgroundColor: 'var(--color-gray-50)',
         }}
       >
         <Toolbar />

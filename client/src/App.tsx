@@ -21,22 +21,22 @@ import './styles/app.css';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#4a5568', // --color-primary
-      light: '#718096', // --color-primary-light
-      dark: '#2d3748', // --color-primary-dark
+      main: '#2563eb', // --color-primary
+      light: '#3b82f6', // --color-primary-light
+      dark: '#1d4ed8', // --color-primary-dark
     },
     secondary: {
-      main: '#e53e3e', // --color-secondary
-      light: '#fc8181', // --color-secondary-light
-      dark: '#c53030', // --color-secondary-dark
+      main: '#dc2626', // --color-secondary
+      light: '#ef4444', // --color-secondary-light
+      dark: '#b91c1c', // --color-secondary-dark
     },
     background: {
-      default: '#f7fafc', // --bg-secondary
+      default: '#f8fafc', // --bg-secondary
       paper: '#ffffff', // --bg-primary
     },
     text: {
-      primary: '#171923', // --text-primary
-      secondary: '#4a5568', // --text-secondary
+      primary: '#0f172a', // --text-primary
+      secondary: '#475569', // --text-secondary
     },
     success: {
       main: '#38a169', // --color-success

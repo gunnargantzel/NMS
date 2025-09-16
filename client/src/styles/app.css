@@ -133,7 +133,7 @@
   display: flex;
   align-items: center;
   padding: var(--space-sm) var(--space-md);
-  color: var(--text-secondary);
+  color: var(--color-gray-600);
   text-decoration: none;
   border-radius: var(--radius-md);
   font-weight: var(--font-weight-medium);
@@ -240,6 +240,49 @@
   .form-section {
     padding: var(--space-md);
   }
+}
+
+/* Material-UI ListItemButton enhancements */
+.MuiListItemButton-root {
+  color: var(--color-gray-600) !important;
+  border-radius: var(--radius-md) !important;
+  margin: 2px 8px !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.MuiListItemButton-root:hover {
+  background-color: var(--color-gray-100) !important;
+  color: var(--color-primary) !important;
+}
+
+.MuiListItemButton-root.Mui-selected {
+  background-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+}
+
+.MuiListItemButton-root.Mui-selected:hover {
+  background-color: var(--color-primary-dark) !important;
+}
+
+.MuiListItemIcon-root {
+  color: inherit !important;
+}
+
+.MuiListItemText-primary {
+  font-weight: var(--font-weight-medium) !important;
+}
+
+/* AppBar enhancements */
+.MuiAppBar-root {
+  background-color: var(--color-white) !important;
+  color: var(--color-gray-800) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* Drawer enhancements */
+.MuiDrawer-paper {
+  background-color: var(--color-white) !important;
+  border-right: 1px solid var(--color-gray-200) !important;
 }
 
 /* Dark mode support */
