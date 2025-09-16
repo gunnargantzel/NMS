@@ -93,28 +93,41 @@ const OrderDetail: React.FC = () => {
 
   const fetchOrderDetails = useCallback(async () => {
     try {
-      const [orderResponse, timelogResponse, samplingResponse] = await Promise.all([
-        mockApi.getOrder(parseInt(id!)),
-        mockApi.getTimelogEntries(parseInt(id!)),
-        mockApi.getSamplingRecords(parseInt(id!)),
-      ]);
-
+      const orderResponse = await mockApi.getOrder(parseInt(id!));
       setOrder(orderResponse);
-      setTimelogEntries(timelogResponse.entries);
-      setSamplingRecords(samplingResponse);
 
-      // Fetch order lines for all sub-orders if this is a main order
+      // Fetch order lines, timelog, and sampling for all sub-orders if this is a main order
       if (orderResponse.is_main_order && orderResponse.sub_orders) {
         const allOrderLines = [];
+        const allTimelogEntries = [];
+        const allSamplingRecords = [];
+        
         for (const subOrder of orderResponse.sub_orders) {
-          const subOrderLines = await mockApi.getOrderLines(subOrder.id);
+          const [subOrderLines, timelogResponse, samplingResponse] = await Promise.all([
+            mockApi.getOrderLines(subOrder.id),
+            mockApi.getTimelogEntries(subOrder.id),
+            mockApi.getSamplingRecords(subOrder.id)
+          ]);
+          
           allOrderLines.push(...subOrderLines);
+          allTimelogEntries.push(...timelogResponse.entries);
+          allSamplingRecords.push(...samplingResponse);
         }
+        
         setOrderLines(allOrderLines);
+        setTimelogEntries(allTimelogEntries);
+        setSamplingRecords(allSamplingRecords);
       } else {
-        // For sub-orders, fetch order lines directly
-        const orderLinesResponse = await mockApi.getOrderLines(parseInt(id!));
+        // For sub-orders, fetch data directly
+        const [orderLinesResponse, timelogResponse, samplingResponse] = await Promise.all([
+          mockApi.getOrderLines(parseInt(id!)),
+          mockApi.getTimelogEntries(parseInt(id!)),
+          mockApi.getSamplingRecords(parseInt(id!))
+        ]);
+        
         setOrderLines(orderLinesResponse);
+        setTimelogEntries(timelogResponse.entries);
+        setSamplingRecords(samplingResponse);
       }
     } catch (error) {
       console.error('Error fetching order details:', error);
@@ -142,7 +155,7 @@ const OrderDetail: React.FC = () => {
   const handleAddTimelogEntry = async () => {
     try {
       await mockApi.createTimelogEntry({
-        order_id: parseInt(id!),
+        sub_order_id: parseInt(id!), // Use sub_order_id instead of order_id
         activity: newTimelogEntry.activity,
         start_time: newTimelogEntry.start_time,
         end_time: newTimelogEntry.end_time || undefined,
@@ -159,7 +172,7 @@ const OrderDetail: React.FC = () => {
   const handleAddSamplingRecord = async () => {
     try {
       await mockApi.createSamplingRecord({
-        order_id: parseInt(id!),
+        sub_order_id: parseInt(id!), // Use sub_order_id instead of order_id
         sample_number: `S-${Date.now()}`,
         sample_type: newSamplingRecord.sample_type,
         laboratory: 'Demo Lab',
@@ -367,6 +380,7 @@ const OrderDetail: React.FC = () => {
             <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell>Port/Harbor</TableCell>
                       <TableCell>Start Time</TableCell>
                       <TableCell>End Time</TableCell>
                       <TableCell>Duration</TableCell>
@@ -383,8 +397,19 @@ const OrderDetail: React.FC = () => {
                     ? Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / (1000 * 60)) // minutes
                     : null;
                   
+                  // Find the port name for this timelog entry
+                  const portName = order?.sub_orders?.find(sub => sub.id === entry.sub_order_id)?.port || 'Unknown Port';
+                  
                   return (
                     <TableRow key={entry.id}>
+                      <TableCell>
+                        <Chip 
+                          label={portName} 
+                          size="small" 
+                          color="secondary" 
+                          variant="outlined"
+                        />
+                      </TableCell>
                       <TableCell>{formatDate(startTime || '')}</TableCell>
                       <TableCell>{endTime ? formatDate(endTime) : '-'}</TableCell>
                       <TableCell>
@@ -416,6 +441,7 @@ const OrderDetail: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell>Port/Harbor</TableCell>
                   <TableCell>Sample Type</TableCell>
                   <TableCell>Quantity</TableCell>
                   <TableCell>Destination</TableCell>
@@ -425,16 +451,29 @@ const OrderDetail: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {samplingRecords.map((record) => (
-                  <TableRow key={record.id}>
-                    <TableCell>{record.sample_type}</TableCell>
-                    <TableCell>{record.quantity || '-'}</TableCell>
-                    <TableCell>{record.destination || '-'}</TableCell>
-                    <TableCell>{record.seal_number || record.sample_number || '-'}</TableCell>
-                    <TableCell>{record.remarks || '-'}</TableCell>
-                    <TableCell>{record.created_by_name || record.created_by}</TableCell>
-                  </TableRow>
-                ))}
+                {samplingRecords.map((record) => {
+                  // Find the port name for this sampling record
+                  const portName = order?.sub_orders?.find(sub => sub.id === record.sub_order_id)?.port || 'Unknown Port';
+                  
+                  return (
+                    <TableRow key={record.id}>
+                      <TableCell>
+                        <Chip 
+                          label={portName} 
+                          size="small" 
+                          color="info" 
+                          variant="outlined"
+                        />
+                      </TableCell>
+                      <TableCell>{record.sample_type}</TableCell>
+                      <TableCell>{record.quantity || '-'}</TableCell>
+                      <TableCell>{record.destination || '-'}</TableCell>
+                      <TableCell>{record.seal_number || record.sample_number || '-'}</TableCell>
+                      <TableCell>{record.remarks || '-'}</TableCell>
+                      <TableCell>{record.created_by_name || record.created_by}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

@@ -30,7 +30,7 @@ export interface SurveyType {
 
 export interface TimelogEntry {
   id: number;
-  order_id: number;
+  sub_order_id: number; // Changed from order_id to sub_order_id - timelog belongs to specific ports/harbors
   activity: string;
   start_time: string;
   end_time?: string;
@@ -43,7 +43,7 @@ export interface TimelogEntry {
 
 export interface SamplingRecord {
   id: number;
-  order_id: number;
+  sub_order_id: number; // Changed from order_id to sub_order_id - sampling belongs to specific ports/harbors
   sample_number: string;
   sample_type: string;
   laboratory: string;
@@ -416,13 +416,14 @@ const mockActivities = [
 ];
 
 const mockTimelogEntries: TimelogEntry[] = [
+  // Timelog entries for Sub-order 11 (Stavanger Port)
   {
     id: 1,
-    order_id: 1,
+    sub_order_id: 11, // Stavanger Port
     activity: 'Vessel berthed',
     start_time: '2024-12-01T08:00:00Z',
     end_time: '2024-12-01T08:15:00Z',
-    remarks: 'Vessel arrived on schedule',
+    remarks: 'Vessel arrived on schedule - Stavanger',
     created_by: 'admin',
     created_at: '2024-12-01T08:00:00Z',
     timestamp: '2024-12-01T08:00:00Z',
@@ -430,11 +431,11 @@ const mockTimelogEntries: TimelogEntry[] = [
   },
   {
     id: 2,
-    order_id: 1,
+    sub_order_id: 11, // Stavanger Port
     activity: 'Surveyor on board',
     start_time: '2024-12-01T08:15:00Z',
     end_time: '2024-12-01T08:30:00Z',
-    remarks: 'Safety briefing completed',
+    remarks: 'Safety briefing completed - Stavanger',
     created_by: 'admin',
     created_at: '2024-12-01T08:15:00Z',
     timestamp: '2024-12-01T08:15:00Z',
@@ -442,20 +443,73 @@ const mockTimelogEntries: TimelogEntry[] = [
   },
   {
     id: 3,
-    order_id: 1,
+    sub_order_id: 11, // Stavanger Port
     activity: 'Cargo inspection started',
     start_time: '2024-12-01T08:30:00Z',
+    end_time: '2024-12-01T10:00:00Z',
+    remarks: 'Cargo inspection completed - Stavanger',
     created_by: 'admin',
     created_at: '2024-12-01T08:30:00Z',
     timestamp: '2024-12-01T08:30:00Z',
+    created_by_name: 'admin'
+  },
+  // Timelog entries for Sub-order 12 (Bergen Port)
+  {
+    id: 4,
+    sub_order_id: 12, // Bergen Port
+    activity: 'Vessel berthed',
+    start_time: '2024-12-01T10:30:00Z',
+    end_time: '2024-12-01T10:45:00Z',
+    remarks: 'Vessel arrived on schedule - Bergen',
+    created_by: 'admin',
+    created_at: '2024-12-01T10:30:00Z',
+    timestamp: '2024-12-01T10:30:00Z',
+    created_by_name: 'admin'
+  },
+  {
+    id: 5,
+    sub_order_id: 12, // Bergen Port
+    activity: 'Cargo loading started',
+    start_time: '2024-12-01T11:00:00Z',
+    end_time: '2024-12-01T13:00:00Z',
+    remarks: 'Cargo loading completed - Bergen',
+    created_by: 'admin',
+    created_at: '2024-12-01T11:00:00Z',
+    timestamp: '2024-12-01T11:00:00Z',
+    created_by_name: 'admin'
+  },
+  // Timelog entries for Sub-order 13 (Oslo Port)
+  {
+    id: 6,
+    sub_order_id: 13, // Oslo Port
+    activity: 'Vessel berthed',
+    start_time: '2024-12-01T14:00:00Z',
+    end_time: '2024-12-01T14:15:00Z',
+    remarks: 'Vessel arrived on schedule - Oslo',
+    created_by: 'admin',
+    created_at: '2024-12-01T14:00:00Z',
+    timestamp: '2024-12-01T14:00:00Z',
+    created_by_name: 'admin'
+  },
+  {
+    id: 7,
+    sub_order_id: 13, // Oslo Port
+    activity: 'Container operations',
+    start_time: '2024-12-01T14:30:00Z',
+    end_time: '2024-12-01T16:00:00Z',
+    remarks: 'Container operations completed - Oslo',
+    created_by: 'admin',
+    created_at: '2024-12-01T14:30:00Z',
+    timestamp: '2024-12-01T14:30:00Z',
     created_by_name: 'admin'
   }
 ];
 
 const mockSamplingRecords: SamplingRecord[] = [
+  // Sampling records for Sub-order 11 (Stavanger Port)
   {
     id: 1,
-    order_id: 1,
+    sub_order_id: 11, // Stavanger Port
     sample_number: 'S-2024-001',
     sample_type: 'Fuel Oil',
     laboratory: 'Denofa',
@@ -466,12 +520,12 @@ const mockSamplingRecords: SamplingRecord[] = [
     quantity: '1 liter',
     destination: 'Denofa Laboratory',
     seal_number: 'SEAL-001',
-    remarks: 'Standard fuel oil sample',
+    remarks: 'Standard fuel oil sample - Stavanger',
     created_by_name: 'admin'
   },
   {
     id: 2,
-    order_id: 1,
+    sub_order_id: 11, // Stavanger Port
     sample_number: 'S-2024-002',
     sample_type: 'Diesel',
     laboratory: 'Eurofins',
@@ -482,7 +536,41 @@ const mockSamplingRecords: SamplingRecord[] = [
     quantity: '500ml',
     destination: 'Eurofins Laboratory',
     seal_number: 'SEAL-002',
-    remarks: 'Diesel quality sample',
+    remarks: 'Diesel quality sample - Stavanger',
+    created_by_name: 'admin'
+  },
+  // Sampling records for Sub-order 12 (Bergen Port)
+  {
+    id: 3,
+    sub_order_id: 12, // Bergen Port
+    sample_number: 'S-2024-003',
+    sample_type: 'Crude Oil',
+    laboratory: 'SGS',
+    analysis_type: 'API Gravity',
+    status: 'Pending',
+    created_by: 'admin',
+    created_at: '2024-12-01T11:30:00Z',
+    quantity: '2 liters',
+    destination: 'SGS Laboratory',
+    seal_number: 'SEAL-003',
+    remarks: 'Crude oil sample - Bergen',
+    created_by_name: 'admin'
+  },
+  // Sampling records for Sub-order 13 (Oslo Port)
+  {
+    id: 4,
+    sub_order_id: 13, // Oslo Port
+    sample_number: 'S-2024-004',
+    sample_type: 'Container Cargo',
+    laboratory: 'Bureau Veritas',
+    analysis_type: 'Contamination Check',
+    status: 'Completed',
+    created_by: 'admin',
+    created_at: '2024-12-01T15:00:00Z',
+    quantity: '1 sample',
+    destination: 'Bureau Veritas Laboratory',
+    seal_number: 'SEAL-004',
+    remarks: 'Container cargo sample - Oslo',
     created_by_name: 'admin'
   }
 ];
@@ -929,9 +1017,9 @@ export const mockApi = {
   },
 
   // Timelog
-  getTimelogEntries: async (orderId: number) => {
+  getTimelogEntries: async (subOrderId: number) => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    const entries = mockTimelogEntries.filter(entry => entry.order_id === orderId);
+    const entries = mockTimelogEntries.filter(entry => entry.sub_order_id === subOrderId);
     return { entries };
   },
 
@@ -959,9 +1047,9 @@ export const mockApi = {
   },
 
   // Sampling
-  getSamplingRecords: async (orderId: number) => {
+  getSamplingRecords: async (subOrderId: number) => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return mockSamplingRecords.filter(record => record.order_id === orderId);
+    return mockSamplingRecords.filter(record => record.sub_order_id === subOrderId);
   },
 
   createSamplingRecord: async (recordData: Partial<SamplingRecord>) => {
