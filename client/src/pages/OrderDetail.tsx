@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Chip,
   Button,
   Tabs,
@@ -28,6 +27,7 @@ import {
   IconButton,
   Alert,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
   Edit as EditIcon,
   Add as AddIcon,
@@ -257,13 +257,13 @@ const OrderDetail: React.FC = () => {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="subtitle2" color="text.secondary">
                 Order Number
               </Typography>
               <Typography variant="h6">{order.order_number}</Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="subtitle2" color="text.secondary">
                 Client
               </Typography>
@@ -274,25 +274,25 @@ const OrderDetail: React.FC = () => {
                 </Typography>
               )}
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="subtitle2" color="text.secondary">
                 Vessel
               </Typography>
               <Typography variant="body1">{order.vessel_name || '-'}</Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="subtitle2" color="text.secondary">
                 Port
               </Typography>
               <Typography variant="body1">{order.port || '-'}</Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="subtitle2" color="text.secondary">
                 Survey Type
               </Typography>
               <Typography variant="body1">{order.survey_type}</Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="subtitle2" color="text.secondary">
                 Status
               </Typography>
@@ -302,13 +302,13 @@ const OrderDetail: React.FC = () => {
                 size="small"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="subtitle2" color="text.secondary">
                 Created
               </Typography>
               <Typography variant="body1">{formatDate(order.created_at)}</Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
               <Typography variant="subtitle2" color="text.secondary">
                 Created By
               </Typography>
