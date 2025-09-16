@@ -37,7 +37,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
-import { mockApi, Order, TimelogEntry, SamplingRecord } from '../services/mockApi';
+import { mockApi, Order, TimelogEntry, SamplingRecord, OrderLine } from '../services/mockApi';
 
 // Interfaces are now imported from mockApi
 
@@ -69,6 +69,7 @@ const OrderDetail: React.FC = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [timelogEntries, setTimelogEntries] = useState<TimelogEntry[]>([]);
   const [samplingRecords, setSamplingRecords] = useState<SamplingRecord[]>([]);
+  const [orderLines, setOrderLines] = useState<OrderLine[]>([]);
   const [activities, setActivities] = useState<string[]>([]);
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -76,7 +77,8 @@ const OrderDetail: React.FC = () => {
   const [openSamplingDialog, setOpenSamplingDialog] = useState(false);
   const [openEmailDialog, setOpenEmailDialog] = useState(false);
   const [newTimelogEntry, setNewTimelogEntry] = useState({
-    timestamp: dayjs().format(),
+    start_time: dayjs().format(),
+    end_time: '',
     activity: '',
     remarks: '',
   });
@@ -91,15 +93,17 @@ const OrderDetail: React.FC = () => {
 
   const fetchOrderDetails = useCallback(async () => {
     try {
-      const [orderResponse, timelogResponse, samplingResponse] = await Promise.all([
+      const [orderResponse, timelogResponse, samplingResponse, orderLinesResponse] = await Promise.all([
         mockApi.getOrder(parseInt(id!)),
         mockApi.getTimelogEntries(parseInt(id!)),
         mockApi.getSamplingRecords(parseInt(id!)),
+        mockApi.getOrderLines(parseInt(id!)),
       ]);
 
       setOrder(orderResponse);
       setTimelogEntries(timelogResponse.entries);
       setSamplingRecords(samplingResponse);
+      setOrderLines(orderLinesResponse);
     } catch (error) {
       console.error('Error fetching order details:', error);
     } finally {
@@ -128,11 +132,12 @@ const OrderDetail: React.FC = () => {
       await mockApi.createTimelogEntry({
         order_id: parseInt(id!),
         activity: newTimelogEntry.activity,
-        start_time: newTimelogEntry.timestamp,
+        start_time: newTimelogEntry.start_time,
+        end_time: newTimelogEntry.end_time || undefined,
         remarks: newTimelogEntry.remarks,
       });
       setOpenTimelogDialog(false);
-      setNewTimelogEntry({ timestamp: dayjs().format(), activity: '', remarks: '' });
+      setNewTimelogEntry({ start_time: dayjs().format(), end_time: '', activity: '', remarks: '' });
       fetchOrderDetails();
     } catch (error) {
       console.error('Error adding timelog entry:', error);
@@ -324,6 +329,11 @@ const OrderDetail: React.FC = () => {
             />
             <Tab
               icon={<CommentIcon />}
+              label="Order Lines"
+              iconPosition="start"
+            />
+            <Tab
+              icon={<CommentIcon />}
               label="Remarks"
               iconPosition="start"
             />
@@ -343,23 +353,37 @@ const OrderDetail: React.FC = () => {
           </Box>
           <TableContainer component={Paper} variant="outlined">
             <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Timestamp</TableCell>
-                  <TableCell>Activity</TableCell>
-                  <TableCell>Remarks</TableCell>
-                  <TableCell>Created By</TableCell>
-                </TableRow>
-              </TableHead>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Start Time</TableCell>
+                      <TableCell>End Time</TableCell>
+                      <TableCell>Duration</TableCell>
+                      <TableCell>Activity</TableCell>
+                      <TableCell>Remarks</TableCell>
+                      <TableCell>Created By</TableCell>
+                    </TableRow>
+                  </TableHead>
               <TableBody>
-                {timelogEntries.map((entry) => (
-                  <TableRow key={entry.id}>
-                    <TableCell>{formatDate(entry.timestamp || entry.start_time)}</TableCell>
-                    <TableCell>{entry.activity}</TableCell>
-                    <TableCell>{entry.remarks || '-'}</TableCell>
-                    <TableCell>{entry.created_by_name || entry.created_by}</TableCell>
-                  </TableRow>
-                ))}
+                {timelogEntries.map((entry) => {
+                  const startTime = entry.start_time || entry.timestamp;
+                  const endTime = entry.end_time;
+                  const duration = startTime && endTime 
+                    ? Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / (1000 * 60)) // minutes
+                    : null;
+                  
+                  return (
+                    <TableRow key={entry.id}>
+                      <TableCell>{formatDate(startTime || '')}</TableCell>
+                      <TableCell>{endTime ? formatDate(endTime) : '-'}</TableCell>
+                      <TableCell>
+                        {duration !== null ? `${duration} min` : '-'}
+                      </TableCell>
+                      <TableCell>{entry.activity}</TableCell>
+                      <TableCell>{entry.remarks || '-'}</TableCell>
+                      <TableCell>{entry.created_by_name || entry.created_by}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
@@ -405,7 +429,53 @@ const OrderDetail: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
-          <Typography variant="h6" mb={2}>Remarks</Typography>
+          <Typography variant="h6" gutterBottom>
+            Order Lines
+          </Typography>
+          {orderLines.length === 0 ? (
+            <Alert severity="info">
+              No order lines found for this order.
+            </Alert>
+          ) : (
+            <TableContainer component={Paper} variant="outlined">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Line</TableCell>
+                    <TableCell>Description</TableCell>
+                    <TableCell>Quantity</TableCell>
+                    <TableCell>Unit</TableCell>
+                    <TableCell>Unit Price</TableCell>
+                    <TableCell>Total Price</TableCell>
+                    <TableCell>Cargo Type</TableCell>
+                    <TableCell>Weight</TableCell>
+                    <TableCell>Volume</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {orderLines.map((line) => (
+                    <TableRow key={line.id}>
+                      <TableCell>{line.line_number}</TableCell>
+                      <TableCell>{line.description}</TableCell>
+                      <TableCell>{line.quantity}</TableCell>
+                      <TableCell>{line.unit}</TableCell>
+                      <TableCell>NOK {line.unit_price.toFixed(2)}</TableCell>
+                      <TableCell>NOK {line.total_price.toFixed(2)}</TableCell>
+                      <TableCell>{line.cargo_type || '-'}</TableCell>
+                      <TableCell>{line.weight ? `${line.weight} MT` : '-'}</TableCell>
+                      <TableCell>{line.volume ? `${line.volume} M³` : '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={3}>
+          <Typography variant="h6" gutterBottom>
+            Remarks
+          </Typography>
           <Alert severity="info">
             Remarks functionality will be implemented in the next version.
           </Alert>
@@ -418,11 +488,20 @@ const OrderDetail: React.FC = () => {
         <DialogContent>
           <Box sx={{ pt: 1 }}>
             <DateTimePicker
-              label="Timestamp"
-              value={dayjs(newTimelogEntry.timestamp)}
+              label="Start Time"
+              value={dayjs(newTimelogEntry.start_time)}
               onChange={(newValue) => setNewTimelogEntry(prev => ({
                 ...prev,
-                timestamp: newValue?.format() || dayjs().format()
+                start_time: newValue?.format() || dayjs().format()
+              }))}
+              sx={{ mb: 2, width: '100%' }}
+            />
+            <DateTimePicker
+              label="End Time (Optional)"
+              value={newTimelogEntry.end_time ? dayjs(newTimelogEntry.end_time) : null}
+              onChange={(newValue) => setNewTimelogEntry(prev => ({
+                ...prev,
+                end_time: newValue?.format() || ''
               }))}
               sx={{ mb: 2, width: '100%' }}
             />

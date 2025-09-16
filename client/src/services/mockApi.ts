@@ -58,6 +58,58 @@ export interface SamplingRecord {
   created_by_name?: string; // For compatibility with existing code
 }
 
+export interface Customer {
+  id: number;
+  name: string;
+  type: 'shipping_company' | 'cargo_owner' | 'port_authority' | 'other';
+  address: string;
+  postal_code: string;
+  city: string;
+  country: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  vat_number?: string;
+  notes?: string;
+  created_at: string;
+  updated_at?: string;
+  is_active: boolean;
+}
+
+export interface ContactPerson {
+  id: number;
+  customer_id: number;
+  first_name: string;
+  last_name: string;
+  title?: string;
+  department?: string;
+  phone?: string;
+  mobile?: string;
+  email: string;
+  is_primary: boolean;
+  is_active: boolean;
+  notes?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface OrderLine {
+  id: number;
+  order_id: number;
+  line_number: number;
+  description: string;
+  quantity: number;
+  unit: string;
+  unit_price: number;
+  total_price: number;
+  cargo_type?: string;
+  package_type?: string;
+  weight?: number;
+  volume?: number;
+  remarks?: string;
+  created_at: string;
+}
+
 // Mock data with hierarchical order structure
 const mockOrders: Order[] = [
   // Main Order 1: Multi-port cargo survey
@@ -399,6 +451,231 @@ const mockSamplingRecords: SamplingRecord[] = [
   }
 ];
 
+const mockCustomers: Customer[] = [
+  {
+    id: 1,
+    name: 'Statoil ASA',
+    type: 'cargo_owner',
+    address: 'Stavanger gate 41',
+    postal_code: '4006',
+    city: 'Stavanger',
+    country: 'Norway',
+    phone: '+47 51 99 00 00',
+    email: 'contact@statoil.com',
+    website: 'https://www.equinor.com',
+    vat_number: 'NO 923 609 016 MVA',
+    notes: 'Major oil and gas company',
+    created_at: '2024-01-15T10:00:00Z',
+    is_active: true
+  },
+  {
+    id: 2,
+    name: 'Equinor ASA',
+    type: 'cargo_owner',
+    address: 'Forusbeen 50',
+    postal_code: '4035',
+    city: 'Stavanger',
+    country: 'Norway',
+    phone: '+47 51 99 00 00',
+    email: 'shipping@equinor.com',
+    website: 'https://www.equinor.com',
+    vat_number: 'NO 923 609 016 MVA',
+    notes: 'International energy company',
+    created_at: '2024-01-20T10:00:00Z',
+    is_active: true
+  },
+  {
+    id: 3,
+    name: 'Aker BP ASA',
+    type: 'cargo_owner',
+    address: 'Oksenøyveien 10',
+    postal_code: '1366',
+    city: 'Lysaker',
+    country: 'Norway',
+    phone: '+47 51 35 30 00',
+    email: 'operations@akerbp.com',
+    website: 'https://www.akerbp.com',
+    vat_number: 'NO 917 632 033 MVA',
+    notes: 'Independent oil and gas company',
+    created_at: '2024-02-01T10:00:00Z',
+    is_active: true
+  },
+  {
+    id: 4,
+    name: 'Lundin Energy Norway AS',
+    type: 'cargo_owner',
+    address: 'Strandveien 4',
+    postal_code: '1366',
+    city: 'Lysaker',
+    country: 'Norway',
+    phone: '+47 67 10 00 00',
+    email: 'marine@lundinenergy.com',
+    website: 'https://www.lundin-energy.com',
+    vat_number: 'NO 996 538 067 MVA',
+    notes: 'Independent oil and gas exploration company',
+    created_at: '2024-02-15T10:00:00Z',
+    is_active: true
+  },
+  {
+    id: 5,
+    name: 'Maersk Line',
+    type: 'shipping_company',
+    address: 'Esplanaden 50',
+    postal_code: '1263',
+    city: 'Copenhagen',
+    country: 'Denmark',
+    phone: '+45 33 63 33 63',
+    email: 'contact@maersk.com',
+    website: 'https://www.maersk.com',
+    vat_number: 'DK 22 75 60 04',
+    notes: 'Global container shipping company',
+    created_at: '2024-03-01T10:00:00Z',
+    is_active: true
+  }
+];
+
+const mockContactPersons: ContactPerson[] = [
+  {
+    id: 1,
+    customer_id: 1,
+    first_name: 'Lars',
+    last_name: 'Hansen',
+    title: 'Cargo Operations Manager',
+    department: 'Marine Operations',
+    phone: '+47 51 99 00 01',
+    mobile: '+47 901 23 456',
+    email: 'lars.hansen@statoil.com',
+    is_primary: true,
+    is_active: true,
+    notes: 'Primary contact for cargo operations',
+    created_at: '2024-01-15T10:00:00Z'
+  },
+  {
+    id: 2,
+    customer_id: 1,
+    first_name: 'Anne',
+    last_name: 'Olsen',
+    title: 'Quality Manager',
+    department: 'Quality Assurance',
+    phone: '+47 51 99 00 02',
+    mobile: '+47 902 34 567',
+    email: 'anne.olsen@statoil.com',
+    is_primary: false,
+    is_active: true,
+    notes: 'Contact for quality and sampling issues',
+    created_at: '2024-01-15T10:30:00Z'
+  },
+  {
+    id: 3,
+    customer_id: 2,
+    first_name: 'Erik',
+    last_name: 'Nordahl',
+    title: 'Shipping Coordinator',
+    department: 'Logistics',
+    phone: '+47 51 99 00 10',
+    mobile: '+47 903 45 678',
+    email: 'erik.nordahl@equinor.com',
+    is_primary: true,
+    is_active: true,
+    notes: 'Main shipping coordinator',
+    created_at: '2024-01-20T10:00:00Z'
+  },
+  {
+    id: 4,
+    customer_id: 3,
+    first_name: 'Kristine',
+    last_name: 'Berg',
+    title: 'Operations Manager',
+    department: 'Marine Operations',
+    phone: '+47 51 35 30 01',
+    mobile: '+47 904 56 789',
+    email: 'kristine.berg@akerbp.com',
+    is_primary: true,
+    is_active: true,
+    notes: 'Responsible for marine operations',
+    created_at: '2024-02-01T10:00:00Z'
+  },
+  {
+    id: 5,
+    customer_id: 4,
+    first_name: 'Thomas',
+    last_name: 'Andersen',
+    title: 'Marine Advisor',
+    department: 'Technical',
+    phone: '+47 67 10 00 01',
+    mobile: '+47 905 67 890',
+    email: 'thomas.andersen@lundinenergy.com',
+    is_primary: true,
+    is_active: true,
+    notes: 'Technical marine advisor',
+    created_at: '2024-02-15T10:00:00Z'
+  },
+  {
+    id: 6,
+    customer_id: 5,
+    first_name: 'Peter',
+    last_name: 'Nielsen',
+    title: 'Port Captain',
+    department: 'Operations',
+    phone: '+45 33 63 33 64',
+    mobile: '+45 20 12 34 56',
+    email: 'peter.nielsen@maersk.com',
+    is_primary: true,
+    is_active: true,
+    notes: 'Port operations manager',
+    created_at: '2024-03-01T10:00:00Z'
+  }
+];
+
+const mockOrderLines: OrderLine[] = [
+  {
+    id: 1,
+    order_id: 1,
+    line_number: 1,
+    description: 'Crude Oil - Brent Blend',
+    quantity: 50000,
+    unit: 'MT',
+    unit_price: 85.50,
+    total_price: 4275000,
+    cargo_type: 'Crude Oil',
+    package_type: 'Bulk',
+    weight: 50000,
+    volume: 58000,
+    remarks: 'API Gravity 38.3°',
+    created_at: '2024-12-01T08:00:00Z'
+  },
+  {
+    id: 2,
+    order_id: 1,
+    line_number: 2,
+    description: 'Marine Gas Oil',
+    quantity: 2000,
+    unit: 'MT',
+    unit_price: 120.00,
+    total_price: 240000,
+    cargo_type: 'Refined Product',
+    package_type: 'Bulk',
+    weight: 2000,
+    volume: 2400,
+    remarks: 'Bunker fuel for vessel',
+    created_at: '2024-12-01T08:00:00Z'
+  },
+  {
+    id: 3,
+    order_id: 2,
+    line_number: 1,
+    description: 'Container Cargo - Mixed',
+    quantity: 150,
+    unit: 'TEU',
+    unit_price: 1500.00,
+    total_price: 225000,
+    cargo_type: 'Container',
+    package_type: 'Container',
+    remarks: 'Mixed container cargo',
+    created_at: '2024-12-01T09:30:00Z'
+  }
+];
+
 // Mock API functions
 export const mockApi = {
   // Orders
@@ -591,5 +868,130 @@ export const mockApi = {
       message: 'Sampling record created successfully',
       record: newRecord
     };
+  },
+
+
+  // Customers
+  getCustomers: async (params: any = {}) => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    let filteredCustomers = mockCustomers.filter(customer => customer.is_active);
+    
+    if (params.search) {
+      filteredCustomers = filteredCustomers.filter(customer => 
+        customer.name.toLowerCase().includes(params.search.toLowerCase()) ||
+        customer.email?.toLowerCase().includes(params.search.toLowerCase())
+      );
+    }
+    
+    if (params.type) {
+      filteredCustomers = filteredCustomers.filter(customer => customer.type === params.type);
+    }
+    
+    return filteredCustomers;
+  },
+
+  getCustomer: async (id: number) => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const customer = mockCustomers.find(c => c.id === id);
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    return customer;
+  },
+
+  createCustomer: async (customerData: any) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newCustomer = {
+      id: mockCustomers.length + 1,
+      created_at: new Date().toISOString(),
+      is_active: true,
+      ...customerData
+    } as Customer;
+    
+    mockCustomers.push(newCustomer);
+    return {
+      message: 'Customer created successfully',
+      customer: newCustomer
+    };
+  },
+
+  // Contact Persons
+  getContactPersons: async (customerId?: number) => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    let filteredContacts = mockContactPersons.filter(contact => contact.is_active);
+    
+    if (customerId) {
+      filteredContacts = filteredContacts.filter(contact => contact.customer_id === customerId);
+    }
+    
+    return filteredContacts;
+  },
+
+  createContactPerson: async (contactData: any) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newContact = {
+      id: mockContactPersons.length + 1,
+      created_at: new Date().toISOString(),
+      is_active: true,
+      is_primary: false,
+      ...contactData
+    } as ContactPerson;
+    
+    mockContactPersons.push(newContact);
+    return {
+      message: 'Contact person created successfully',
+      contact: newContact
+    };
+  },
+
+  // Order Lines
+  getOrderLines: async (orderId: number) => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return mockOrderLines.filter(line => line.order_id === orderId);
+  },
+
+  createOrderLine: async (lineData: any) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newLine = {
+      id: mockOrderLines.length + 1,
+      line_number: mockOrderLines.filter(l => l.order_id === lineData.order_id).length + 1,
+      created_at: new Date().toISOString(),
+      ...lineData
+    } as OrderLine;
+    
+    mockOrderLines.push(newLine);
+    return {
+      message: 'Order line created successfully',
+      line: newLine
+    };
+  },
+
+  updateOrderLine: async (id: number, lineData: Partial<OrderLine>) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const lineIndex = mockOrderLines.findIndex(l => l.id === id);
+    if (lineIndex === -1) {
+      throw new Error('Order line not found');
+    }
+    
+    mockOrderLines[lineIndex] = {
+      ...mockOrderLines[lineIndex],
+      ...lineData
+    };
+    
+    return {
+      message: 'Order line updated successfully',
+      line: mockOrderLines[lineIndex]
+    };
+  },
+
+  deleteOrderLine: async (id: number) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const lineIndex = mockOrderLines.findIndex(l => l.id === id);
+    if (lineIndex === -1) {
+      throw new Error('Order line not found');
+    }
+    
+    mockOrderLines.splice(lineIndex, 1);
+    return { message: 'Order line deleted successfully' };
   }
 };

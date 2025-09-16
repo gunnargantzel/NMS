@@ -99,15 +99,15 @@ const Dashboard: React.FC = () => {
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
         {/* Stats Cards */}
         <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
-          <Card>
+          <Card className="stat-card">
             <CardContent>
               <Box display="flex" alignItems="center">
                 <OrdersIcon color="primary" sx={{ mr: 2, fontSize: 40 }} />
                 <Box>
-                  <Typography color="textSecondary" gutterBottom>
+                  <Typography className="stat-label" gutterBottom>
                     Total Orders
                   </Typography>
-                  <Typography variant="h4">
+                  <Typography className="stat-number">
                     {stats.totalOrders}
                   </Typography>
                 </Box>
@@ -117,15 +117,15 @@ const Dashboard: React.FC = () => {
         </Box>
 
         <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
-          <Card>
+          <Card className="stat-card">
             <CardContent>
               <Box display="flex" alignItems="center">
                 <SurveyTypesIcon color="warning" sx={{ mr: 2, fontSize: 40 }} />
                 <Box>
-                  <Typography color="textSecondary" gutterBottom>
+                  <Typography className="stat-label" gutterBottom>
                     Pending Orders
                   </Typography>
-                  <Typography variant="h4">
+                  <Typography className="stat-number">
                     {stats.pendingOrders}
                   </Typography>
                 </Box>
@@ -135,15 +135,15 @@ const Dashboard: React.FC = () => {
         </Box>
 
         <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
-          <Card>
+          <Card className="stat-card">
             <CardContent>
               <Box display="flex" alignItems="center">
                 <SurveyTypesIcon color="success" sx={{ mr: 2, fontSize: 40 }} />
                 <Box>
-                  <Typography color="textSecondary" gutterBottom>
+                  <Typography className="stat-label" gutterBottom>
                     Completed Orders
                   </Typography>
-                  <Typography variant="h4">
+                  <Typography className="stat-number">
                     {stats.completedOrders}
                   </Typography>
                 </Box>
@@ -160,7 +160,7 @@ const Dashboard: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Recent Orders
               </Typography>
-              <TableContainer component={Paper} variant="outlined">
+              <TableContainer component={Paper} variant="outlined" className="data-table">
                 <Table>
                   <TableHead>
                     <TableRow>

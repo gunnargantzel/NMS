@@ -85,13 +85,17 @@ const Layout: React.FC = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex' }} className="app-container">
       <CssBaseline />
       <AppBar
         position="fixed"
+        className="app-header"
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
+          backgroundColor: 'var(--bg-primary)',
+          color: 'var(--text-primary)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <Toolbar>
@@ -170,9 +174,16 @@ const Layout: React.FC = () => {
         </Drawer>
         <Drawer
           variant="permanent"
+          className="app-sidebar"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              backgroundColor: 'var(--bg-primary)',
+              borderRight: '1px solid var(--color-gray-200)',
+              boxShadow: 'var(--shadow-sm)',
+            },
           }}
           open
         >
@@ -181,10 +192,12 @@ const Layout: React.FC = () => {
       </Box>
       <Box
         component="main"
+        className="app-main"
         sx={{
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
+          backgroundColor: 'var(--bg-secondary)',
         }}
       >
         <Toolbar />
