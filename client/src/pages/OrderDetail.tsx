@@ -285,7 +285,7 @@ const OrderDetail: React.FC = () => {
               <Typography variant="subtitle2" color="text.secondary">
                 Created By
               </Typography>
-              <Typography variant="body1">{order.created_by_name}</Typography>
+              <Typography variant="body1">{order.created_by_name || order.created_by}</Typography>
             </Box>
           </Box>
         </CardContent>
@@ -337,10 +337,10 @@ const OrderDetail: React.FC = () => {
               <TableBody>
                 {timelogEntries.map((entry) => (
                   <TableRow key={entry.id}>
-                    <TableCell>{formatDate(entry.timestamp)}</TableCell>
+                    <TableCell>{formatDate(entry.timestamp || entry.start_time)}</TableCell>
                     <TableCell>{entry.activity}</TableCell>
                     <TableCell>{entry.remarks || '-'}</TableCell>
-                    <TableCell>{entry.created_by_name}</TableCell>
+                    <TableCell>{entry.created_by_name || entry.created_by}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -377,9 +377,9 @@ const OrderDetail: React.FC = () => {
                     <TableCell>{record.sample_type}</TableCell>
                     <TableCell>{record.quantity || '-'}</TableCell>
                     <TableCell>{record.destination || '-'}</TableCell>
-                    <TableCell>{record.seal_number || '-'}</TableCell>
+                    <TableCell>{record.seal_number || record.sample_number || '-'}</TableCell>
                     <TableCell>{record.remarks || '-'}</TableCell>
-                    <TableCell>{record.created_by_name}</TableCell>
+                    <TableCell>{record.created_by_name || record.created_by}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

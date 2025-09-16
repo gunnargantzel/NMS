@@ -108,9 +108,7 @@ const SurveyTypes: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('nb-NO');
-  };
+  // formatDate function removed as it's not used
 
   return (
     <Box>
