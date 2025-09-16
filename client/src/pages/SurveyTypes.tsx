@@ -18,7 +18,6 @@ import {
   DialogActions,
   TextField,
   IconButton,
-  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -36,7 +35,7 @@ interface SurveyType {
 
 const SurveyTypes: React.FC = () => {
   const [surveyTypes, setSurveyTypes] = useState<SurveyType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingType, setEditingType] = useState<SurveyType | null>(null);
   const [formData, setFormData] = useState({

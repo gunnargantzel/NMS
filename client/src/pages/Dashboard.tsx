@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
     pendingOrders: 0,
     completedOrders: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {

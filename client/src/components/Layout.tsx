@@ -23,7 +23,6 @@ import {
   Dashboard as DashboardIcon,
   Assignment as OrdersIcon,
   Category as SurveyTypesIcon,
-  AccountCircle,
   Logout,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';

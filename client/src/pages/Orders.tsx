@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -19,15 +19,10 @@ import {
   Paper,
   Chip,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Pagination,
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Edit as EditIcon,
   Delete as DeleteIcon,
   Visibility as ViewIcon,
   Search as SearchIcon,
@@ -57,7 +52,7 @@ interface SurveyType {
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [surveyTypes, setSurveyTypes] = useState<SurveyType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
@@ -65,16 +60,14 @@ const Orders: React.FC = () => {
     survey_type: '',
     search: '',
   });
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
     fetchSurveyTypes();
-  }, [page, filters]);
+  }, [page, filters, fetchOrders]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -90,7 +83,7 @@ const Orders: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, filters]);
 
   const fetchSurveyTypes = async () => {
     try {

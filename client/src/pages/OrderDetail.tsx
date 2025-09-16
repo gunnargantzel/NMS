@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -24,13 +24,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  IconButton,
   Alert,
 } from '@mui/material';
 import {
   Edit as EditIcon,
   Add as AddIcon,
-  Delete as DeleteIcon,
   Email as EmailIcon,
   Schedule as ScheduleIcon,
   Science as ScienceIcon,
@@ -125,9 +123,9 @@ const OrderDetail: React.FC = () => {
       fetchOrderDetails();
       fetchActivities();
     }
-  }, [id]);
+  }, [id, fetchOrderDetails]);
 
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     try {
       const [orderResponse, timelogResponse, samplingResponse] = await Promise.all([
         axios.get(`/api/orders/${id}`),
@@ -143,7 +141,7 @@ const OrderDetail: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   const fetchActivities = async () => {
     try {
