@@ -357,12 +357,46 @@ const OrderForm: React.FC = () => {
       
       const response = await mockApi.createOrder(orderData);
       
-      // Create order lines
-      for (const line of formData.order_lines) {
-        await mockApi.createOrderLine({
-          ...line,
-          order_id: response.orderId
-        });
+      // If multi-port order, create sub-orders and distribute order lines
+      if (formData.is_multi_port && formData.ports.length > 1) {
+        // Create sub-orders for each port
+        const subOrderIds = [];
+        for (let i = 0; i < formData.ports.length; i++) {
+          const port = formData.ports[i];
+          const subOrderData = {
+            ...orderData,
+            port: port,
+            is_main_order: false,
+            parent_order_id: response.orderId,
+            current_port_index: i + 1,
+            total_ports: formData.ports.length
+          };
+          
+          const subOrderResponse = await mockApi.createOrder(subOrderData);
+          subOrderIds.push(subOrderResponse.orderId);
+        }
+        
+        // Distribute order lines to sub-orders
+        // For now, distribute evenly - in real implementation, user would specify which port
+        const linesPerPort = Math.ceil(formData.order_lines.length / formData.ports.length);
+        for (let i = 0; i < formData.order_lines.length; i++) {
+          const line = formData.order_lines[i];
+          const portIndex = Math.floor(i / linesPerPort);
+          const subOrderId = subOrderIds[Math.min(portIndex, subOrderIds.length - 1)];
+          
+          await mockApi.createOrderLine({
+            ...line,
+            sub_order_id: subOrderId
+          });
+        }
+      } else {
+        // Single port order - create order lines directly
+        for (const line of formData.order_lines) {
+          await mockApi.createOrderLine({
+            ...line,
+            sub_order_id: response.orderId
+          });
+        }
       }
       
       setSuccess(`Order ${response.orderNumber} created successfully!`);

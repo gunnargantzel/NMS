@@ -453,6 +453,7 @@ const OrderDetail: React.FC = () => {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell>Port/Harbor</TableCell>
                     <TableCell>Line</TableCell>
                     <TableCell>Description</TableCell>
                     <TableCell>Quantity</TableCell>
@@ -465,19 +466,32 @@ const OrderDetail: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {orderLines.map((line) => (
-                    <TableRow key={line.id}>
-                      <TableCell>{line.line_number}</TableCell>
-                      <TableCell>{line.description}</TableCell>
-                      <TableCell>{line.quantity}</TableCell>
-                      <TableCell>{line.unit}</TableCell>
-                      <TableCell>NOK {line.unit_price.toFixed(2)}</TableCell>
-                      <TableCell>NOK {line.total_price.toFixed(2)}</TableCell>
-                      <TableCell>{line.cargo_type || '-'}</TableCell>
-                      <TableCell>{line.weight ? `${line.weight} MT` : '-'}</TableCell>
-                      <TableCell>{line.volume ? `${line.volume} M³` : '-'}</TableCell>
-                    </TableRow>
-                  ))}
+                  {orderLines.map((line) => {
+                    // Find the port name for this order line
+                    const portName = order?.sub_orders?.find(sub => sub.id === line.sub_order_id)?.port || 'Unknown Port';
+                    
+                    return (
+                      <TableRow key={line.id}>
+                        <TableCell>
+                          <Chip 
+                            label={portName} 
+                            size="small" 
+                            color="primary" 
+                            variant="outlined"
+                          />
+                        </TableCell>
+                        <TableCell>{line.line_number}</TableCell>
+                        <TableCell>{line.description}</TableCell>
+                        <TableCell>{line.quantity}</TableCell>
+                        <TableCell>{line.unit}</TableCell>
+                        <TableCell>NOK {line.unit_price.toFixed(2)}</TableCell>
+                        <TableCell>NOK {line.total_price.toFixed(2)}</TableCell>
+                        <TableCell>{line.cargo_type || '-'}</TableCell>
+                        <TableCell>{line.weight ? `${line.weight} MT` : '-'}</TableCell>
+                        <TableCell>{line.volume ? `${line.volume} M³` : '-'}</TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
