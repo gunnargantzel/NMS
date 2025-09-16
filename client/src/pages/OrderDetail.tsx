@@ -255,9 +255,26 @@ const OrderDetail: React.FC = () => {
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Port
+                Port{order.is_main_order && order.total_ports && order.total_ports > 1 ? 's' : ''}
               </Typography>
               <Typography variant="body1">{order.port || '-'}</Typography>
+              {order.is_main_order && order.sub_orders && order.sub_orders.length > 0 && (
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Subordrer:
+                  </Typography>
+                  {order.sub_orders.map((subOrder, index) => (
+                    <Box key={subOrder.id} sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                      <Typography variant="caption" sx={{ mr: 1 }}>
+                        {index + 1}.
+                      </Typography>
+                      <Typography variant="caption">
+                        {subOrder.port} ({subOrder.status})
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">

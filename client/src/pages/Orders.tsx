@@ -200,9 +200,16 @@ const Orders: React.FC = () => {
                 {orders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>
-                      <Typography variant="body2" fontWeight="medium">
-                        {order.order_number}
-                      </Typography>
+                      <Box>
+                        <Typography variant="body2" fontWeight="bold">
+                          {order.order_number}
+                        </Typography>
+                        {order.is_main_order && order.total_ports && order.total_ports > 1 && (
+                          <Typography variant="caption" color="text.secondary">
+                            {order.total_ports} havner
+                          </Typography>
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Box>
@@ -215,7 +222,18 @@ const Orders: React.FC = () => {
                       </Box>
                     </TableCell>
                     <TableCell>{order.vessel_name || '-'}</TableCell>
-                    <TableCell>{order.port || '-'}</TableCell>
+                    <TableCell>
+                      <Box>
+                        <Typography variant="body2">
+                          {order.port || '-'}
+                        </Typography>
+                        {order.is_main_order && order.sub_orders && order.sub_orders.length > 0 && (
+                          <Typography variant="caption" color="text.secondary">
+                            {order.sub_orders.map(sub => sub.port).join(', ')}
+                          </Typography>
+                        )}
+                      </Box>
+                    </TableCell>
                     <TableCell>{order.survey_type}</TableCell>
                     <TableCell>
                       <Chip
