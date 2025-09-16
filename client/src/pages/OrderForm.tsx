@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -70,7 +70,6 @@ interface OrderFormData {
 const OrderForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
   const isEditMode = Boolean(id);
   
   const [activeStep, setActiveStep] = useState(0);
