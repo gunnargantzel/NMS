@@ -118,13 +118,6 @@ const OrderDetail: React.FC = () => {
   });
   const [emailMessage, setEmailMessage] = useState('');
 
-  useEffect(() => {
-    if (id) {
-      fetchOrderDetails();
-      fetchActivities();
-    }
-  }, [id, fetchOrderDetails]);
-
   const fetchOrderDetails = useCallback(async () => {
     try {
       const [orderResponse, timelogResponse, samplingResponse] = await Promise.all([
@@ -151,6 +144,13 @@ const OrderDetail: React.FC = () => {
       console.error('Error fetching activities:', error);
     }
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchOrderDetails();
+      fetchActivities();
+    }
+  }, [id, fetchOrderDetails]);
 
   const handleAddTimelogEntry = async () => {
     try {

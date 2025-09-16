@@ -62,11 +62,6 @@ const Orders: React.FC = () => {
   });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchOrders();
-    fetchSurveyTypes();
-  }, [page, filters, fetchOrders]);
-
   const fetchOrders = useCallback(async () => {
     try {
       const params = new URLSearchParams({
@@ -93,6 +88,11 @@ const Orders: React.FC = () => {
       console.error('Error fetching survey types:', error);
     }
   };
+
+  useEffect(() => {
+    fetchOrders();
+    fetchSurveyTypes();
+  }, [page, filters, fetchOrders]);
 
   const handleFilterChange = (field: string, value: string) => {
     setFilters(prev => ({ ...prev, [field]: value }));
