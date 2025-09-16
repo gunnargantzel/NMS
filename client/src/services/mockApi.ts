@@ -95,7 +95,7 @@ export interface ContactPerson {
 
 export interface OrderLine {
   id: number;
-  order_id: number;
+  sub_order_id: number; // Changed from order_id to sub_order_id - order lines belong to specific ports/harbors
   line_number: number;
   description: string;
   quantity: number;
@@ -628,51 +628,130 @@ const mockContactPersons: ContactPerson[] = [
 ];
 
 const mockOrderLines: OrderLine[] = [
+  // Order lines for Sub-order 2 (Bergen Port - Main Order 1)
   {
     id: 1,
-    order_id: 1,
+    sub_order_id: 2, // Bergen Port
     line_number: 1,
     description: 'Crude Oil - Brent Blend',
-    quantity: 50000,
+    quantity: 25000,
     unit: 'MT',
     unit_price: 85.50,
-    total_price: 4275000,
+    total_price: 2137500,
     cargo_type: 'Crude Oil',
     package_type: 'Bulk',
-    weight: 50000,
-    volume: 58000,
-    remarks: 'API Gravity 38.3°',
+    weight: 25000,
+    volume: 29000,
+    remarks: 'API Gravity 38.3° - Bergen loading',
     created_at: '2024-12-01T08:00:00Z'
   },
   {
     id: 2,
-    order_id: 1,
+    sub_order_id: 2, // Bergen Port
     line_number: 2,
     description: 'Marine Gas Oil',
-    quantity: 2000,
+    quantity: 1000,
     unit: 'MT',
     unit_price: 120.00,
-    total_price: 240000,
+    total_price: 120000,
     cargo_type: 'Refined Product',
     package_type: 'Bulk',
-    weight: 2000,
-    volume: 2400,
-    remarks: 'Bunker fuel for vessel',
+    weight: 1000,
+    volume: 1200,
+    remarks: 'Bunker fuel for vessel - Bergen',
     created_at: '2024-12-01T08:00:00Z'
   },
+  // Order lines for Sub-order 3 (Stavanger Port - Main Order 1)
   {
     id: 3,
-    order_id: 2,
+    sub_order_id: 3, // Stavanger Port
+    line_number: 1,
+    description: 'Crude Oil - Brent Blend',
+    quantity: 25000,
+    unit: 'MT',
+    unit_price: 85.50,
+    total_price: 2137500,
+    cargo_type: 'Crude Oil',
+    package_type: 'Bulk',
+    weight: 25000,
+    volume: 29000,
+    remarks: 'API Gravity 38.3° - Stavanger loading',
+    created_at: '2024-12-01T10:00:00Z'
+  },
+  {
+    id: 4,
+    sub_order_id: 3, // Stavanger Port
+    line_number: 2,
+    description: 'Marine Gas Oil',
+    quantity: 1000,
+    unit: 'MT',
+    unit_price: 120.00,
+    total_price: 120000,
+    cargo_type: 'Refined Product',
+    package_type: 'Bulk',
+    weight: 1000,
+    volume: 1200,
+    remarks: 'Bunker fuel for vessel - Stavanger',
+    created_at: '2024-12-01T10:00:00Z'
+  },
+  // Order lines for Sub-order 4 (Oslo Port - Main Order 1)
+  {
+    id: 5,
+    sub_order_id: 4, // Oslo Port
     line_number: 1,
     description: 'Container Cargo - Mixed',
-    quantity: 150,
+    quantity: 75,
     unit: 'TEU',
     unit_price: 1500.00,
-    total_price: 225000,
+    total_price: 112500,
     cargo_type: 'Container',
     package_type: 'Container',
-    remarks: 'Mixed container cargo',
-    created_at: '2024-12-01T09:30:00Z'
+    remarks: 'Mixed container cargo - Oslo',
+    created_at: '2024-12-01T12:00:00Z'
+  },
+  // Order lines for Sub-order 5 (Hamburg Port - Main Order 2)
+  {
+    id: 6,
+    sub_order_id: 5, // Hamburg Port
+    line_number: 1,
+    description: 'Container Cargo - Electronics',
+    quantity: 50,
+    unit: 'TEU',
+    unit_price: 2000.00,
+    total_price: 100000,
+    cargo_type: 'Container',
+    package_type: 'Container',
+    remarks: 'Electronics and consumer goods',
+    created_at: '2024-12-01T14:00:00Z'
+  },
+  {
+    id: 7,
+    sub_order_id: 5, // Hamburg Port
+    line_number: 2,
+    description: 'Container Cargo - Machinery',
+    quantity: 25,
+    unit: 'TEU',
+    unit_price: 1800.00,
+    total_price: 45000,
+    cargo_type: 'Container',
+    package_type: 'Container',
+    remarks: 'Industrial machinery parts',
+    created_at: '2024-12-01T14:00:00Z'
+  },
+  // Order lines for Sub-order 6 (Rotterdam Port - Main Order 2)
+  {
+    id: 8,
+    sub_order_id: 6, // Rotterdam Port
+    line_number: 1,
+    description: 'Container Cargo - Textiles',
+    quantity: 40,
+    unit: 'TEU',
+    unit_price: 1200.00,
+    total_price: 48000,
+    cargo_type: 'Container',
+    package_type: 'Container',
+    remarks: 'Textile products and clothing',
+    created_at: '2024-12-01T16:00:00Z'
   }
 ];
 
@@ -945,16 +1024,16 @@ export const mockApi = {
   },
 
   // Order Lines
-  getOrderLines: async (orderId: number) => {
+  getOrderLines: async (subOrderId: number) => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return mockOrderLines.filter(line => line.order_id === orderId);
+    return mockOrderLines.filter(line => line.sub_order_id === subOrderId);
   },
 
   createOrderLine: async (lineData: any) => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const newLine = {
       id: mockOrderLines.length + 1,
-      line_number: mockOrderLines.filter(l => l.order_id === lineData.order_id).length + 1,
+      line_number: mockOrderLines.filter(l => l.sub_order_id === lineData.sub_order_id).length + 1,
       created_at: new Date().toISOString(),
       ...lineData
     } as OrderLine;

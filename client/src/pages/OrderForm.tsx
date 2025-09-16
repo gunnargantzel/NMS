@@ -287,7 +287,7 @@ const OrderForm: React.FC = () => {
     const totalPrice = newOrderLine.quantity * newOrderLine.unit_price;
     const orderLine: OrderLine = {
       id: Date.now(), // Temporary ID
-      order_id: 0, // Will be set when order is created
+      sub_order_id: 0, // Will be set when order is created - order lines belong to specific ports/harbors
       line_number: formData.order_lines.length + 1,
       description: newOrderLine.description,
       quantity: newOrderLine.quantity,

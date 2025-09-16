@@ -93,17 +93,29 @@ const OrderDetail: React.FC = () => {
 
   const fetchOrderDetails = useCallback(async () => {
     try {
-      const [orderResponse, timelogResponse, samplingResponse, orderLinesResponse] = await Promise.all([
+      const [orderResponse, timelogResponse, samplingResponse] = await Promise.all([
         mockApi.getOrder(parseInt(id!)),
         mockApi.getTimelogEntries(parseInt(id!)),
         mockApi.getSamplingRecords(parseInt(id!)),
-        mockApi.getOrderLines(parseInt(id!)),
       ]);
 
       setOrder(orderResponse);
       setTimelogEntries(timelogResponse.entries);
       setSamplingRecords(samplingResponse);
-      setOrderLines(orderLinesResponse);
+
+      // Fetch order lines for all sub-orders if this is a main order
+      if (orderResponse.is_main_order && orderResponse.sub_orders) {
+        const allOrderLines = [];
+        for (const subOrder of orderResponse.sub_orders) {
+          const subOrderLines = await mockApi.getOrderLines(subOrder.id);
+          allOrderLines.push(...subOrderLines);
+        }
+        setOrderLines(allOrderLines);
+      } else {
+        // For sub-orders, fetch order lines directly
+        const orderLinesResponse = await mockApi.getOrderLines(parseInt(id!));
+        setOrderLines(orderLinesResponse);
+      }
     } catch (error) {
       console.error('Error fetching order details:', error);
     } finally {
