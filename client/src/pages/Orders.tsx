@@ -85,7 +85,7 @@ const Orders: React.FC = () => {
   const handleDeleteOrder = async (orderId: number) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       try {
-        await axios.delete(`/api/orders/${orderId}`);
+        await mockApi.deleteOrder(orderId);
         fetchOrders();
       } catch (error) {
         console.error('Error deleting order:', error);

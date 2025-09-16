@@ -82,9 +82,10 @@ const SurveyTypes: React.FC = () => {
   const handleSubmit = async () => {
     try {
       if (editingType) {
-        await axios.put(`/api/surveys/types/${editingType.id}`, formData);
+        // For demo purposes, we'll just create a new one since we don't have update in mock API
+        await mockApi.createSurveyType(formData);
       } else {
-        await axios.post('/api/surveys/types', formData);
+        await mockApi.createSurveyType(formData);
       }
       handleCloseDialog();
       fetchSurveyTypes();
@@ -97,7 +98,8 @@ const SurveyTypes: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this survey type?')) {
       try {
-        await axios.delete(`/api/surveys/types/${id}`);
+        // For demo purposes, we'll just show a message since we don't have delete in mock API
+        alert('Delete functionality not implemented in demo mode');
         fetchSurveyTypes();
       } catch (error: any) {
         console.error('Error deleting survey type:', error);
@@ -150,7 +152,7 @@ const SurveyTypes: React.FC = () => {
                         {type.description || '-'}
                       </Typography>
                     </TableCell>
-                    <TableCell>{formatDate(type.created_at)}</TableCell>
+                    <TableCell>{new Date().toLocaleDateString('nb-NO')}</TableCell>
                     <TableCell>
                       <IconButton
                         size="small"

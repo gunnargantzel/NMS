@@ -13,6 +13,7 @@ export interface Order {
   created_by: string;
   created_at: string;
   updated_at?: string;
+  created_by_name?: string; // For compatibility with existing code
 }
 
 export interface SurveyType {
@@ -30,6 +31,8 @@ export interface TimelogEntry {
   remarks?: string;
   created_by: string;
   created_at: string;
+  timestamp?: string; // For compatibility with existing code
+  created_by_name?: string; // For compatibility with existing code
 }
 
 export interface SamplingRecord {
@@ -42,6 +45,11 @@ export interface SamplingRecord {
   status: string;
   created_by: string;
   created_at: string;
+  quantity?: string; // For compatibility with existing code
+  destination?: string; // For compatibility with existing code
+  seal_number?: string; // For compatibility with existing code
+  remarks?: string; // For compatibility with existing code
+  created_by_name?: string; // For compatibility with existing code
 }
 
 // Mock data
@@ -56,7 +64,8 @@ const mockOrders: Order[] = [
     survey_type: 'Cargo damage survey',
     status: 'in_progress',
     created_by: 'admin',
-    created_at: '2024-12-01T08:00:00Z'
+    created_at: '2024-12-01T08:00:00Z',
+    created_by_name: 'admin'
   },
   {
     id: 2,
@@ -68,7 +77,8 @@ const mockOrders: Order[] = [
     survey_type: 'Loading and lashing survey',
     status: 'pending',
     created_by: 'admin',
-    created_at: '2024-12-01T09:30:00Z'
+    created_at: '2024-12-01T09:30:00Z',
+    created_by_name: 'admin'
   },
   {
     id: 3,
@@ -80,7 +90,8 @@ const mockOrders: Order[] = [
     survey_type: 'Bunker survey',
     status: 'completed',
     created_by: 'surveyor1',
-    created_at: '2024-11-30T14:15:00Z'
+    created_at: '2024-11-30T14:15:00Z',
+    created_by_name: 'surveyor1'
   },
   {
     id: 4,
@@ -92,7 +103,8 @@ const mockOrders: Order[] = [
     survey_type: 'Condition survey',
     status: 'in_progress',
     created_by: 'surveyor2',
-    created_at: '2024-11-30T16:45:00Z'
+    created_at: '2024-11-30T16:45:00Z',
+    created_by_name: 'surveyor2'
   },
   {
     id: 5,
@@ -104,7 +116,8 @@ const mockOrders: Order[] = [
     survey_type: 'Pre-loading survey',
     status: 'pending',
     created_by: 'admin',
-    created_at: '2024-12-01T11:20:00Z'
+    created_at: '2024-12-01T11:20:00Z',
+    created_by_name: 'admin'
   }
 ];
 
@@ -138,7 +151,9 @@ const mockTimelogEntries: TimelogEntry[] = [
     end_time: '2024-12-01T08:15:00Z',
     remarks: 'Vessel arrived on schedule',
     created_by: 'admin',
-    created_at: '2024-12-01T08:00:00Z'
+    created_at: '2024-12-01T08:00:00Z',
+    timestamp: '2024-12-01T08:00:00Z',
+    created_by_name: 'admin'
   },
   {
     id: 2,
@@ -148,7 +163,9 @@ const mockTimelogEntries: TimelogEntry[] = [
     end_time: '2024-12-01T08:30:00Z',
     remarks: 'Safety briefing completed',
     created_by: 'admin',
-    created_at: '2024-12-01T08:15:00Z'
+    created_at: '2024-12-01T08:15:00Z',
+    timestamp: '2024-12-01T08:15:00Z',
+    created_by_name: 'admin'
   },
   {
     id: 3,
@@ -156,7 +173,9 @@ const mockTimelogEntries: TimelogEntry[] = [
     activity: 'Cargo inspection started',
     start_time: '2024-12-01T08:30:00Z',
     created_by: 'admin',
-    created_at: '2024-12-01T08:30:00Z'
+    created_at: '2024-12-01T08:30:00Z',
+    timestamp: '2024-12-01T08:30:00Z',
+    created_by_name: 'admin'
   }
 ];
 
@@ -170,7 +189,12 @@ const mockSamplingRecords: SamplingRecord[] = [
     analysis_type: 'Sulfur Content',
     status: 'Pending',
     created_by: 'admin',
-    created_at: '2024-12-01T09:00:00Z'
+    created_at: '2024-12-01T09:00:00Z',
+    quantity: '1 liter',
+    destination: 'Denofa Laboratory',
+    seal_number: 'SEAL-001',
+    remarks: 'Standard fuel oil sample',
+    created_by_name: 'admin'
   },
   {
     id: 2,
@@ -181,7 +205,12 @@ const mockSamplingRecords: SamplingRecord[] = [
     analysis_type: 'Quality Check',
     status: 'Completed',
     created_by: 'admin',
-    created_at: '2024-12-01T09:15:00Z'
+    created_at: '2024-12-01T09:15:00Z',
+    quantity: '500ml',
+    destination: 'Eurofins Laboratory',
+    seal_number: 'SEAL-002',
+    remarks: 'Diesel quality sample',
+    created_by_name: 'admin'
   }
 ];
 
@@ -323,6 +352,8 @@ export const mockApi = {
       id: mockTimelogEntries.length + 1,
       created_by: 'admin',
       created_at: new Date().toISOString(),
+      timestamp: entryData.start_time || new Date().toISOString(),
+      created_by_name: 'admin',
       ...entryData
     } as TimelogEntry;
     
@@ -345,6 +376,11 @@ export const mockApi = {
       id: mockSamplingRecords.length + 1,
       created_by: 'admin',
       created_at: new Date().toISOString(),
+      created_by_name: 'admin',
+      quantity: '1 liter',
+      destination: 'Demo Laboratory',
+      seal_number: `SEAL-${Date.now()}`,
+      remarks: 'Demo sample',
       ...recordData
     } as SamplingRecord;
     

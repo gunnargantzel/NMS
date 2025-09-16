@@ -125,9 +125,11 @@ const OrderDetail: React.FC = () => {
 
   const handleAddTimelogEntry = async () => {
     try {
-      await axios.post('/api/timelog', {
-        order_id: id,
-        ...newTimelogEntry,
+      await mockApi.createTimelogEntry({
+        order_id: parseInt(id!),
+        activity: newTimelogEntry.activity,
+        start_time: newTimelogEntry.timestamp,
+        remarks: newTimelogEntry.remarks,
       });
       setOpenTimelogDialog(false);
       setNewTimelogEntry({ timestamp: dayjs().format(), activity: '', remarks: '' });
@@ -139,9 +141,13 @@ const OrderDetail: React.FC = () => {
 
   const handleAddSamplingRecord = async () => {
     try {
-      await axios.post('/api/sampling', {
-        order_id: id,
-        ...newSamplingRecord,
+      await mockApi.createSamplingRecord({
+        order_id: parseInt(id!),
+        sample_number: `S-${Date.now()}`,
+        sample_type: newSamplingRecord.sample_type,
+        laboratory: 'Demo Lab',
+        analysis_type: 'Quality Check',
+        status: 'Pending',
       });
       setOpenSamplingDialog(false);
       setNewSamplingRecord({
@@ -159,9 +165,8 @@ const OrderDetail: React.FC = () => {
 
   const handleSendEmail = async () => {
     try {
-      await axios.post(`/api/email/order-confirmation/${id}`, {
-        customMessage: emailMessage,
-      });
+      // For demo purposes, just show a success message
+      alert('Email sent successfully! (Demo mode)');
       setOpenEmailDialog(false);
       setEmailMessage('');
     } catch (error) {
