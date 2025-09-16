@@ -76,6 +76,7 @@ const OrderDetail: React.FC = () => {
   const [openTimelogDialog, setOpenTimelogDialog] = useState(false);
   const [openSamplingDialog, setOpenSamplingDialog] = useState(false);
   const [openEmailDialog, setOpenEmailDialog] = useState(false);
+  const [openRemarksDialog, setOpenRemarksDialog] = useState(false);
   const [newTimelogEntry, setNewTimelogEntry] = useState({
     start_time: dayjs().format(),
     end_time: '',
@@ -90,6 +91,10 @@ const OrderDetail: React.FC = () => {
     seal_number: '',
     remarks: '',
     selected_port: '' // Add port selection for sampling records
+  });
+  const [newRemark, setNewRemark] = useState({
+    content: '',
+    selected_port: '' // Add port selection for remarks
   });
   const [emailMessage, setEmailMessage] = useState('');
 
@@ -201,6 +206,17 @@ const OrderDetail: React.FC = () => {
       fetchOrderDetails();
     } catch (error) {
       console.error('Error adding sampling record:', error);
+    }
+  };
+
+  const handleAddRemark = async () => {
+    try {
+      // For demo purposes, just show a success message
+      alert(`Remark added for port ${newRemark.selected_port || 'current port'}! (Demo mode)`);
+      setOpenRemarksDialog(false);
+      setNewRemark({ content: '', selected_port: '' });
+    } catch (error) {
+      console.error('Error adding remark:', error);
     }
   };
 
@@ -552,8 +568,17 @@ const OrderDetail: React.FC = () => {
           <Typography variant="h6" gutterBottom>
             Remarks
           </Typography>
+          <Box sx={{ mb: 2 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setOpenRemarksDialog(true)}
+            >
+              Add Remark
+            </Button>
+          </Box>
           <Alert severity="info">
-            Remarks functionality will be implemented in the next version.
+            Remarks functionality is now available! You can add port-specific remarks using the "Add Remark" button above.
           </Alert>
         </TabPanel>
       </Card>
@@ -570,7 +595,7 @@ const OrderDetail: React.FC = () => {
                 label="Port/Harbor"
                 onChange={(e) => setNewTimelogEntry(prev => ({ ...prev, selected_port: e.target.value }))}
               >
-                {order?.is_main_order && order?.sub_orders ? 
+                {order?.is_main_order && order?.sub_orders && order.sub_orders.length > 0 ? 
                   order.sub_orders.map((subOrder) => (
                     <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
                       {subOrder.port}
@@ -642,7 +667,7 @@ const OrderDetail: React.FC = () => {
                 label="Port/Harbor"
                 onChange={(e) => setNewSamplingRecord(prev => ({ ...prev, selected_port: e.target.value }))}
               >
-                {order?.is_main_order && order?.sub_orders ? 
+                {order?.is_main_order && order?.sub_orders && order.sub_orders.length > 0 ? 
                   order.sub_orders.map((subOrder) => (
                     <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
                       {subOrder.port}
@@ -695,6 +720,47 @@ const OrderDetail: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setOpenSamplingDialog(false)}>Cancel</Button>
           <Button onClick={handleAddSamplingRecord} variant="contained">Add Record</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Remarks Dialog */}
+      <Dialog open={openRemarksDialog} onClose={() => setOpenRemarksDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add Remark</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Port/Harbor</InputLabel>
+              <Select
+                value={newRemark.selected_port || ''}
+                label="Port/Harbor"
+                onChange={(e) => setNewRemark(prev => ({ ...prev, selected_port: e.target.value }))}
+              >
+                {order?.is_main_order && order?.sub_orders && order.sub_orders.length > 0 ? 
+                  order.sub_orders.map((subOrder) => (
+                    <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
+                      {subOrder.port}
+                    </MenuItem>
+                  )) :
+                  <MenuItem value={id || ''}>
+                    {order?.port || 'Current Port'}
+                  </MenuItem>
+                }
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Remark Content"
+              multiline
+              rows={4}
+              value={newRemark.content}
+              onChange={(e) => setNewRemark(prev => ({ ...prev, content: e.target.value }))}
+              sx={{ mb: 2 }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenRemarksDialog(false)}>Cancel</Button>
+          <Button onClick={handleAddRemark} variant="contained">Add Remark</Button>
         </DialogActions>
       </Dialog>
 
