@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "NMS Order Registration API for Azure Functions",
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "func start",
     "test": "echo \"No tests specified\" && exit 0"
@@ -10,10 +13,8 @@
   "dependencies": {
     "@azure/functions": "^4.0.0",
     "cors": "^2.8.5",
-    "sqlite3": "^5.1.6",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^6.9.7"
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "azure-functions-core-tools": "^4.0.5455"

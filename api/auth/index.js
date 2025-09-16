@@ -28,7 +28,7 @@ const users = [
 ];
 
 app.http('auth', {
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   authLevel: 'anonymous',
   handler: async (request, context) => {
     context.log('Auth function processed a request.');

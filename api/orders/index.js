@@ -27,7 +27,7 @@ let orders = [
 ];
 
 app.http('orders', {
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   authLevel: 'anonymous',
   handler: async (request, context) => {
     context.log('HTTP trigger function processed a request.');
