@@ -111,6 +111,55 @@ module.exports = async function (context, req) {
             return;
         }
 
+        if (req.method === 'PUT') {
+            const orderId = parseInt(req.params.id || req.query.id);
+            const orderIndex = orders.findIndex(order => order.id === orderId);
+            
+            if (orderIndex === -1) {
+                context.res = {
+                    status: 404,
+                    headers,
+                    body: { message: 'Order not found' }
+                };
+                return;
+            }
+
+            orders[orderIndex] = { ...orders[orderIndex], ...req.body };
+            
+            context.res = {
+                status: 200,
+                headers,
+                body: {
+                    message: 'Order updated successfully',
+                    order: orders[orderIndex]
+                }
+            };
+            return;
+        }
+
+        if (req.method === 'DELETE') {
+            const orderId = parseInt(req.params.id || req.query.id);
+            const orderIndex = orders.findIndex(order => order.id === orderId);
+            
+            if (orderIndex === -1) {
+                context.res = {
+                    status: 404,
+                    headers,
+                    body: { message: 'Order not found' }
+                };
+                return;
+            }
+
+            orders.splice(orderIndex, 1);
+            
+            context.res = {
+                status: 200,
+                headers,
+                body: { message: 'Order deleted successfully' }
+            };
+            return;
+        }
+
         context.res = {
             status: 405,
             headers,

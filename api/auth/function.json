@@ -1,4 +1,5 @@
 {
+  "scriptFile": "index.js",
   "bindings": [
     {
       "authLevel": "anonymous",
@@ -7,7 +8,8 @@
       "name": "req",
       "methods": [
         "get",
-        "post"
+        "post",
+        "options"
       ]
     },
     {

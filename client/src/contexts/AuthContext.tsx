@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const verifyToken = async () => {
       if (token) {
         try {
-          const response = await axios.get('/api/auth?action=verify');
+          const response = await axios.get('/api/auth/verify');
           setUser(response.data.user);
         } catch (error) {
           localStorage.removeItem('token');
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await axios.post('/api/auth?action=login', { username, password });
+      const response = await axios.post('/api/auth/login', { username, password });
       const { token: newToken, user: userData } = response.data;
       
       localStorage.setItem('token', newToken);

@@ -1,5 +1,5 @@
 {
-  "scriptFile": "index.js",
+  "scriptFile": "../index.js",
   "bindings": [
     {
       "authLevel": "anonymous",
@@ -8,12 +8,9 @@
       "name": "req",
       "methods": [
         "get",
-        "post",
-        "put",
-        "delete",
         "options"
       ],
-      "route": "orders/{id?}"
+      "route": "auth/verify"
     },
     {
       "type": "http",

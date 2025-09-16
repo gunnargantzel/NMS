@@ -46,9 +46,13 @@ module.exports = async function (context, req) {
     }
 
     try {
-        const action = req.query.action || 'login';
+        // Handle different routes based on URL path
+        const url = new URL(req.url, `https://${req.headers.host}`);
+        const pathname = url.pathname;
+        const isVerify = pathname.includes('verify');
+        const isLogin = pathname.includes('login') || req.method === 'POST';
 
-        if (req.method === 'GET' && action === 'verify') {
+        if (req.method === 'GET' && isVerify) {
             const authHeader = req.headers.authorization;
             const token = authHeader && authHeader.split(' ')[1];
 
@@ -79,7 +83,7 @@ module.exports = async function (context, req) {
             }
         }
 
-        if (req.method === 'POST' && action === 'login') {
+        if (req.method === 'POST' && isLogin) {
             const { username, password } = req.body;
 
             if (!username || !password) {
