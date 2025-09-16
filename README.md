@@ -69,7 +69,16 @@ EMAIL_FROM=post@cargosurvey.com
 
 ### 5. Start applikasjonen
 
-#### Utviklingsmodus (anbefalt)
+#### Enkel start med demodata (anbefalt)
+```bash
+# Windows
+start-demo.bat
+
+# Linux/Mac
+./start-demo.sh
+```
+
+#### Manuell start
 ```bash
 # Start backend
 npm run dev
@@ -92,8 +101,11 @@ npm start
 
 ### 1. Første gang
 - Gå til `http://localhost:3000`
-- Registrer en ny bruker eller logg inn
-- Systemet vil automatisk opprette nødvendige databasetabeller
+- **Logg inn med demodata:**
+  - **Brukernavn:** `admin` **Passord:** `admin123` (admin-bruker)
+  - **Brukernavn:** `surveyor1` **Passord:** `admin123` (vanlig bruker)
+  - **Brukernavn:** `surveyor2` **Passord:** `admin123` (vanlig bruker)
+- Systemet vil automatisk opprette nødvendige databasetabeller og fylle med demodata
 
 ### 2. Hovedfunksjoner
 
@@ -127,7 +139,7 @@ npm start
 
 ## Database-struktur
 
-Applikasjonen bruker SQLite med følgende hovedtabeller:
+Applikasjonen bruker SQLite (in-memory for demo) med følgende hovedtabeller:
 
 - **users**: Brukeradministrasjon
 - **orders**: Ordreinformasjon
@@ -136,6 +148,29 @@ Applikasjonen bruker SQLite med følgende hovedtabeller:
 - **timelog_activities**: Forhåndsdefinerte aktiviteter
 - **remarks_templates**: Merknadsmaler
 - **sampling_records**: Prøvetakingsregistrering
+
+## Demodata
+
+Applikasjonen kommer med forhåndsutfylte demodata:
+
+### Demo-brukere
+- **admin** (admin-bruker) - Passord: `admin123`
+- **surveyor1** (vanlig bruker) - Passord: `admin123`  
+- **surveyor2** (vanlig bruker) - Passord: `admin123`
+
+### Demo-ordrer
+- 5 eksempelordrer fra norske oljeselskaper (Statoil, Equinor, Aker BP, etc.)
+- Forskjellige surveytyper og statuser
+- Realistiske skipnavn og havner
+
+### Demo-timelog
+- Tidsregistreringer for aktive ordrer
+- Forhåndsdefinerte aktiviteter som "Vessel berthed", "Surveyor on board", etc.
+
+### Demo-sampling
+- Prøvetakingsregistreringer
+- Laboratorieanalyser (Denofa, Eurofins)
+- Seglnummer og prøvehåndtering
 
 ## API-endepunkter
 
