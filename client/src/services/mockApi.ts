@@ -182,22 +182,58 @@ const mockOrders: Order[] = [
       }
     ]
   },
-  // Main Order 2: Single port survey
+  // Main Order 2: Multi-port container survey
   {
     id: 2,
     order_number: 'ORD-20241201-002',
     client_name: 'Equinor',
     client_email: 'shipping@equinor.com',
     vessel_name: 'M/T North Sea',
-    port: 'Bergen',
-    survey_type: 'Loading and lashing survey',
-    status: 'pending',
+    port: 'Multi-port Container Survey',
+    survey_type: 'Container survey',
+    status: 'in_progress',
     created_by: 'admin',
     created_at: '2024-12-01T09:30:00Z',
     created_by_name: 'admin',
     parent_order_id: undefined,
     is_main_order: true,
-    total_ports: 1
+    total_ports: 2,
+    sub_orders: [
+      {
+        id: 21,
+        order_number: 'ORD-20241201-002-1',
+        client_name: 'Equinor',
+        client_email: 'shipping@equinor.com',
+        vessel_name: 'M/T North Sea',
+        port: 'Hamburg',
+        survey_type: 'Container survey',
+        status: 'completed',
+        created_by: 'admin',
+        created_at: '2024-12-01T09:30:00Z',
+        created_by_name: 'admin',
+        parent_order_id: 2,
+        is_main_order: false,
+        current_port_index: 1,
+        total_ports: 2
+      },
+      {
+        id: 22,
+        order_number: 'ORD-20241201-002-2',
+        client_name: 'Equinor',
+        client_email: 'shipping@equinor.com',
+        vessel_name: 'M/T North Sea',
+        port: 'Rotterdam',
+        survey_type: 'Container survey',
+        status: 'in_progress',
+        created_by: 'admin',
+        created_at: '2024-12-01T11:30:00Z',
+        created_by_name: 'admin',
+        parent_order_id: 2,
+        is_main_order: false,
+        current_port_index: 2,
+        total_ports: 2
+      }
+    ]
   },
   // Main Order 3: Multi-port bunker survey
   {
@@ -628,43 +664,10 @@ const mockContactPersons: ContactPerson[] = [
 ];
 
 const mockOrderLines: OrderLine[] = [
-  // Order lines for Sub-order 2 (Bergen Port - Main Order 1)
+  // Order lines for Sub-order 11 (Stavanger Port - Main Order 1)
   {
     id: 1,
-    sub_order_id: 2, // Bergen Port
-    line_number: 1,
-    description: 'Crude Oil - Brent Blend',
-    quantity: 25000,
-    unit: 'MT',
-    unit_price: 85.50,
-    total_price: 2137500,
-    cargo_type: 'Crude Oil',
-    package_type: 'Bulk',
-    weight: 25000,
-    volume: 29000,
-    remarks: 'API Gravity 38.3° - Bergen loading',
-    created_at: '2024-12-01T08:00:00Z'
-  },
-  {
-    id: 2,
-    sub_order_id: 2, // Bergen Port
-    line_number: 2,
-    description: 'Marine Gas Oil',
-    quantity: 1000,
-    unit: 'MT',
-    unit_price: 120.00,
-    total_price: 120000,
-    cargo_type: 'Refined Product',
-    package_type: 'Bulk',
-    weight: 1000,
-    volume: 1200,
-    remarks: 'Bunker fuel for vessel - Bergen',
-    created_at: '2024-12-01T08:00:00Z'
-  },
-  // Order lines for Sub-order 3 (Stavanger Port - Main Order 1)
-  {
-    id: 3,
-    sub_order_id: 3, // Stavanger Port
+    sub_order_id: 11, // Stavanger Port
     line_number: 1,
     description: 'Crude Oil - Brent Blend',
     quantity: 25000,
@@ -676,11 +679,11 @@ const mockOrderLines: OrderLine[] = [
     weight: 25000,
     volume: 29000,
     remarks: 'API Gravity 38.3° - Stavanger loading',
-    created_at: '2024-12-01T10:00:00Z'
+    created_at: '2024-12-01T08:00:00Z'
   },
   {
-    id: 4,
-    sub_order_id: 3, // Stavanger Port
+    id: 2,
+    sub_order_id: 11, // Stavanger Port
     line_number: 2,
     description: 'Marine Gas Oil',
     quantity: 1000,
@@ -692,12 +695,45 @@ const mockOrderLines: OrderLine[] = [
     weight: 1000,
     volume: 1200,
     remarks: 'Bunker fuel for vessel - Stavanger',
+    created_at: '2024-12-01T08:00:00Z'
+  },
+  // Order lines for Sub-order 12 (Bergen Port - Main Order 1)
+  {
+    id: 3,
+    sub_order_id: 12, // Bergen Port
+    line_number: 1,
+    description: 'Crude Oil - Brent Blend',
+    quantity: 25000,
+    unit: 'MT',
+    unit_price: 85.50,
+    total_price: 2137500,
+    cargo_type: 'Crude Oil',
+    package_type: 'Bulk',
+    weight: 25000,
+    volume: 29000,
+    remarks: 'API Gravity 38.3° - Bergen loading',
     created_at: '2024-12-01T10:00:00Z'
   },
-  // Order lines for Sub-order 4 (Oslo Port - Main Order 1)
+  {
+    id: 4,
+    sub_order_id: 12, // Bergen Port
+    line_number: 2,
+    description: 'Marine Gas Oil',
+    quantity: 1000,
+    unit: 'MT',
+    unit_price: 120.00,
+    total_price: 120000,
+    cargo_type: 'Refined Product',
+    package_type: 'Bulk',
+    weight: 1000,
+    volume: 1200,
+    remarks: 'Bunker fuel for vessel - Bergen',
+    created_at: '2024-12-01T10:00:00Z'
+  },
+  // Order lines for Sub-order 13 (Oslo Port - Main Order 1)
   {
     id: 5,
-    sub_order_id: 4, // Oslo Port
+    sub_order_id: 13, // Oslo Port
     line_number: 1,
     description: 'Container Cargo - Mixed',
     quantity: 75,
@@ -709,10 +745,10 @@ const mockOrderLines: OrderLine[] = [
     remarks: 'Mixed container cargo - Oslo',
     created_at: '2024-12-01T12:00:00Z'
   },
-  // Order lines for Sub-order 5 (Hamburg Port - Main Order 2)
+  // Order lines for Sub-order 21 (Hamburg Port - Main Order 2)
   {
     id: 6,
-    sub_order_id: 5, // Hamburg Port
+    sub_order_id: 21, // Hamburg Port
     line_number: 1,
     description: 'Container Cargo - Electronics',
     quantity: 50,
@@ -726,7 +762,7 @@ const mockOrderLines: OrderLine[] = [
   },
   {
     id: 7,
-    sub_order_id: 5, // Hamburg Port
+    sub_order_id: 21, // Hamburg Port
     line_number: 2,
     description: 'Container Cargo - Machinery',
     quantity: 25,
@@ -738,10 +774,10 @@ const mockOrderLines: OrderLine[] = [
     remarks: 'Industrial machinery parts',
     created_at: '2024-12-01T14:00:00Z'
   },
-  // Order lines for Sub-order 6 (Rotterdam Port - Main Order 2)
+  // Order lines for Sub-order 22 (Rotterdam Port - Main Order 2)
   {
     id: 8,
-    sub_order_id: 6, // Rotterdam Port
+    sub_order_id: 22, // Rotterdam Port
     line_number: 1,
     description: 'Container Cargo - Textiles',
     quantity: 40,
