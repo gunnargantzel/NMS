@@ -625,7 +625,14 @@ const OrderDetail: React.FC = () => {
                                   (order?.port || 'Unknown Port');
                   
                   return (
-                    <TableRow key={entry.id}>
+                    <TableRow 
+                      key={entry.id}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        }
+                      }}
+                    >
                       <TableCell>
                         <Chip 
                           label={portName} 
@@ -692,7 +699,14 @@ const OrderDetail: React.FC = () => {
                                   (order?.port || 'Unknown Port');
                   
                   return (
-                    <TableRow key={record.id}>
+                    <TableRow 
+                      key={record.id}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        }
+                      }}
+                    >
                       <TableCell>
                         <Chip 
                           label={portName} 
@@ -758,7 +772,14 @@ const OrderDetail: React.FC = () => {
                                     (order?.port || 'Unknown Port');
                     
                     return (
-                      <TableRow key={line.id}>
+                      <TableRow 
+                        key={line.id}
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                          }
+                        }}
+                      >
                         <TableCell>
                           <Chip 
                             label={portName} 
@@ -825,7 +846,14 @@ const OrderDetail: React.FC = () => {
                                    (order?.port || 'Unknown Port');
                   
                   return (
-                    <TableRow key={remark.id}>
+                    <TableRow 
+                      key={remark.id}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        }
+                      }}
+                    >
                       <TableCell>
                         <Chip 
                           label={portName} 
