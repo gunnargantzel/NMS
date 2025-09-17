@@ -1,4 +1,4 @@
-import { Port } from '../services/mockApi';
+import { Port } from '../types';
 
 // Mock port data from tblPorts_Local.csv - 163 ports
 export const mockPorts: Port[] = [

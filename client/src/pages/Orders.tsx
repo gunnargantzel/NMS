@@ -28,7 +28,8 @@ import {
   Search as SearchIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { mockApi, Order, SurveyType } from '../services/mockApi';
+import { mockApi } from '../services/mockApi';
+import { Order, SurveyType } from '../types';
 
 // Interfaces are now imported from mockApi
 

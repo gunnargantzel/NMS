@@ -1,4 +1,4 @@
-import { Product } from '../services/mockApi';
+import { Product } from '../types';
 
 // Mock product data based on the provided list
 export const mockProducts: Product[] = [

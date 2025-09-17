@@ -29,16 +29,7 @@ import {
   Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { mockApi } from '../services/mockApi';
-
-interface Product {
-  id: number;
-  name: string;
-  description?: string;
-  category?: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at?: string;
-}
+import { Product } from '../types';
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);

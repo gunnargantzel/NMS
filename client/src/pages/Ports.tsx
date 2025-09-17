@@ -34,16 +34,7 @@ import {
   LocationOn as LocationIcon
 } from '@mui/icons-material';
 import { mockApi } from '../services/mockApi';
-
-interface Port {
-  id: number;
-  name: string;
-  country: string;
-  region: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at?: string;
-}
+import { Port } from '../types';
 
 const Ports: React.FC = () => {
   const [ports, setPorts] = useState<Port[]>([]);

@@ -37,7 +37,8 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
-import { mockApi, Order, TimelogEntry, SamplingRecord, OrderLine } from '../services/mockApi';
+import { mockApi } from '../services/mockApi';
+import { Order, TimelogEntry, SamplingRecord, OrderLine } from '../types';
 
 // Interfaces are now imported from mockApi
 

@@ -3,139 +3,74 @@
 
 import { mockProducts } from '../data/mockProducts';
 import { mockPorts } from '../data/mockPorts';
+import { 
+  Order, 
+  OrderLine, 
+  Customer, 
+  ContactPerson, 
+  SurveyType, 
+  Product, 
+  Port, 
+  TimelogEntry, 
+  SamplingRecord, 
+  Remark 
+} from '../types';
 
-export interface Order {
-  id: number;
-  order_number: string;
-  client_name: string;
+// Extended Order interface for hierarchical structure
+export interface ExtendedOrder extends Order {
   client_email: string;
-  vessel_name: string;
-  port: string;
-  survey_type: string;
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   created_by: string;
-  created_at: string;
-  updated_at?: string;
-  created_by_name?: string; // For compatibility with existing code
-  // Hierarchical order structure
-  parent_order_id?: number; // null for main orders, number for sub-orders
-  is_main_order: boolean; // true for main orders, false for sub-orders
-  sub_orders?: Order[]; // Array of sub-orders (only for main orders)
-  total_ports?: number; // Total number of ports in the order chain
-  current_port_index?: number; // Current port being processed (for sub-orders)
+  created_by_name?: string;
+  parent_order_id?: number;
+  is_main_order: boolean;
+  sub_orders?: ExtendedOrder[];
+  total_ports?: number;
+  current_port_index?: number;
 }
 
-export interface SurveyType {
-  id: number;
-  name: string;
-  description: string;
-}
-
-export interface Product {
-  id: number;
-  name: string;
-  description?: string;
-  category?: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at?: string;
-}
-
-export interface Port {
-  id: number;
-  name: string;
-  country: string;
-  region: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at?: string;
-}
-
-export interface TimelogEntry {
-  id: number;
-  sub_order_id: number; // Changed from order_id to sub_order_id - timelog belongs to specific ports/harbors
-  activity: string;
-  start_time: string;
+// Extended interfaces for compatibility
+export interface ExtendedTimelogEntry extends TimelogEntry {
   end_time?: string;
   remarks?: string;
-  created_by: string;
-  created_at: string;
-  timestamp?: string; // For compatibility with existing code
-  created_by_name?: string; // For compatibility with existing code
+  timestamp?: string;
+  created_by_name?: string;
 }
 
-export interface SamplingRecord {
-  id: number;
-  sub_order_id: number; // Changed from order_id to sub_order_id - sampling belongs to specific ports/harbors
-  sample_number: string;
-  sample_type: string;
+export interface ExtendedSamplingRecord extends SamplingRecord {
   laboratory: string;
   analysis_type: string;
   status: string;
-  created_by: string;
-  created_at: string;
-  quantity?: string; // For compatibility with existing code
-  destination?: string; // For compatibility with existing code
-  seal_number?: string; // For compatibility with existing code
-  remarks?: string; // For compatibility with existing code
-  created_by_name?: string; // For compatibility with existing code
+  quantity?: string;
+  destination?: string;
+  seal_number?: string;
+  remarks?: string;
+  created_by_name?: string;
 }
 
-export interface Customer {
-  id: number;
-  name: string;
+export interface ExtendedCustomer extends Customer {
   type: 'shipping_company' | 'cargo_owner' | 'port_authority' | 'other';
-  address: string;
   postal_code: string;
   city: string;
-  country: string;
-  phone?: string;
-  email?: string;
   website?: string;
   vat_number?: string;
   notes?: string;
-  created_at: string;
-  updated_at?: string;
   is_active: boolean;
 }
 
-export interface ContactPerson {
-  id: number;
-  customer_id: number;
+export interface ExtendedContactPerson extends ContactPerson {
   first_name: string;
   last_name: string;
   title?: string;
   department?: string;
-  phone?: string;
   mobile?: string;
-  email: string;
   is_primary: boolean;
   is_active: boolean;
   notes?: string;
-  created_at: string;
-  updated_at?: string;
-}
-
-export interface OrderLine {
-  id: number;
-  sub_order_id: number; // Changed from order_id to sub_order_id - order lines belong to specific ports/harbors
-  line_number: number;
-  description: string;
-  quantity: number;
-  unit: string;
-  unit_price: number;
-  total_price: number;
-  cargo_type?: string;
-  package_type?: string;
-  weight?: number;
-  volume?: number;
-  remarks?: string;
-  created_at: string;
-  selected_port?: string; // Temporary field for form handling - which port this line belongs to
 }
 
 // Mock data with hierarchical order structure
-const mockOrders: Order[] = [
+const mockOrders: ExtendedOrder[] = [
   // Main Order 1: Multi-port cargo survey
   {
     id: 1,
@@ -439,7 +374,7 @@ const mockActivities = [
   'Survey completed'
 ];
 
-const mockTimelogEntries: TimelogEntry[] = [
+const mockTimelogEntries: ExtendedTimelogEntry[] = [
   // Timelog entries for Sub-order 11 (Stavanger Port)
   {
     id: 1,
@@ -529,7 +464,7 @@ const mockTimelogEntries: TimelogEntry[] = [
   }
 ];
 
-const mockSamplingRecords: SamplingRecord[] = [
+const mockSamplingRecords: ExtendedSamplingRecord[] = [
   // Sampling records for Sub-order 11 (Stavanger Port)
   {
     id: 1,
@@ -599,7 +534,7 @@ const mockSamplingRecords: SamplingRecord[] = [
   }
 ];
 
-const mockCustomers: Customer[] = [
+const mockCustomers: ExtendedCustomer[] = [
   {
     id: 1,
     name: 'Statoil ASA',
@@ -682,7 +617,7 @@ const mockCustomers: Customer[] = [
   }
 ];
 
-const mockContactPersons: ContactPerson[] = [
+const mockContactPersons: ExtendedContactPerson[] = [
   {
     id: 1,
     customer_id: 1,
@@ -936,7 +871,7 @@ export const mockApi = {
     const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
     
     return {
-      orders: paginatedOrders,
+      orders: paginatedOrders as Order[],
       pagination: {
         page,
         limit,
@@ -968,19 +903,20 @@ export const mockApi = {
     if (!order) {
       throw new Error('Order not found');
     }
-    return order;
+    return order as Order;
   },
 
   createOrder: async (orderData: Partial<Order>) => {
     await new Promise(resolve => setTimeout(resolve, 500));
-    const newOrder: Order = {
+    const newOrder: ExtendedOrder = {
       id: mockOrders.length + 1,
       order_number: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`,
       status: 'pending',
       created_by: 'admin',
       created_at: new Date().toISOString(),
+      is_main_order: true,
       ...orderData
-    } as Order;
+    } as ExtendedOrder;
     
     mockOrders.push(newOrder);
     return {
@@ -1023,7 +959,7 @@ export const mockApi = {
   // Survey Types
   getSurveyTypes: async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return mockSurveyTypes;
+    return mockSurveyTypes as SurveyType[];
   },
 
   createSurveyType: async (surveyTypeData: Partial<SurveyType>) => {
@@ -1114,7 +1050,7 @@ export const mockApi = {
       filteredCustomers = filteredCustomers.filter(customer => customer.type === params.type);
     }
     
-    return filteredCustomers;
+    return filteredCustomers as Customer[];
   },
 
   getCustomer: async (id: number) => {
@@ -1123,7 +1059,7 @@ export const mockApi = {
     if (!customer) {
       throw new Error('Customer not found');
     }
-    return customer;
+    return customer as Customer;
   },
 
   createCustomer: async (customerData: any) => {
@@ -1133,7 +1069,7 @@ export const mockApi = {
       created_at: new Date().toISOString(),
       is_active: true,
       ...customerData
-    } as Customer;
+    } as ExtendedCustomer;
     
     mockCustomers.push(newCustomer);
     return {
@@ -1151,7 +1087,7 @@ export const mockApi = {
       filteredContacts = filteredContacts.filter(contact => contact.customer_id === customerId);
     }
     
-    return filteredContacts;
+    return filteredContacts as ContactPerson[];
   },
 
   createContactPerson: async (contactData: any) => {
@@ -1162,7 +1098,7 @@ export const mockApi = {
       is_active: true,
       is_primary: false,
       ...contactData
-    } as ContactPerson;
+    } as ExtendedContactPerson;
     
     mockContactPersons.push(newContact);
     return {
@@ -1225,7 +1161,7 @@ export const mockApi = {
   // Products
   getProducts: async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return mockProducts.filter(product => product.is_active);
+    return mockProducts.filter(product => product.is_active) as Product[];
   },
 
   getProduct: async (id: number) => {
@@ -1234,7 +1170,7 @@ export const mockApi = {
     if (!product) {
       throw new Error('Product not found');
     }
-    return product;
+    return product as Product;
   },
 
   createProduct: async (productData: any) => {
@@ -1286,7 +1222,7 @@ export const mockApi = {
   // Ports
   getPorts: async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return mockPorts.filter(port => port.is_active);
+    return mockPorts.filter(port => port.is_active) as Port[];
   },
 
   getPort: async (id: number) => {
@@ -1295,7 +1231,7 @@ export const mockApi = {
     if (!port) {
       throw new Error('Port not found');
     }
-    return port;
+    return port as Port;
   },
 
   createPort: async (portData: any) => {

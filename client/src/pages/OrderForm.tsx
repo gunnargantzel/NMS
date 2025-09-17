@@ -38,7 +38,8 @@ import {
   PersonAdd as PersonAddIcon,
   Business as BusinessIcon,
 } from '@mui/icons-material';
-import { mockApi, Customer, ContactPerson, SurveyType, OrderLine, Product, Port } from '../services/mockApi';
+import { mockApi } from '../services/mockApi';
+import { Customer, ContactPerson, SurveyType, OrderLine, Product, Port } from '../types';
 
 interface OrderFormData {
   // Customer Information
@@ -152,7 +153,6 @@ const OrderForm: React.FC = () => {
 
   // Ports state
   const [ports, setPorts] = useState<Port[]>([]);
-  const [portsLoading, setPortsLoading] = useState(false);
 
   const steps = [
     'Customer & Contact',
@@ -172,7 +172,6 @@ const OrderForm: React.FC = () => {
   const fetchInitialData = async () => {
     try {
       setProductsLoading(true);
-      setPortsLoading(true);
       const [customersData, surveyTypesData, productsData, portsData] = await Promise.all([
         mockApi.getCustomers(),
         mockApi.getSurveyTypes(),
@@ -189,7 +188,6 @@ const OrderForm: React.FC = () => {
       setError('Failed to load form data');
     } finally {
       setProductsLoading(false);
-      setPortsLoading(false);
     }
   };
 

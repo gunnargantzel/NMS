@@ -24,7 +24,8 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { mockApi, SurveyType } from '../services/mockApi';
+import { mockApi } from '../services/mockApi';
+import { SurveyType } from '../types';
 
 // Interface is now imported from mockApi
 

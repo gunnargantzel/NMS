@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { mockApi } from '../services/mockApi';
+import { Order } from '../types';
 
 // Interface is now imported from mockApi
 
