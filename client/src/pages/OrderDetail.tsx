@@ -426,7 +426,8 @@ const OrderDetail: React.FC = () => {
                     : null;
                   
                   // Find the port name for this timelog entry
-                  const portName = order?.sub_orders?.find(sub => sub.id === entry.sub_order_id)?.port || 'Unknown Port';
+                  const portName = order?.sub_orders?.find(sub => sub.id === parseInt(entry.sub_order_id.toString()))?.port || 
+                                  (order?.port || 'Unknown Port');
                   
                   return (
                     <TableRow key={entry.id}>
@@ -481,7 +482,8 @@ const OrderDetail: React.FC = () => {
               <TableBody>
                 {samplingRecords.map((record) => {
                   // Find the port name for this sampling record
-                  const portName = order?.sub_orders?.find(sub => sub.id === record.sub_order_id)?.port || 'Unknown Port';
+                  const portName = order?.sub_orders?.find(sub => sub.id === parseInt(record.sub_order_id.toString()))?.port || 
+                                  (order?.port || 'Unknown Port');
                   
                   return (
                     <TableRow key={record.id}>
@@ -535,7 +537,8 @@ const OrderDetail: React.FC = () => {
                 <TableBody>
                   {orderLines.map((line) => {
                     // Find the port name for this order line
-                    const portName = order?.sub_orders?.find(sub => sub.id === line.sub_order_id)?.port || 'Unknown Port';
+                    const portName = order?.sub_orders?.find(sub => sub.id === parseInt(line.sub_order_id.toString()))?.port || 
+                                    (order?.port || 'Unknown Port');
                     
                     return (
                       <TableRow key={line.id}>
