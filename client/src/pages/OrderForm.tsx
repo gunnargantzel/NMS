@@ -447,6 +447,9 @@ const OrderForm: React.FC = () => {
         // Create sub-orders for each port
         const subOrders = [];
         const subOrderIds = [];
+        const selectedContact = contactPersons.find(c => c.id === formData.contact_person_id);
+        const contactPersonName = selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name}` : '';
+        
         for (let i = 0; i < formData.ports.length; i++) {
           const port = formData.ports[i];
           const subOrderData = {
@@ -468,7 +471,7 @@ const OrderForm: React.FC = () => {
             id: subOrderResponse.orderId,
             order_number: `${response.orderNumber}-${i + 1}`,
             client_name: formData.customer_name,
-            contact_person: formData.contact_person,
+            contact_person: contactPersonName,
             vessel_name: formData.vessel_name,
             vessel_imo: formData.vessel_imo,
             vessel_flag: formData.vessel_flag,
@@ -481,7 +484,7 @@ const OrderForm: React.FC = () => {
             order_lines: [],
             created_at: new Date().toISOString(),
             client_email: formData.customer_email,
-            status: 'pending',
+            status: 'pending' as const,
             created_by: 'admin',
             created_by_name: 'admin',
             parent_order_id: response.orderId,
