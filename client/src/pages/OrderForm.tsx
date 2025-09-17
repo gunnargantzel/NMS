@@ -445,12 +445,15 @@ const OrderForm: React.FC = () => {
       // If multi-port order, create sub-orders and distribute order lines
       if (formData.is_multi_port && formData.ports.length > 1) {
         // Create sub-orders for each port
+        const subOrders = [];
         const subOrderIds = [];
         for (let i = 0; i < formData.ports.length; i++) {
           const port = formData.ports[i];
           const subOrderData = {
             ...orderData,
             port: port,
+            ports: [port],
+            is_multi_port: false,
             is_main_order: false,
             parent_order_id: response.orderId,
             current_port_index: i + 1,
@@ -459,7 +462,37 @@ const OrderForm: React.FC = () => {
           
           const subOrderResponse = await mockApi.createOrder(subOrderData);
           subOrderIds.push(subOrderResponse.orderId);
+          
+          // Create the sub-order object for the main order
+          subOrders.push({
+            id: subOrderResponse.orderId,
+            order_number: `${response.orderNumber}-${i + 1}`,
+            client_name: formData.customer_name,
+            contact_person: formData.contact_person,
+            vessel_name: formData.vessel_name,
+            vessel_imo: formData.vessel_imo,
+            vessel_flag: formData.vessel_flag,
+            port: port,
+            ports: [port],
+            is_multi_port: false,
+            expected_arrival: formData.expected_arrival,
+            expected_departure: formData.expected_departure,
+            survey_type: formData.survey_type,
+            order_lines: [],
+            created_at: new Date().toISOString(),
+            client_email: formData.customer_email,
+            status: 'pending',
+            created_by: 'admin',
+            created_by_name: 'admin',
+            parent_order_id: response.orderId,
+            is_main_order: false,
+            current_port_index: i + 1,
+            total_ports: formData.ports.length
+          });
         }
+        
+        // Update the main order with sub_orders
+        await mockApi.updateOrder(response.orderId, { sub_orders: subOrders });
         
         // Distribute order lines to sub-orders based on selected_port
         for (const line of formData.order_lines) {

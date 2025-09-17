@@ -98,6 +98,23 @@ const OrderDetail: React.FC = () => {
     selected_port: '' // Add port selection for remarks
   });
   const [emailMessage, setEmailMessage] = useState('');
+  
+  // Order line editing state
+  const [editingOrderLine, setEditingOrderLine] = useState<OrderLine | null>(null);
+  const [editOrderLineDialog, setEditOrderLineDialog] = useState(false);
+  const [editOrderLineData, setEditOrderLineData] = useState({
+    description: '',
+    quantity: 0,
+    unit: '',
+    unit_price: 0,
+    total_price: 0,
+    cargo_type: '',
+    package_type: '',
+    weight: 0,
+    volume: 0,
+    remarks: '',
+    selected_port: ''
+  });
 
   const fetchOrderDetails = useCallback(async () => {
     try {
@@ -218,6 +235,49 @@ const OrderDetail: React.FC = () => {
       setNewRemark({ content: '', selected_port: '' });
     } catch (error) {
       console.error('Error adding remark:', error);
+    }
+  };
+
+  const handleEditOrderLine = (line: OrderLine) => {
+    setEditingOrderLine(line);
+    setEditOrderLineData({
+      description: line.description,
+      quantity: line.quantity,
+      unit: line.unit,
+      unit_price: line.unit_price,
+      total_price: line.total_price,
+      cargo_type: line.cargo_type || '',
+      package_type: line.package_type || '',
+      weight: line.weight || 0,
+      volume: line.volume || 0,
+      remarks: line.remarks || '',
+      selected_port: line.selected_port || ''
+    });
+    setEditOrderLineDialog(true);
+  };
+
+  const handleUpdateOrderLine = async () => {
+    if (!editingOrderLine) return;
+    
+    try {
+      await mockApi.updateOrderLine(editingOrderLine.id, {
+        description: editOrderLineData.description,
+        quantity: editOrderLineData.quantity,
+        unit: editOrderLineData.unit,
+        unit_price: editOrderLineData.unit_price,
+        total_price: editOrderLineData.total_price,
+        cargo_type: editOrderLineData.cargo_type,
+        package_type: editOrderLineData.package_type,
+        weight: editOrderLineData.weight,
+        volume: editOrderLineData.volume,
+        remarks: editOrderLineData.remarks
+      });
+      
+      setEditOrderLineDialog(false);
+      setEditingOrderLine(null);
+      fetchOrderDetails();
+    } catch (error) {
+      console.error('Error updating order line:', error);
     }
   };
 
@@ -532,6 +592,7 @@ const OrderDetail: React.FC = () => {
                     <TableCell>Cargo Type</TableCell>
                     <TableCell>Weight</TableCell>
                     <TableCell>Volume</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -559,6 +620,15 @@ const OrderDetail: React.FC = () => {
                         <TableCell>{line.cargo_type || '-'}</TableCell>
                         <TableCell>{line.weight ? `${line.weight} MT` : '-'}</TableCell>
                         <TableCell>{line.volume ? `${line.volume} M³` : '-'}</TableCell>
+                        <TableCell>
+                          <Button
+                            size="small"
+                            startIcon={<EditIcon />}
+                            onClick={() => handleEditOrderLine(line)}
+                          >
+                            Edit
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -787,6 +857,95 @@ const OrderDetail: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setOpenEmailDialog(false)}>Cancel</Button>
           <Button onClick={handleSendEmail} variant="contained">Send Email</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Order Line Dialog */}
+      <Dialog open={editOrderLineDialog} onClose={() => setEditOrderLineDialog(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Edit Order Line</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <TextField
+              fullWidth
+              label="Description"
+              value={editOrderLineData.description}
+              onChange={(e) => setEditOrderLineData(prev => ({ ...prev, description: e.target.value }))}
+              sx={{ mb: 2 }}
+            />
+            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+              <TextField
+                label="Quantity"
+                type="number"
+                value={editOrderLineData.quantity}
+                onChange={(e) => setEditOrderLineData(prev => ({ ...prev, quantity: parseFloat(e.target.value) || 0 }))}
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="Unit"
+                value={editOrderLineData.unit}
+                onChange={(e) => setEditOrderLineData(prev => ({ ...prev, unit: e.target.value }))}
+                sx={{ flex: 1 }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+              <TextField
+                label="Unit Price"
+                type="number"
+                value={editOrderLineData.unit_price}
+                onChange={(e) => setEditOrderLineData(prev => ({ ...prev, unit_price: parseFloat(e.target.value) || 0 }))}
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="Total Price"
+                type="number"
+                value={editOrderLineData.total_price}
+                onChange={(e) => setEditOrderLineData(prev => ({ ...prev, total_price: parseFloat(e.target.value) || 0 }))}
+                sx={{ flex: 1 }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+              <TextField
+                label="Cargo Type"
+                value={editOrderLineData.cargo_type}
+                onChange={(e) => setEditOrderLineData(prev => ({ ...prev, cargo_type: e.target.value }))}
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="Package Type"
+                value={editOrderLineData.package_type}
+                onChange={(e) => setEditOrderLineData(prev => ({ ...prev, package_type: e.target.value }))}
+                sx={{ flex: 1 }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+              <TextField
+                label="Weight (MT)"
+                type="number"
+                value={editOrderLineData.weight}
+                onChange={(e) => setEditOrderLineData(prev => ({ ...prev, weight: parseFloat(e.target.value) || 0 }))}
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="Volume (M³)"
+                type="number"
+                value={editOrderLineData.volume}
+                onChange={(e) => setEditOrderLineData(prev => ({ ...prev, volume: parseFloat(e.target.value) || 0 }))}
+                sx={{ flex: 1 }}
+              />
+            </Box>
+            <TextField
+              fullWidth
+              label="Remarks"
+              multiline
+              rows={3}
+              value={editOrderLineData.remarks}
+              onChange={(e) => setEditOrderLineData(prev => ({ ...prev, remarks: e.target.value }))}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOrderLineDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateOrderLine} variant="contained">Update Order Line</Button>
         </DialogActions>
       </Dialog>
     </Box>

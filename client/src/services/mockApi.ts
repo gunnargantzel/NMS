@@ -991,6 +991,7 @@ export const mockApi = {
       created_by: 'admin',
       created_at: new Date().toISOString(),
       is_main_order: true,
+      sub_orders: [],
       ...orderData
     } as Order;
     
