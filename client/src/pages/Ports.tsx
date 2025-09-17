@@ -19,76 +19,85 @@ import {
   Alert,
   Snackbar,
   Chip,
-  Tooltip
+  Tooltip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  LocationOn as LocationIcon
 } from '@mui/icons-material';
 import { mockApi } from '../services/mockApi';
 
-interface Product {
+interface Port {
   id: number;
   name: string;
-  description?: string;
-  category?: string;
+  country: string;
+  region: string;
   is_active: boolean;
   created_at: string;
   updated_at?: string;
 }
 
-const Products: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+const Ports: React.FC = () => {
+  const [ports, setPorts] = useState<Port[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [openDialog, setOpenDialog] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingPort, setEditingPort] = useState<Port | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
   // Form state
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    category: '',
+    country: '',
+    region: '',
     is_active: true
   });
 
+  // Available countries for filter
+  const countries = Array.from(new Set(ports.map(port => port.country))).sort();
+
   useEffect(() => {
-    loadProducts();
+    loadPorts();
   }, []);
 
-  const loadProducts = async () => {
+  const loadPorts = async () => {
     try {
       setLoading(true);
-      const data = await mockApi.getProducts();
-      setProducts(data);
+      const data = await mockApi.getPorts();
+      setPorts(data);
     } catch (err) {
-      setError('Failed to load products');
-      console.error('Error loading products:', err);
+      setError('Failed to load ports');
+      console.error('Error loading ports:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpenDialog = (product?: Product) => {
-    if (product) {
-      setEditingProduct(product);
+  const handleOpenDialog = (port?: Port) => {
+    if (port) {
+      setEditingPort(port);
       setFormData({
-        name: product.name,
-        description: product.description || '',
-        category: product.category || '',
-        is_active: product.is_active
+        name: port.name,
+        country: port.country,
+        region: port.region,
+        is_active: port.is_active
       });
     } else {
-      setEditingProduct(null);
+      setEditingPort(null);
       setFormData({
         name: '',
-        description: '',
-        category: '',
+        country: '',
+        region: '',
         is_active: true
       });
     }
@@ -97,62 +106,62 @@ const Products: React.FC = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setEditingProduct(null);
+    setEditingPort(null);
     setFormData({
       name: '',
-      description: '',
-      category: '',
+      country: '',
+      region: '',
       is_active: true
     });
   };
 
   const handleSubmit = async () => {
     try {
-      if (editingProduct) {
-        await mockApi.updateProduct(editingProduct.id, formData);
-        setSnackbar({ open: true, message: 'Product updated successfully', severity: 'success' });
+      if (editingPort) {
+        await mockApi.updatePort(editingPort.id, formData);
+        setSnackbar({ open: true, message: 'Port updated successfully', severity: 'success' });
       } else {
-        await mockApi.createProduct(formData);
-        setSnackbar({ open: true, message: 'Product created successfully', severity: 'success' });
+        await mockApi.createPort(formData);
+        setSnackbar({ open: true, message: 'Port created successfully', severity: 'success' });
       }
       handleCloseDialog();
-      loadProducts();
+      loadPorts();
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to save product', severity: 'error' });
-      console.error('Error saving product:', err);
+      setSnackbar({ open: true, message: 'Failed to save port', severity: 'error' });
+      console.error('Error saving port:', err);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm('Are you sure you want to delete this port?')) {
       try {
-        await mockApi.deleteProduct(id);
-        setSnackbar({ open: true, message: 'Product deleted successfully', severity: 'success' });
-        loadProducts();
+        await mockApi.deletePort(id);
+        setSnackbar({ open: true, message: 'Port deleted successfully', severity: 'success' });
+        loadPorts();
       } catch (err) {
-        setSnackbar({ open: true, message: 'Failed to delete product', severity: 'error' });
-        console.error('Error deleting product:', err);
+        setSnackbar({ open: true, message: 'Failed to delete port', severity: 'error' });
+        console.error('Error deleting port:', err);
       }
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredPorts = ports.filter(port => {
+    const matchesSearch = port.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         port.region.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCountry = !countryFilter || port.country === countryFilter;
+    return matchesSearch && matchesCountry;
+  });
 
-  const getCategoryColor = (category?: string) => {
-    if (!category) return 'default';
+  const getCountryColor = (country: string) => {
     const colors = ['primary', 'secondary', 'success', 'warning', 'info', 'error'];
-    const index = category.length % colors.length;
+    const index = country.length % colors.length;
     return colors[index] as any;
   };
 
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <Typography>Loading products...</Typography>
+        <Typography>Loading ports...</Typography>
       </Box>
     );
   }
@@ -162,7 +171,7 @@ const Products: React.FC = () => {
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" component="h1">
-          Product Management
+          Port Management
         </Typography>
         <Button
           variant="contained"
@@ -173,14 +182,14 @@ const Products: React.FC = () => {
             '&:hover': { backgroundColor: 'var(--primary-hover-color)' }
           }}
         >
-          Add Product
+          Add Port
         </Button>
       </Box>
 
-      {/* Search and Actions */}
-      <Box display="flex" gap={2} mb={3} alignItems="center">
+      {/* Search and Filters */}
+      <Box display="flex" gap={2} mb={3} alignItems="center" flexWrap="wrap">
         <TextField
-          placeholder="Search products..."
+          placeholder="Search ports..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
@@ -188,8 +197,21 @@ const Products: React.FC = () => {
           }}
           sx={{ flexGrow: 1, maxWidth: 400 }}
         />
+        <FormControl sx={{ minWidth: 150 }}>
+          <InputLabel>Country</InputLabel>
+          <Select
+            value={countryFilter}
+            label="Country"
+            onChange={(e) => setCountryFilter(e.target.value)}
+          >
+            <MenuItem value="">All Countries</MenuItem>
+            {countries.map(country => (
+              <MenuItem key={country} value={country}>{country}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Tooltip title="Refresh">
-          <IconButton onClick={loadProducts}>
+          <IconButton onClick={loadPorts}>
             <RefreshIcon />
           </IconButton>
         </Tooltip>
@@ -202,55 +224,56 @@ const Products: React.FC = () => {
         </Alert>
       )}
 
-      {/* Products Table */}
+      {/* Ports Table */}
       <TableContainer component={Paper} sx={{ boxShadow: 'var(--shadow-light)' }}>
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: 'var(--background-light)' }}>
               <TableCell><strong>ID</strong></TableCell>
-              <TableCell><strong>Product Name</strong></TableCell>
-              <TableCell><strong>Description</strong></TableCell>
-              <TableCell><strong>Category</strong></TableCell>
+              <TableCell><strong>Port Name</strong></TableCell>
+              <TableCell><strong>Country</strong></TableCell>
+              <TableCell><strong>Region</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
               <TableCell><strong>Created</strong></TableCell>
               <TableCell><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredProducts.map((product) => (
-              <TableRow key={product.id} hover>
-                <TableCell>{product.id}</TableCell>
+            {filteredPorts.map((port) => (
+              <TableRow key={port.id} hover>
+                <TableCell>{port.id}</TableCell>
                 <TableCell>
-                  <Typography variant="body2" fontWeight="medium">
-                    {product.name}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2" color="text.secondary">
-                    {product.description || '-'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  {product.category && (
-                    <Chip
-                      label={product.category}
-                      size="small"
-                      color={getCategoryColor(product.category)}
-                      variant="outlined"
-                    />
-                  )}
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <LocationIcon color="primary" fontSize="small" />
+                    <Typography variant="body2" fontWeight="medium">
+                      {port.name}
+                    </Typography>
+                  </Box>
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={product.is_active ? 'Active' : 'Inactive'}
+                    label={port.country}
                     size="small"
-                    color={product.is_active ? 'success' : 'default'}
+                    color={getCountryColor(port.country)}
+                    variant="outlined"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    {port.region}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={port.is_active ? 'Active' : 'Inactive'}
+                    size="small"
+                    color={port.is_active ? 'success' : 'default'}
                     variant="filled"
                   />
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2" color="text.secondary">
-                    {new Date(product.created_at).toLocaleDateString('no-NO')}
+                    {new Date(port.created_at).toLocaleDateString('no-NO')}
                   </Typography>
                 </TableCell>
                 <TableCell>
@@ -258,7 +281,7 @@ const Products: React.FC = () => {
                     <Tooltip title="Edit">
                       <IconButton
                         size="small"
-                        onClick={() => handleOpenDialog(product)}
+                        onClick={() => handleOpenDialog(port)}
                         sx={{ color: 'var(--primary-color)' }}
                       >
                         <EditIcon />
@@ -267,7 +290,7 @@ const Products: React.FC = () => {
                     <Tooltip title="Delete">
                       <IconButton
                         size="small"
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => handleDelete(port.id)}
                         sx={{ color: 'var(--error-color)' }}
                       >
                         <DeleteIcon />
@@ -282,12 +305,12 @@ const Products: React.FC = () => {
       </TableContainer>
 
       {/* Empty State */}
-      {filteredProducts.length === 0 && !loading && (
+      {filteredPorts.length === 0 && !loading && (
         <Box textAlign="center" py={4}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            {searchTerm ? 'No products found matching your search' : 'No products available'}
+            {searchTerm || countryFilter ? 'No ports found matching your criteria' : 'No ports available'}
           </Typography>
-          {!searchTerm && (
+          {!searchTerm && !countryFilter && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -297,42 +320,41 @@ const Products: React.FC = () => {
                 '&:hover': { backgroundColor: 'var(--primary-hover-color)' }
               }}
             >
-              Add First Product
+              Add First Port
             </Button>
           )}
         </Box>
       )}
 
-      {/* Product Dialog */}
+      {/* Port Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editingProduct ? 'Edit Product' : 'Add New Product'}
+          {editingPort ? 'Edit Port' : 'Add New Port'}
         </DialogTitle>
         <DialogContent>
           <Box display="flex" flexDirection="column" gap={2} pt={1}>
             <TextField
-              label="Product Name"
+              label="Port Name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               fullWidth
               required
-              placeholder="Enter product name"
+              placeholder="Enter port name"
             />
             <TextField
-              label="Description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              label="Country"
+              value={formData.country}
+              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
               fullWidth
-              multiline
-              rows={3}
-              placeholder="Enter product description (optional)"
+              required
+              placeholder="Enter country"
             />
             <TextField
-              label="Category"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              label="Region"
+              value={formData.region}
+              onChange={(e) => setFormData({ ...formData, region: e.target.value })}
               fullWidth
-              placeholder="Enter product category (optional)"
+              placeholder="Enter region/state/province"
             />
             <Box display="flex" alignItems="center" gap={1}>
               <input
@@ -350,13 +372,13 @@ const Products: React.FC = () => {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            disabled={!formData.name.trim()}
+            disabled={!formData.name.trim() || !formData.country.trim()}
             sx={{ 
               backgroundColor: 'var(--primary-color)',
               '&:hover': { backgroundColor: 'var(--primary-hover-color)' }
             }}
           >
-            {editingProduct ? 'Update' : 'Create'}
+            {editingPort ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -379,4 +401,4 @@ const Products: React.FC = () => {
   );
 };
 
-export default Products;
+export default Ports;

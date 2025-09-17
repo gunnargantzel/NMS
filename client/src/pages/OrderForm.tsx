@@ -38,7 +38,7 @@ import {
   PersonAdd as PersonAddIcon,
   Business as BusinessIcon,
 } from '@mui/icons-material';
-import { mockApi, Customer, ContactPerson, SurveyType, OrderLine, Product } from '../services/mockApi';
+import { mockApi, Customer, ContactPerson, SurveyType, OrderLine, Product, Port } from '../services/mockApi';
 
 interface OrderFormData {
   // Customer Information
@@ -150,6 +150,10 @@ const OrderForm: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
 
+  // Ports state
+  const [ports, setPorts] = useState<Port[]>([]);
+  const [portsLoading, setPortsLoading] = useState(false);
+
   const steps = [
     'Customer & Contact',
     'Vessel Information',
@@ -168,20 +172,24 @@ const OrderForm: React.FC = () => {
   const fetchInitialData = async () => {
     try {
       setProductsLoading(true);
-      const [customersData, surveyTypesData, productsData] = await Promise.all([
+      setPortsLoading(true);
+      const [customersData, surveyTypesData, productsData, portsData] = await Promise.all([
         mockApi.getCustomers(),
         mockApi.getSurveyTypes(),
-        mockApi.getProducts()
+        mockApi.getProducts(),
+        mockApi.getPorts()
       ]);
       
       setCustomers(customersData);
       setSurveyTypes(surveyTypesData);
       setProducts(productsData);
+      setPorts(portsData);
     } catch (error) {
       console.error('Error fetching initial data:', error);
       setError('Failed to load form data');
     } finally {
       setProductsLoading(false);
+      setPortsLoading(false);
     }
   };
 
@@ -675,24 +683,40 @@ const OrderForm: React.FC = () => {
         
         {!formData.is_multi_port ? (
           <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
-            <TextField
-              fullWidth
-              label="Port"
-              value={formData.port}
-              onChange={(e) => setFormData(prev => ({ ...prev, port: e.target.value }))}
-              required
-            />
+            <FormControl fullWidth required>
+              <InputLabel>Port</InputLabel>
+              <Select
+                value={formData.port}
+                label="Port"
+                onChange={(e) => setFormData(prev => ({ ...prev, port: e.target.value }))}
+                loading={portsLoading}
+              >
+                {ports.map((port) => (
+                  <MenuItem key={port.id} value={port.name}>
+                    {port.name} - {port.country}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
         ) : (
           <>
             <Box sx={{ flex: '2 1 400px', minWidth: '400px' }}>
-              <TextField
-                fullWidth
-                label="Add Port"
-                value={formData.port}
-                onChange={(e) => setFormData(prev => ({ ...prev, port: e.target.value }))}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddPort()}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Select Port</InputLabel>
+                <Select
+                  value={formData.port}
+                  label="Select Port"
+                  onChange={(e) => setFormData(prev => ({ ...prev, port: e.target.value }))}
+                  loading={portsLoading}
+                >
+                  {ports.map((port) => (
+                    <MenuItem key={port.id} value={port.name}>
+                      {port.name} - {port.country}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Button

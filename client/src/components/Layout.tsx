@@ -24,6 +24,7 @@ import {
   Assignment as OrdersIcon,
   Category as SurveyTypesIcon,
   Inventory as ProductsIcon,
+  LocationOn as PortsIcon,
   Logout,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
@@ -34,6 +35,7 @@ const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { text: 'Orders', icon: <OrdersIcon />, path: '/orders' },
   { text: 'Products', icon: <ProductsIcon />, path: '/products' },
+  { text: 'Ports', icon: <PortsIcon />, path: '/ports' },
   { text: 'Survey Types', icon: <SurveyTypesIcon />, path: '/survey-types' },
 ];
 

@@ -2,6 +2,7 @@
 // This replaces all backend API calls with mock data
 
 import { mockProducts } from '../data/mockProducts';
+import { mockPorts } from '../data/mockPorts';
 
 export interface Order {
   id: number;
@@ -35,6 +36,16 @@ export interface Product {
   name: string;
   description?: string;
   category?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface Port {
+  id: number;
+  name: string;
+  country: string;
+  region: string;
   is_active: boolean;
   created_at: string;
   updated_at?: string;
@@ -1270,5 +1281,66 @@ export const mockApi = {
     
     mockProducts.splice(productIndex, 1);
     return { message: 'Product deleted successfully' };
+  },
+
+  // Ports
+  getPorts: async () => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return mockPorts.filter(port => port.is_active);
+  },
+
+  getPort: async (id: number) => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const port = mockPorts.find(p => p.id === id);
+    if (!port) {
+      throw new Error('Port not found');
+    }
+    return port;
+  },
+
+  createPort: async (portData: any) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newPort = {
+      id: mockPorts.length + 1,
+      created_at: new Date().toISOString(),
+      is_active: true,
+      ...portData
+    } as Port;
+    
+    mockPorts.push(newPort);
+    return {
+      message: 'Port created successfully',
+      port: newPort
+    };
+  },
+
+  updatePort: async (id: number, portData: Partial<Port>) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const portIndex = mockPorts.findIndex(p => p.id === id);
+    if (portIndex === -1) {
+      throw new Error('Port not found');
+    }
+    
+    mockPorts[portIndex] = {
+      ...mockPorts[portIndex],
+      ...portData,
+      updated_at: new Date().toISOString()
+    };
+    
+    return {
+      message: 'Port updated successfully',
+      port: mockPorts[portIndex]
+    };
+  },
+
+  deletePort: async (id: number) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const portIndex = mockPorts.findIndex(p => p.id === id);
+    if (portIndex === -1) {
+      throw new Error('Port not found');
+    }
+    
+    mockPorts.splice(portIndex, 1);
+    return { message: 'Port deleted successfully' };
   }
 };

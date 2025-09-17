@@ -13,6 +13,7 @@ import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
 import OrderForm from './pages/OrderForm';
 import Products from './pages/Products';
+import Ports from './pages/Ports';
 import SurveyTypes from './pages/SurveyTypes';
 import Layout from './components/Layout';
 import 'dayjs/locale/nb';
@@ -200,6 +201,7 @@ function App() {
                 <Route path="orders/:id" element={<OrderDetail />} />
                 <Route path="orders/:id/edit" element={<OrderForm />} />
                 <Route path="products" element={<Products />} />
+                <Route path="ports" element={<Ports />} />
                 <Route path="survey-types" element={<SurveyTypes />} />
               </Route>
             </Routes>
