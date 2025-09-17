@@ -36,6 +36,16 @@ export interface Order {
   order_lines: OrderLine[];
   created_at: string;
   updated_at?: string;
+  // Extended fields for compatibility
+  client_email?: string;
+  status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  created_by?: string;
+  created_by_name?: string;
+  parent_order_id?: number;
+  is_main_order?: boolean;
+  sub_orders?: Order[];
+  total_ports?: number;
+  current_port_index?: number;
 }
 
 export interface OrderLine {
@@ -47,11 +57,11 @@ export interface OrderLine {
   unit: string;
   unit_price: number;
   total_price: number;
-  cargo_type: string;
-  package_type: string;
-  weight: number;
-  volume: number;
-  remarks: string;
+  cargo_type?: string;
+  package_type?: string;
+  weight?: number;
+  volume?: number;
+  remarks?: string;
   created_at: string;
   selected_port?: string;
 }
@@ -63,16 +73,36 @@ export interface Customer {
   phone: string;
   address: string;
   created_at: string;
+  // Extended fields for compatibility
+  type?: 'shipping_company' | 'cargo_owner' | 'port_authority' | 'other';
+  postal_code?: string;
+  city?: string;
+  country?: string;
+  website?: string;
+  vat_number?: string;
+  notes?: string;
+  updated_at?: string;
+  is_active?: boolean;
 }
 
 export interface ContactPerson {
   id: number;
   customer_id: number;
-  name: string;
+  name?: string;
   email: string;
-  phone: string;
-  position: string;
+  phone?: string;
+  position?: string;
   created_at: string;
+  // Extended fields for compatibility
+  first_name?: string;
+  last_name?: string;
+  title?: string;
+  department?: string;
+  mobile?: string;
+  is_primary?: boolean;
+  is_active?: boolean;
+  notes?: string;
+  updated_at?: string;
 }
 
 export interface SurveyType {
@@ -86,10 +116,14 @@ export interface TimelogEntry {
   sub_order_id: number;
   activity: string;
   start_time: string;
-  end_time: string;
-  duration: number;
+  end_time?: string;
+  duration?: number;
   created_by: string;
   created_at: string;
+  // Extended fields for compatibility
+  remarks?: string;
+  timestamp?: string;
+  created_by_name?: string;
 }
 
 export interface SamplingRecord {
@@ -97,10 +131,19 @@ export interface SamplingRecord {
   sub_order_id: number;
   sample_type: string;
   sample_number: string;
-  location: string;
-  timestamp: string;
+  location?: string;
+  timestamp?: string;
   created_by: string;
   created_at: string;
+  // Extended fields for compatibility
+  laboratory?: string;
+  analysis_type?: string;
+  status?: string;
+  quantity?: string;
+  destination?: string;
+  seal_number?: string;
+  remarks?: string;
+  created_by_name?: string;
 }
 
 export interface Remark {

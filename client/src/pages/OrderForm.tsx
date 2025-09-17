@@ -207,7 +207,7 @@ const OrderForm: React.FC = () => {
         expected_arrival: '', // Not available in Order interface
         expected_departure: '', // Not available in Order interface
         port: order.port || '',
-        is_multi_port: order.is_main_order && (order.total_ports || 0) > 1,
+        is_multi_port: (order.is_main_order && (order.total_ports || 0) > 1) || false,
         ports: order.is_main_order && order.sub_orders 
           ? order.sub_orders.map(sub => sub.port)
           : [order.port || ''],

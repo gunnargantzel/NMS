@@ -23,7 +23,6 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { mockApi } from '../services/mockApi';
-import { Order } from '../types';
 
 // Interface is now imported from mockApi
 
@@ -188,7 +187,7 @@ const Dashboard: React.FC = () => {
                         <TableCell>
                           <Chip
                             label={order.status}
-                            color={getStatusColor(order.status) as any}
+                            color={getStatusColor(order.status || 'pending') as any}
                             size="small"
                           />
                         </TableCell>

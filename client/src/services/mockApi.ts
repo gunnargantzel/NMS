@@ -12,77 +12,33 @@ import {
   Product, 
   Port, 
   TimelogEntry, 
-  SamplingRecord, 
-  Remark 
+  SamplingRecord
 } from '../types';
 
-// Extended Order interface for hierarchical structure
-export interface ExtendedOrder extends Order {
-  client_email: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  created_by: string;
-  created_by_name?: string;
-  parent_order_id?: number;
-  is_main_order: boolean;
-  sub_orders?: ExtendedOrder[];
-  total_ports?: number;
-  current_port_index?: number;
-}
-
-// Extended interfaces for compatibility
-export interface ExtendedTimelogEntry extends TimelogEntry {
-  end_time?: string;
-  remarks?: string;
-  timestamp?: string;
-  created_by_name?: string;
-}
-
-export interface ExtendedSamplingRecord extends SamplingRecord {
-  laboratory: string;
-  analysis_type: string;
-  status: string;
-  quantity?: string;
-  destination?: string;
-  seal_number?: string;
-  remarks?: string;
-  created_by_name?: string;
-}
-
-export interface ExtendedCustomer extends Customer {
-  type: 'shipping_company' | 'cargo_owner' | 'port_authority' | 'other';
-  postal_code: string;
-  city: string;
-  website?: string;
-  vat_number?: string;
-  notes?: string;
-  is_active: boolean;
-}
-
-export interface ExtendedContactPerson extends ContactPerson {
-  first_name: string;
-  last_name: string;
-  title?: string;
-  department?: string;
-  mobile?: string;
-  is_primary: boolean;
-  is_active: boolean;
-  notes?: string;
-}
+// Use the base interfaces from types/index.ts which now include all extended fields
 
 // Mock data with hierarchical order structure
-const mockOrders: ExtendedOrder[] = [
+const mockOrders: Order[] = [
   // Main Order 1: Multi-port cargo survey
   {
     id: 1,
     order_number: 'ORD-20241201-001',
     client_name: 'Statoil ASA',
-    client_email: 'cargo@statoil.com',
+    contact_person: 'Lars Hansen',
     vessel_name: 'M/T Nordic Star',
+    vessel_imo: 'IMO1234567',
+    vessel_flag: 'Norway',
     port: 'Multi-port Survey',
+    ports: ['Stavanger', 'Bergen', 'Oslo'],
+    is_multi_port: true,
+    expected_arrival: '2024-12-01T08:00:00Z',
+    expected_departure: '2024-12-03T18:00:00Z',
     survey_type: 'Cargo damage survey',
+    order_lines: [],
+    created_at: '2024-12-01T08:00:00Z',
+    client_email: 'cargo@statoil.com',
     status: 'in_progress',
     created_by: 'admin',
-    created_at: '2024-12-01T08:00:00Z',
     created_by_name: 'admin',
     parent_order_id: undefined,
     is_main_order: true,
@@ -92,13 +48,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 11,
         order_number: 'ORD-20241201-001-1',
         client_name: 'Statoil ASA',
-        client_email: 'cargo@statoil.com',
+        contact_person: 'Lars Hansen',
         vessel_name: 'M/T Nordic Star',
+        vessel_imo: 'IMO1234567',
+        vessel_flag: 'Norway',
         port: 'Stavanger',
+        ports: ['Stavanger'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-01T08:00:00Z',
+        expected_departure: '2024-12-01T18:00:00Z',
         survey_type: 'Cargo damage survey',
+        order_lines: [],
+        created_at: '2024-12-01T08:00:00Z',
+        client_email: 'cargo@statoil.com',
         status: 'completed',
         created_by: 'admin',
-        created_at: '2024-12-01T08:00:00Z',
         created_by_name: 'admin',
         parent_order_id: 1,
         is_main_order: false,
@@ -109,13 +73,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 12,
         order_number: 'ORD-20241201-001-2',
         client_name: 'Statoil ASA',
-        client_email: 'cargo@statoil.com',
+        contact_person: 'Lars Hansen',
         vessel_name: 'M/T Nordic Star',
+        vessel_imo: 'IMO1234567',
+        vessel_flag: 'Norway',
         port: 'Bergen',
+        ports: ['Bergen'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-02T08:00:00Z',
+        expected_departure: '2024-12-02T18:00:00Z',
         survey_type: 'Cargo damage survey',
+        order_lines: [],
+        created_at: '2024-12-01T10:00:00Z',
+        client_email: 'cargo@statoil.com',
         status: 'in_progress',
         created_by: 'admin',
-        created_at: '2024-12-01T10:00:00Z',
         created_by_name: 'admin',
         parent_order_id: 1,
         is_main_order: false,
@@ -126,13 +98,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 13,
         order_number: 'ORD-20241201-001-3',
         client_name: 'Statoil ASA',
-        client_email: 'cargo@statoil.com',
+        contact_person: 'Lars Hansen',
         vessel_name: 'M/T Nordic Star',
+        vessel_imo: 'IMO1234567',
+        vessel_flag: 'Norway',
         port: 'Oslo',
+        ports: ['Oslo'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-03T08:00:00Z',
+        expected_departure: '2024-12-03T18:00:00Z',
         survey_type: 'Cargo damage survey',
+        order_lines: [],
+        created_at: '2024-12-01T12:00:00Z',
+        client_email: 'cargo@statoil.com',
         status: 'pending',
         created_by: 'admin',
-        created_at: '2024-12-01T12:00:00Z',
         created_by_name: 'admin',
         parent_order_id: 1,
         is_main_order: false,
@@ -146,13 +126,21 @@ const mockOrders: ExtendedOrder[] = [
     id: 2,
     order_number: 'ORD-20241201-002',
     client_name: 'Equinor',
-    client_email: 'shipping@equinor.com',
+    contact_person: 'Anna Johansen',
     vessel_name: 'M/T North Sea',
+    vessel_imo: 'IMO2345678',
+    vessel_flag: 'Norway',
     port: 'Multi-port Container Survey',
+    ports: ['Hamburg', 'Rotterdam'],
+    is_multi_port: true,
+    expected_arrival: '2024-12-01T09:30:00Z',
+    expected_departure: '2024-12-02T18:00:00Z',
     survey_type: 'Container survey',
+    order_lines: [],
+    created_at: '2024-12-01T09:30:00Z',
+    client_email: 'shipping@equinor.com',
     status: 'in_progress',
     created_by: 'admin',
-    created_at: '2024-12-01T09:30:00Z',
     created_by_name: 'admin',
     parent_order_id: undefined,
     is_main_order: true,
@@ -162,13 +150,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 21,
         order_number: 'ORD-20241201-002-1',
         client_name: 'Equinor',
-        client_email: 'shipping@equinor.com',
+        contact_person: 'Anna Johansen',
         vessel_name: 'M/T North Sea',
+        vessel_imo: 'IMO2345678',
+        vessel_flag: 'Norway',
         port: 'Hamburg',
+        ports: ['Hamburg'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-01T09:30:00Z',
+        expected_departure: '2024-12-01T18:00:00Z',
         survey_type: 'Container survey',
+        order_lines: [],
+        created_at: '2024-12-01T09:30:00Z',
+        client_email: 'shipping@equinor.com',
         status: 'completed',
         created_by: 'admin',
-        created_at: '2024-12-01T09:30:00Z',
         created_by_name: 'admin',
         parent_order_id: 2,
         is_main_order: false,
@@ -179,13 +175,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 22,
         order_number: 'ORD-20241201-002-2',
         client_name: 'Equinor',
-        client_email: 'shipping@equinor.com',
+        contact_person: 'Anna Johansen',
         vessel_name: 'M/T North Sea',
+        vessel_imo: 'IMO2345678',
+        vessel_flag: 'Norway',
         port: 'Rotterdam',
+        ports: ['Rotterdam'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-02T09:30:00Z',
+        expected_departure: '2024-12-02T18:00:00Z',
         survey_type: 'Container survey',
+        order_lines: [],
+        created_at: '2024-12-01T11:30:00Z',
+        client_email: 'shipping@equinor.com',
         status: 'in_progress',
         created_by: 'admin',
-        created_at: '2024-12-01T11:30:00Z',
         created_by_name: 'admin',
         parent_order_id: 2,
         is_main_order: false,
@@ -199,13 +203,21 @@ const mockOrders: ExtendedOrder[] = [
     id: 3,
     order_number: 'ORD-20241201-003',
     client_name: 'Aker BP',
-    client_email: 'operations@akerbp.com',
+    contact_person: 'Kristine Berg',
     vessel_name: 'M/T Norwegian Spirit',
+    vessel_imo: 'IMO3456789',
+    vessel_flag: 'Norway',
     port: 'Multi-port Bunker Survey',
+    ports: ['Kristiansand', 'Bergen'],
+    is_multi_port: true,
+    expected_arrival: '2024-11-30T14:15:00Z',
+    expected_departure: '2024-12-01T18:00:00Z',
     survey_type: 'Bunker survey',
+    order_lines: [],
+    created_at: '2024-11-30T14:15:00Z',
+    client_email: 'operations@akerbp.com',
     status: 'completed',
     created_by: 'surveyor1',
-    created_at: '2024-11-30T14:15:00Z',
     created_by_name: 'surveyor1',
     parent_order_id: undefined,
     is_main_order: true,
@@ -215,13 +227,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 31,
         order_number: 'ORD-20241201-003-1',
         client_name: 'Aker BP',
-        client_email: 'operations@akerbp.com',
+        contact_person: 'Kristine Berg',
         vessel_name: 'M/T Norwegian Spirit',
-        port: 'Trondheim',
+        vessel_imo: 'IMO3456789',
+        vessel_flag: 'Norway',
+        port: 'Kristiansand',
+        ports: ['Kristiansand'],
+        is_multi_port: false,
+        expected_arrival: '2024-11-30T14:15:00Z',
+        expected_departure: '2024-11-30T18:00:00Z',
         survey_type: 'Bunker survey',
+        order_lines: [],
+        created_at: '2024-11-30T14:15:00Z',
+        client_email: 'operations@akerbp.com',
         status: 'completed',
         created_by: 'surveyor1',
-        created_at: '2024-11-30T14:15:00Z',
         created_by_name: 'surveyor1',
         parent_order_id: 3,
         is_main_order: false,
@@ -232,13 +252,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 32,
         order_number: 'ORD-20241201-003-2',
         client_name: 'Aker BP',
-        client_email: 'operations@akerbp.com',
+        contact_person: 'Kristine Berg',
         vessel_name: 'M/T Norwegian Spirit',
-        port: 'Kristiansand',
+        vessel_imo: 'IMO3456789',
+        vessel_flag: 'Norway',
+        port: 'Bergen',
+        ports: ['Bergen'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-01T14:15:00Z',
+        expected_departure: '2024-12-01T18:00:00Z',
         survey_type: 'Bunker survey',
+        order_lines: [],
+        created_at: '2024-11-30T16:30:00Z',
+        client_email: 'operations@akerbp.com',
         status: 'completed',
         created_by: 'surveyor1',
-        created_at: '2024-11-30T16:30:00Z',
         created_by_name: 'surveyor1',
         parent_order_id: 3,
         is_main_order: false,
@@ -252,13 +280,21 @@ const mockOrders: ExtendedOrder[] = [
     id: 4,
     order_number: 'ORD-20241201-004',
     client_name: 'Lundin Energy',
-    client_email: 'marine@lundinenergy.com',
+    contact_person: 'Thomas Andersen',
     vessel_name: 'M/T Edvard Grieg',
+    vessel_imo: 'IMO4567890',
+    vessel_flag: 'Norway',
     port: 'Oslo',
+    ports: ['Oslo'],
+    is_multi_port: false,
+    expected_arrival: '2024-11-30T16:45:00Z',
+    expected_departure: '2024-12-01T18:00:00Z',
     survey_type: 'Condition survey',
+    order_lines: [],
+    created_at: '2024-11-30T16:45:00Z',
+    client_email: 'marine@lundinenergy.com',
     status: 'in_progress',
     created_by: 'surveyor2',
-    created_at: '2024-11-30T16:45:00Z',
     created_by_name: 'surveyor2',
     parent_order_id: undefined,
     is_main_order: true,
@@ -269,13 +305,21 @@ const mockOrders: ExtendedOrder[] = [
     id: 5,
     order_number: 'ORD-20241201-005',
     client_name: 'Vår Energi',
-    client_email: 'shipping@varenergi.no',
+    contact_person: 'Peter Nielsen',
     vessel_name: 'M/T Balder',
+    vessel_imo: 'IMO5678901',
+    vessel_flag: 'Norway',
     port: 'Multi-port Pre-loading',
+    ports: ['Stavanger', 'Bergen', 'Oslo', 'Kristiansand'],
+    is_multi_port: true,
+    expected_arrival: '2024-12-01T11:20:00Z',
+    expected_departure: '2024-12-04T18:00:00Z',
     survey_type: 'Pre-loading survey',
+    order_lines: [],
+    created_at: '2024-12-01T11:20:00Z',
+    client_email: 'shipping@varenergi.no',
     status: 'pending',
     created_by: 'admin',
-    created_at: '2024-12-01T11:20:00Z',
     created_by_name: 'admin',
     parent_order_id: undefined,
     is_main_order: true,
@@ -285,13 +329,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 51,
         order_number: 'ORD-20241201-005-1',
         client_name: 'Vår Energi',
-        client_email: 'shipping@varenergi.no',
+        contact_person: 'Peter Nielsen',
         vessel_name: 'M/T Balder',
-        port: 'Kristiansand',
+        vessel_imo: 'IMO5678901',
+        vessel_flag: 'Norway',
+        port: 'Stavanger',
+        ports: ['Stavanger'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-01T11:20:00Z',
+        expected_departure: '2024-12-01T18:00:00Z',
         survey_type: 'Pre-loading survey',
+        order_lines: [],
+        created_at: '2024-12-01T11:20:00Z',
+        client_email: 'shipping@varenergi.no',
         status: 'pending',
         created_by: 'admin',
-        created_at: '2024-12-01T11:20:00Z',
         created_by_name: 'admin',
         parent_order_id: 5,
         is_main_order: false,
@@ -302,13 +354,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 52,
         order_number: 'ORD-20241201-005-2',
         client_name: 'Vår Energi',
-        client_email: 'shipping@varenergi.no',
+        contact_person: 'Peter Nielsen',
         vessel_name: 'M/T Balder',
-        port: 'Stavanger',
+        vessel_imo: 'IMO5678901',
+        vessel_flag: 'Norway',
+        port: 'Bergen',
+        ports: ['Bergen'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-02T11:20:00Z',
+        expected_departure: '2024-12-02T18:00:00Z',
         survey_type: 'Pre-loading survey',
+        order_lines: [],
+        created_at: '2024-12-01T13:00:00Z',
+        client_email: 'shipping@varenergi.no',
         status: 'pending',
         created_by: 'admin',
-        created_at: '2024-12-01T13:00:00Z',
         created_by_name: 'admin',
         parent_order_id: 5,
         is_main_order: false,
@@ -319,13 +379,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 53,
         order_number: 'ORD-20241201-005-3',
         client_name: 'Vår Energi',
-        client_email: 'shipping@varenergi.no',
+        contact_person: 'Peter Nielsen',
         vessel_name: 'M/T Balder',
-        port: 'Bergen',
+        vessel_imo: 'IMO5678901',
+        vessel_flag: 'Norway',
+        port: 'Oslo',
+        ports: ['Oslo'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-03T11:20:00Z',
+        expected_departure: '2024-12-03T18:00:00Z',
         survey_type: 'Pre-loading survey',
+        order_lines: [],
+        created_at: '2024-12-01T14:30:00Z',
+        client_email: 'shipping@varenergi.no',
         status: 'pending',
         created_by: 'admin',
-        created_at: '2024-12-01T14:30:00Z',
         created_by_name: 'admin',
         parent_order_id: 5,
         is_main_order: false,
@@ -336,13 +404,21 @@ const mockOrders: ExtendedOrder[] = [
         id: 54,
         order_number: 'ORD-20241201-005-4',
         client_name: 'Vår Energi',
-        client_email: 'shipping@varenergi.no',
+        contact_person: 'Peter Nielsen',
         vessel_name: 'M/T Balder',
-        port: 'Trondheim',
+        vessel_imo: 'IMO5678901',
+        vessel_flag: 'Norway',
+        port: 'Kristiansand',
+        ports: ['Kristiansand'],
+        is_multi_port: false,
+        expected_arrival: '2024-12-04T11:20:00Z',
+        expected_departure: '2024-12-04T18:00:00Z',
         survey_type: 'Pre-loading survey',
+        order_lines: [],
+        created_at: '2024-12-01T16:00:00Z',
+        client_email: 'shipping@varenergi.no',
         status: 'pending',
         created_by: 'admin',
-        created_at: '2024-12-01T16:00:00Z',
         created_by_name: 'admin',
         parent_order_id: 5,
         is_main_order: false,
@@ -374,7 +450,7 @@ const mockActivities = [
   'Survey completed'
 ];
 
-const mockTimelogEntries: ExtendedTimelogEntry[] = [
+const mockTimelogEntries: TimelogEntry[] = [
   // Timelog entries for Sub-order 11 (Stavanger Port)
   {
     id: 1,
@@ -464,7 +540,7 @@ const mockTimelogEntries: ExtendedTimelogEntry[] = [
   }
 ];
 
-const mockSamplingRecords: ExtendedSamplingRecord[] = [
+const mockSamplingRecords: SamplingRecord[] = [
   // Sampling records for Sub-order 11 (Stavanger Port)
   {
     id: 1,
@@ -534,7 +610,7 @@ const mockSamplingRecords: ExtendedSamplingRecord[] = [
   }
 ];
 
-const mockCustomers: ExtendedCustomer[] = [
+const mockCustomers: Customer[] = [
   {
     id: 1,
     name: 'Statoil ASA',
@@ -617,7 +693,7 @@ const mockCustomers: ExtendedCustomer[] = [
   }
 ];
 
-const mockContactPersons: ExtendedContactPerson[] = [
+const mockContactPersons: ContactPerson[] = [
   {
     id: 1,
     customer_id: 1,
@@ -871,7 +947,7 @@ export const mockApi = {
     const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
     
     return {
-      orders: paginatedOrders as Order[],
+      orders: paginatedOrders,
       pagination: {
         page,
         limit,
@@ -903,12 +979,12 @@ export const mockApi = {
     if (!order) {
       throw new Error('Order not found');
     }
-    return order as Order;
+    return order;
   },
 
   createOrder: async (orderData: Partial<Order>) => {
     await new Promise(resolve => setTimeout(resolve, 500));
-    const newOrder: ExtendedOrder = {
+    const newOrder: Order = {
       id: mockOrders.length + 1,
       order_number: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`,
       status: 'pending',
@@ -916,7 +992,7 @@ export const mockApi = {
       created_at: new Date().toISOString(),
       is_main_order: true,
       ...orderData
-    } as ExtendedOrder;
+    } as Order;
     
     mockOrders.push(newOrder);
     return {
@@ -959,7 +1035,7 @@ export const mockApi = {
   // Survey Types
   getSurveyTypes: async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return mockSurveyTypes as SurveyType[];
+    return mockSurveyTypes;
   },
 
   createSurveyType: async (surveyTypeData: Partial<SurveyType>) => {
@@ -1023,6 +1099,9 @@ export const mockApi = {
       destination: 'Demo Laboratory',
       seal_number: `SEAL-${Date.now()}`,
       remarks: 'Demo sample',
+      laboratory: 'Demo Laboratory',
+      analysis_type: 'Standard Analysis',
+      status: 'Pending',
       ...recordData
     } as SamplingRecord;
     
@@ -1050,7 +1129,7 @@ export const mockApi = {
       filteredCustomers = filteredCustomers.filter(customer => customer.type === params.type);
     }
     
-    return filteredCustomers as Customer[];
+    return filteredCustomers;
   },
 
   getCustomer: async (id: number) => {
@@ -1059,7 +1138,7 @@ export const mockApi = {
     if (!customer) {
       throw new Error('Customer not found');
     }
-    return customer as Customer;
+    return customer;
   },
 
   createCustomer: async (customerData: any) => {
@@ -1069,7 +1148,7 @@ export const mockApi = {
       created_at: new Date().toISOString(),
       is_active: true,
       ...customerData
-    } as ExtendedCustomer;
+    } as Customer;
     
     mockCustomers.push(newCustomer);
     return {
@@ -1087,7 +1166,7 @@ export const mockApi = {
       filteredContacts = filteredContacts.filter(contact => contact.customer_id === customerId);
     }
     
-    return filteredContacts as ContactPerson[];
+    return filteredContacts;
   },
 
   createContactPerson: async (contactData: any) => {
@@ -1098,7 +1177,7 @@ export const mockApi = {
       is_active: true,
       is_primary: false,
       ...contactData
-    } as ExtendedContactPerson;
+    } as ContactPerson;
     
     mockContactPersons.push(newContact);
     return {
@@ -1161,7 +1240,7 @@ export const mockApi = {
   // Products
   getProducts: async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return mockProducts.filter(product => product.is_active) as Product[];
+    return mockProducts.filter(product => product.is_active);
   },
 
   getProduct: async (id: number) => {
@@ -1170,7 +1249,7 @@ export const mockApi = {
     if (!product) {
       throw new Error('Product not found');
     }
-    return product as Product;
+    return product;
   },
 
   createProduct: async (productData: any) => {
@@ -1222,7 +1301,7 @@ export const mockApi = {
   // Ports
   getPorts: async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return mockPorts.filter(port => port.is_active) as Port[];
+    return mockPorts.filter(port => port.is_active);
   },
 
   getPort: async (id: number) => {
@@ -1231,7 +1310,7 @@ export const mockApi = {
     if (!port) {
       throw new Error('Port not found');
     }
-    return port as Port;
+    return port;
   },
 
   createPort: async (portData: any) => {

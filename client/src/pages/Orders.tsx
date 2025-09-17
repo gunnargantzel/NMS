@@ -239,7 +239,7 @@ const Orders: React.FC = () => {
                     <TableCell>
                       <Chip
                         label={order.status}
-                        color={getStatusColor(order.status) as any}
+                        color={getStatusColor(order.status || 'pending') as any}
                         size="small"
                       />
                     </TableCell>
