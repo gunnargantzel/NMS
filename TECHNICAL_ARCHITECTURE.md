@@ -116,8 +116,10 @@ Layout/
 Pages/
 ├── Dashboard.tsx           # Overview and statistics
 ├── Orders.tsx              # Order listing and management
-├── OrderDetail.tsx         # Detailed order view
+├── OrderDetail.tsx         # Detailed order view with edit functionality
 ├── OrderForm.tsx           # Order creation and editing
+├── Products.tsx            # Product master data management
+├── Ports.tsx               # Port/harbor master data management
 ├── SurveyTypes.tsx         # Survey type management
 └── Login.tsx               # Authentication page
 ```
@@ -126,18 +128,22 @@ Pages/
 ```
 Components/
 ├── SplashScreen.tsx        # Loading screen
-├── DataTable.tsx           # Reusable table component
+├── DataTable.tsx           # Reusable table component with edit functionality
 ├── FormStepper.tsx         # Multi-step form navigation
 ├── PortSelector.tsx        # Port selection dropdown
+├── ProductSelector.tsx     # Product selection autocomplete
+├── EditDialog.tsx          # Reusable edit dialog component
 └── StatusChip.tsx          # Status display component
 ```
 
 ### 4. Service Components
 ```
 Services/
-├── mockApi.ts              # Mock API implementation
+├── mockApi.ts              # Mock API implementation with CRUD operations
 ├── authService.ts          # Authentication service
 ├── orderService.ts         # Order management service
+├── productService.ts       # Product master data service
+├── portService.ts          # Port master data service
 └── validationService.ts    # Form validation utilities
 ```
 
@@ -216,6 +222,31 @@ GET    /api/orders/:id/lines    # Get order lines
 POST   /api/order-lines         # Create order line
 PUT    /api/order-lines/:id     # Update order line
 DELETE /api/order-lines/:id     # Delete order line
+
+GET    /api/orders/:id/timelog  # Get timelog entries
+POST   /api/timelog-entries     # Create timelog entry
+PUT    /api/timelog-entries/:id # Update timelog entry
+DELETE /api/timelog-entries/:id # Delete timelog entry
+
+GET    /api/orders/:id/sampling # Get sampling records
+POST   /api/sampling-records    # Create sampling record
+PUT    /api/sampling-records/:id # Update sampling record
+DELETE /api/sampling-records/:id # Delete sampling record
+
+GET    /api/orders/:id/remarks  # Get remarks
+POST   /api/remarks             # Create remark
+PUT    /api/remarks/:id         # Update remark
+DELETE /api/remarks/:id         # Delete remark
+
+GET    /api/products            # List all products
+POST   /api/products            # Create product
+PUT    /api/products/:id        # Update product
+DELETE /api/products/:id        # Delete product
+
+GET    /api/ports               # List all ports
+POST   /api/ports               # Create port
+PUT    /api/ports/:id           # Update port
+DELETE /api/ports/:id           # Delete port
 ```
 
 ### 2. Mock API Implementation

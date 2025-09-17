@@ -89,11 +89,16 @@ This document describes the complete database structure for the NMS (Order Manag
 | sub_order_id | Integer (Foreign Key) | Yes | Reference to sub-order | Links to Orders.id where is_main_order = false |
 | sample_number | String (50) | Yes | Unique sample identifier | |
 | sample_type | String (50) | Yes | Type of sample taken | |
-| laboratory | String (100) | Yes | Laboratory performing analysis | |
-| analysis_type | String (100) | Yes | Type of analysis performed | |
-| results | Text | No | Analysis results | |
-| notes | Text | No | Additional notes | |
+| quantity | String (50) | No | Quantity of sample | e.g., "1 liter", "500ml" |
+| destination | String (100) | No | Where sample is sent | Laboratory or storage location |
+| seal_number | String (50) | No | Seal number for sample | For tracking and security |
+| laboratory | String (100) | No | Laboratory performing analysis | |
+| analysis_type | String (100) | No | Type of analysis performed | |
+| status | String (50) | No | Sample status | e.g., "Pending", "In Progress", "Completed" |
+| remarks | Text | No | Additional notes | |
+| created_by | String (50) | Yes | User who created the record | |
 | created_at | DateTime | Yes | Creation timestamp | |
+| created_by_name | String (100) | No | Display name of creator | For UI display |
 | updated_at | DateTime | No | Last update timestamp | |
 
 **Relationships**:
@@ -187,6 +192,22 @@ This document describes the complete database structure for the NMS (Order Manag
 **Relationships**:
 - One-to-many: Products can be used in multiple order lines
 
+### 10. Ports Table
+**Purpose**: Master data for available ports/harbors that can be selected when creating orders.
+
+| Field Name | Data Type | Required | Description | Notes |
+|------------|-----------|----------|-------------|-------|
+| id | Integer (Primary Key) | Yes | Unique identifier | Auto-increment |
+| name | String (200) | Yes | Port name | |
+| country | String (100) | Yes | Country where port is located | |
+| region | String (100) | No | Region or state | |
+| is_active | Boolean | Yes | Whether port is active | |
+| created_at | DateTime | Yes | Creation timestamp | |
+| updated_at | DateTime | No | Last update timestamp | |
+
+**Relationships**:
+- One-to-many: Ports can be used in multiple orders
+
 ## Data Relationships Diagram
 
 ```
@@ -209,6 +230,7 @@ Orders (Sub-Orders) ──── (M) Order Lines ──── (M) Products
     │ (1) ──── (M) Remarks
 
 Survey Types (1) ──────── (M) Orders
+Ports (1) ──────────────── (M) Orders
 ```
 
 ## Business Rules
@@ -218,9 +240,10 @@ Survey Types (1) ──────── (M) Orders
 2. **Sub-Orders**: Represent individual ports/harbors within the main order
 3. **Order Lines**: Belong to specific sub-orders (ports), not main orders
 4. **Products**: Master data referenced by order lines for consistent product naming
-5. **Timelog Entries**: Belong to specific sub-orders (ports), not main orders
-6. **Sampling Records**: Belong to specific sub-orders (ports), not main orders
-7. **Remarks**: Belong to specific sub-orders (ports), not main orders
+5. **Ports**: Master data for available ports/harbors that can be selected when creating orders
+6. **Timelog Entries**: Belong to specific sub-orders (ports), not main orders
+7. **Sampling Records**: Belong to specific sub-orders (ports), not main orders
+8. **Remarks**: Belong to specific sub-orders (ports), not main orders
 
 ### Data Integrity Rules
 1. `parent_order_id` must be NULL for main orders
@@ -234,6 +257,9 @@ Survey Types (1) ──────── (M) Orders
 9. Order line numbers must be sequential within each sub-order
 10. Product names must be unique and non-empty
 11. Only active products can be selected in order lines
+12. Port names must be unique and non-empty
+13. Only active ports can be selected when creating orders
+14. All timelog, sampling, and remarks entries must be linked to valid sub-orders
 
 ### Status Workflow
 - **pending**: Order created but not started

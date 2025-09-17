@@ -63,6 +63,8 @@ The dashboard provides a comprehensive overview of your orders and system status
 ### Navigation Menu
 - **Dashboard**: Return to overview
 - **Orders**: Manage all orders
+- **Products**: Manage product master data
+- **Ports**: Manage port/harbor master data
 - **Survey Types**: Manage survey type master data
 - **Logout**: Sign out of the system
 
@@ -122,8 +124,9 @@ The dashboard provides a comprehensive overview of your orders and system status
 #### Step 4: Order Lines
 1. Click "Add Order Line" button
 2. **Port Selection**: Choose which port this line item belongs to
-3. **Line Details**:
-   - Description (required)
+3. **Product Selection**: Choose from available products (dropdown)
+4. **Line Details**:
+   - Description (auto-filled from product selection)
    - Quantity (required)
    - Unit (MT, TEU, M³, etc.)
    - Unit Price (required)
@@ -132,9 +135,9 @@ The dashboard provides a comprehensive overview of your orders and system status
    - Weight
    - Volume
    - Remarks
-4. Click "Add" to save the line item
-5. Repeat for additional line items
-6. Click "Next" to proceed
+5. Click "Add" to save the line item
+6. Repeat for additional line items
+7. Click "Next" to proceed
 
 #### Step 5: Review & Submit
 1. Review all entered information
@@ -195,6 +198,46 @@ The dashboard provides a comprehensive overview of your orders and system status
    - Email Address (required)
    - Notes
 3. Click "Create Contact"
+
+## Master Data Management
+
+### Product Management
+1. Click "Products" in the navigation menu
+2. **View Products**: See all available products in a table
+3. **Add New Product**:
+   - Click "Add Product" button
+   - Fill in product details:
+     - Name (required)
+     - Description
+     - Category
+     - Active status
+   - Click "Create Product"
+4. **Edit Product**:
+   - Click "Edit" button next to the product
+   - Modify fields as needed
+   - Click "Update Product"
+5. **Delete Product**:
+   - Click "Delete" button next to the product
+   - Confirm deletion
+
+### Port Management
+1. Click "Ports" in the navigation menu
+2. **View Ports**: See all available ports in a table
+3. **Add New Port**:
+   - Click "Add Port" button
+   - Fill in port details:
+     - Name (required)
+     - Country (required)
+     - Region
+     - Active status
+   - Click "Create Port"
+4. **Edit Port**:
+   - Click "Edit" button next to the port
+   - Modify fields as needed
+   - Click "Update Port"
+5. **Delete Port**:
+   - Click "Delete" button next to the port
+   - Confirm deletion
 
 ## Data Entry Procedures
 
@@ -258,6 +301,57 @@ The dashboard provides a comprehensive overview of your orders and system status
 4. **Port Selection**: Choose which port this remark belongs to
 5. **Remark Content**: Enter your notes (multiline text)
 6. Click "Add Remark" to save
+
+## Editing Data Entries
+
+### Editing Order Lines
+1. Navigate to order details
+2. Click "Order Lines" tab
+3. Click "Edit" button next to the order line you want to modify
+4. **Edit Dialog**: Modify any fields as needed:
+   - Description
+   - Quantity
+   - Unit
+   - Unit Price
+   - Cargo Type
+   - Package Type
+   - Weight
+   - Volume
+   - Remarks
+5. Click "Update Order Line" to save changes
+
+### Editing Timelog Entries
+1. Navigate to order details
+2. Click "Timelog" tab
+3. Click "Edit" button next to the timelog entry you want to modify
+4. **Edit Dialog**: Modify any fields as needed:
+   - Port/Harbor selection
+   - Activity type
+   - Start Time
+   - End Time
+   - Duration (minutes)
+   - Description/Remarks
+5. Click "Update Timelog Entry" to save changes
+
+### Editing Sampling Records
+1. Navigate to order details
+2. Click "Sampling" tab
+3. Click "Edit" button next to the sampling record you want to modify
+4. **Edit Dialog**: Modify any fields as needed:
+   - Port/Harbor selection
+   - Sample Type
+   - Quantity
+   - Description/Remarks
+5. Click "Update Sampling Record" to save changes
+
+### Editing Remarks
+1. Navigate to order details
+2. Click "Remarks" tab
+3. Click "Edit" button next to the remark you want to modify
+4. **Edit Dialog**: Modify any fields as needed:
+   - Port/Harbor selection
+   - Content (multiline text)
+5. Click "Update Remark" to save changes
 
 ## Port-Specific Data Management
 

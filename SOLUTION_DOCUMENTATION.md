@@ -19,9 +19,11 @@ The NMS (Order Management System) is a modern web application designed to manage
 - **Hierarchical Order Management**: Main orders with multiple port-specific sub-orders
 - **Port-Specific Data Tracking**: All data (order lines, timelog, sampling, remarks) linked to specific ports
 - **Customer Management**: Complete customer and contact person management
+- **Master Data Management**: Product and port/harbor management with CRUD operations
 - **Real-time Data Entry**: Timelog, sampling, and remarks with port selection
+- **Full Edit Functionality**: Edit all data types (order lines, timelog, sampling, remarks)
 - **Order Editing**: Full CRUD operations for orders and related data
-- **Modern UI**: Responsive design with Material-UI components
+- **Modern UI**: Responsive design with Material-UI components and improved hover effects
 
 ## System Architecture
 
@@ -45,8 +47,10 @@ src/
 ├── pages/
 │   ├── Dashboard.tsx       # Overview and statistics
 │   ├── Orders.tsx          # Order listing
-│   ├── OrderDetail.tsx     # Order details and management
+│   ├── OrderDetail.tsx     # Order details with full edit functionality
 │   ├── OrderForm.tsx       # Order creation and editing
+│   ├── Products.tsx        # Product master data management
+│   ├── Ports.tsx           # Port/harbor master data management
 │   ├── SurveyTypes.tsx     # Survey type management
 │   └── Login.tsx           # Authentication
 ├── services/
@@ -72,12 +76,17 @@ src/
 - **Delete Orders**: Safe deletion with confirmation
 
 ### 3. Port-Specific Data Entry
-- **Order Lines**: Cargo items linked to specific ports
-- **Timelog**: Time tracking with port selection
-- **Sampling**: Laboratory samples with port assignment
-- **Remarks**: Port-specific notes and comments
+- **Order Lines**: Cargo items linked to specific ports with product selection
+- **Timelog**: Time tracking with port selection and full edit functionality
+- **Sampling**: Laboratory samples with port assignment and full edit functionality
+- **Remarks**: Port-specific notes and comments with full edit functionality
 
-### 4. Customer Management
+### 4. Master Data Management
+- **Product Management**: CRUD operations for product master data
+- **Port Management**: CRUD operations for port/harbor master data
+- **Data Validation**: Consistent data entry with dropdown selections
+
+### 5. Customer Management
 - **Customer Registration**: Company information management
 - **Contact Persons**: Individual contact management
 - **Relationship Management**: Link contacts to customers
@@ -107,10 +116,10 @@ The dashboard provides an overview of the system with:
 
 #### Order Details View
 - **Overview**: Basic order information
-- **Order Lines**: Cargo items with port information
-- **Timelog**: Time entries with port selection
-- **Sampling**: Laboratory records with port assignment
-- **Remarks**: Port-specific notes
+- **Order Lines**: Cargo items with port information and edit functionality
+- **Timelog**: Time entries with port selection and edit functionality
+- **Sampling**: Laboratory records with port assignment and edit functionality
+- **Remarks**: Port-specific notes with edit functionality
 
 ### 3. Port Selection Interface
 All data entry forms include port selection:
@@ -150,9 +159,11 @@ The system uses a hierarchical database structure:
 3. **Timelog Entries**: Time tracking linked to sub-orders
 4. **Sampling Records**: Laboratory data linked to sub-orders
 5. **Remarks**: Notes linked to sub-orders
-6. **Customers**: Company information
-7. **Contact Persons**: Individual contacts
-8. **Survey Types**: Master data for survey types
+6. **Products**: Master data for available products
+7. **Ports**: Master data for available ports/harbors
+8. **Customers**: Company information
+9. **Contact Persons**: Individual contacts
+10. **Survey Types**: Master data for survey types
 
 ### Key Relationships
 - Main Orders → Sub-Orders (1:many)
@@ -160,6 +171,8 @@ The system uses a hierarchical database structure:
 - Sub-Orders → Timelog Entries (1:many)
 - Sub-Orders → Sampling Records (1:many)
 - Sub-Orders → Remarks (1:many)
+- Products → Order Lines (1:many)
+- Ports → Orders (1:many)
 - Customers → Contact Persons (1:many)
 
 ## API Documentation
