@@ -27,6 +27,10 @@ This document describes the complete database structure for the NMS (Order Manag
 | total_ports | Integer | No | Total number of ports in order chain | Only for main orders |
 | current_port_index | Integer | No | Current port being processed | Only for sub-orders |
 | remarks | Text | No | Additional notes | |
+| vessel_imo | String (20) | No | Vessel IMO number | International Maritime Organization number |
+| vessel_flag | String (50) | No | Vessel flag state | Country of registration |
+| expected_arrival | DateTime | No | Expected arrival time | |
+| expected_departure | DateTime | No | Expected departure time | |
 
 **Relationships**:
 - Self-referencing: `parent_order_id` → `Orders.id`
@@ -58,12 +62,12 @@ This document describes the complete database structure for the NMS (Order Manag
 - Many-to-one: `sub_order_id` → `Orders.id` (where is_main_order = false)
 
 ### 3. Timelog Entries Table
-**Purpose**: Tracks time spent on activities for each order.
+**Purpose**: Tracks time spent on activities for each sub-order (port/harbor).
 
 | Field Name | Data Type | Required | Description | Notes |
 |------------|-----------|----------|-------------|-------|
 | id | Integer (Primary Key) | Yes | Unique identifier | Auto-increment |
-| order_id | Integer (Foreign Key) | Yes | Reference to order | Links to Orders.id (main or sub-order) |
+| sub_order_id | Integer (Foreign Key) | Yes | Reference to sub-order | Links to Orders.id where is_main_order = false |
 | activity | String (100) | Yes | Type of activity performed | |
 | start_time | DateTime | Yes | When the activity started | |
 | end_time | DateTime | No | When the activity ended | NULL for ongoing activities |
@@ -74,15 +78,15 @@ This document describes the complete database structure for the NMS (Order Manag
 | created_by_name | String (100) | No | Display name of creator | For UI display |
 
 **Relationships**:
-- Many-to-one: `order_id` → `Orders.id`
+- Many-to-one: `sub_order_id` → `Orders.id` (where is_main_order = false)
 
 ### 4. Sampling Records Table
-**Purpose**: Stores laboratory sampling and analysis records.
+**Purpose**: Stores laboratory sampling and analysis records for each sub-order (port/harbor).
 
 | Field Name | Data Type | Required | Description | Notes |
 |------------|-----------|----------|-------------|-------|
 | id | Integer (Primary Key) | Yes | Unique identifier | Auto-increment |
-| order_id | Integer (Foreign Key) | Yes | Reference to order | Links to Orders.id (main or sub-order) |
+| sub_order_id | Integer (Foreign Key) | Yes | Reference to sub-order | Links to Orders.id where is_main_order = false |
 | sample_number | String (50) | Yes | Unique sample identifier | |
 | sample_type | String (50) | Yes | Type of sample taken | |
 | laboratory | String (100) | Yes | Laboratory performing analysis | |
@@ -93,7 +97,7 @@ This document describes the complete database structure for the NMS (Order Manag
 | updated_at | DateTime | No | Last update timestamp | |
 
 **Relationships**:
-- Many-to-one: `order_id` → `Orders.id`
+- Many-to-one: `sub_order_id` → `Orders.id` (where is_main_order = false)
 
 ### 5. Survey Types Table
 **Purpose**: Master data for available survey types.
@@ -152,6 +156,21 @@ This document describes the complete database structure for the NMS (Order Manag
 **Relationships**:
 - Many-to-one: `customer_id` → `Customers.id`
 
+### 8. Remarks Table
+**Purpose**: Stores port-specific remarks and notes for each sub-order.
+
+| Field Name | Data Type | Required | Description | Notes |
+|------------|-----------|----------|-------------|-------|
+| id | Integer (Primary Key) | Yes | Unique identifier | Auto-increment |
+| sub_order_id | Integer (Foreign Key) | Yes | Reference to sub-order | Links to Orders.id where is_main_order = false |
+| content | Text | Yes | Remark content | |
+| created_by | String (50) | Yes | User who created the remark | |
+| created_at | DateTime | Yes | Creation timestamp | |
+| updated_at | DateTime | No | Last update timestamp | |
+
+**Relationships**:
+- Many-to-one: `sub_order_id` → `Orders.id` (where is_main_order = false)
+
 ## Data Relationships Diagram
 
 ```
@@ -167,15 +186,11 @@ Orders (Main Orders)
     ▼
 Orders (Sub-Orders) ──── (M) Order Lines
     │
-    │ (1)
+    │ (1) ──── (M) Timelog Entries
     │
-    ▼
-Timelog Entries
+    │ (1) ──── (M) Sampling Records
     │
-    │ (1)
-    │
-    ▼
-Sampling Records
+    │ (1) ──── (M) Remarks
 
 Survey Types (1) ──────── (M) Orders
 ```
@@ -186,7 +201,9 @@ Survey Types (1) ──────── (M) Orders
 1. **Main Orders**: Represent the overall project/cargo movement
 2. **Sub-Orders**: Represent individual ports/harbors within the main order
 3. **Order Lines**: Belong to specific sub-orders (ports), not main orders
-4. **Timelog & Sampling**: Can belong to either main orders or sub-orders
+4. **Timelog Entries**: Belong to specific sub-orders (ports), not main orders
+5. **Sampling Records**: Belong to specific sub-orders (ports), not main orders
+6. **Remarks**: Belong to specific sub-orders (ports), not main orders
 
 ### Data Integrity Rules
 1. `parent_order_id` must be NULL for main orders
@@ -194,7 +211,10 @@ Survey Types (1) ──────── (M) Orders
 3. `is_main_order` must be true when `parent_order_id` is NULL
 4. `is_main_order` must be false when `parent_order_id` is not NULL
 5. `sub_order_id` in Order Lines must reference a sub-order (is_main_order = false)
-6. Order line numbers must be sequential within each sub-order
+6. `sub_order_id` in Timelog Entries must reference a sub-order (is_main_order = false)
+7. `sub_order_id` in Sampling Records must reference a sub-order (is_main_order = false)
+8. `sub_order_id` in Remarks must reference a sub-order (is_main_order = false)
+9. Order line numbers must be sequential within each sub-order
 
 ### Status Workflow
 - **pending**: Order created but not started

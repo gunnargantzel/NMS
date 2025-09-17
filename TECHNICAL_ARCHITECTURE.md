@@ -1,344 +1,543 @@
 # NMS - Technical Architecture Documentation
 
+## Table of Contents
+1. [System Overview](#system-overview)
+2. [Architecture Patterns](#architecture-patterns)
+3. [Technology Stack](#technology-stack)
+4. [Component Architecture](#component-architecture)
+5. [Data Flow](#data-flow)
+6. [State Management](#state-management)
+7. [API Design](#api-design)
+8. [Security Architecture](#security-architecture)
+9. [Performance Considerations](#performance-considerations)
+10. [Deployment Architecture](#deployment-architecture)
+
 ## System Overview
-The NMS (Order Management System) is a modern web application built with React and TypeScript, designed to manage hierarchical orders for maritime cargo surveys. The system supports multi-port operations where a single order can span multiple harbors, each with specific order lines and tracking.
+
+The NMS (Order Management System) is a modern single-page application (SPA) built with React and TypeScript. It follows a hierarchical data model where main orders contain multiple sub-orders representing different ports/harbors, each with their own specific data.
+
+### Core Principles
+- **Component-Based Architecture**: Modular, reusable components
+- **Type Safety**: Full TypeScript implementation
+- **Responsive Design**: Mobile-first approach with Material-UI
+- **Hierarchical Data Model**: Port-specific data organization
+- **Mock-First Development**: Ready for backend integration
+
+## Architecture Patterns
+
+### 1. Component Composition Pattern
+```typescript
+// High-level components compose lower-level ones
+<Layout>
+  <ProtectedRoute>
+    <OrderDetail>
+      <Tabs>
+        <TabPanel>
+          <DataTable />
+        </TabPanel>
+      </Tabs>
+    </OrderDetail>
+  </ProtectedRoute>
+</Layout>
+```
+
+### 2. Custom Hooks Pattern
+```typescript
+// Reusable logic extraction
+const useOrderData = (orderId: string) => {
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    fetchOrderData(orderId);
+  }, [orderId]);
+  
+  return { order, loading, refetch: fetchOrderData };
+};
+```
+
+### 3. Context Pattern
+```typescript
+// Global state management
+<AuthProvider>
+  <App />
+</AuthProvider>
+```
+
+### 4. Service Layer Pattern
+```typescript
+// API abstraction
+class OrderService {
+  async getOrder(id: number): Promise<Order> {
+    return mockApi.getOrder(id);
+  }
+  
+  async createOrder(data: OrderData): Promise<Order> {
+    return mockApi.createOrder(data);
+  }
+}
+```
 
 ## Technology Stack
 
-### Frontend
-- **Framework**: React 18 with TypeScript
-- **UI Library**: Material-UI (MUI) v5
-- **State Management**: React Hooks (useState, useEffect, useCallback)
-- **Routing**: React Router v6
-- **Styling**: CSS Variables + Material-UI theming
-- **Build Tool**: Create React App
-- **Package Manager**: npm
+### Frontend Technologies
+- **React 18**: Latest version with concurrent features
+- **TypeScript 4.9+**: Type safety and developer experience
+- **Material-UI v5**: Component library and design system
+- **React Router v6**: Client-side routing
+- **Day.js**: Date manipulation and formatting
+- **CSS Variables**: Custom design system implementation
 
-### Backend (Current - Mock)
-- **API**: Mock API service (client-side)
-- **Data Storage**: In-memory JavaScript objects
-- **Authentication**: Mock authentication system
+### Development Tools
+- **Create React App**: Build tooling and development server
+- **ESLint**: Code linting and quality
+- **TypeScript Compiler**: Type checking and compilation
+- **Git**: Version control
 
-### Future Backend (Planned)
-- **Database**: Microsoft DataVerse
-- **Authentication**: Microsoft Entra ID (Azure AD)
-- **API**: Power Platform APIs / Custom APIs
-- **Hosting**: Azure Static Web Apps + Azure Functions
+### Build and Deployment
+- **Webpack**: Module bundling (via CRA)
+- **Babel**: JavaScript transpilation
+- **PostCSS**: CSS processing
+- **Azure Static Web Apps**: Deployment platform
 
-## Application Architecture
+## Component Architecture
 
-### Component Structure
+### 1. Layout Components
 ```
-src/
-├── components/
-│   ├── Layout.tsx              # Main application layout
-│   ├── ProtectedRoute.tsx      # Authentication guard
-│   ├── SplashScreen.tsx        # Loading screen
-│   └── AuthProvider.tsx        # Authentication context
-├── pages/
-│   ├── Login.tsx               # Login page
-│   ├── Dashboard.tsx           # Main dashboard
-│   ├── Orders.tsx              # Orders listing
-│   ├── OrderDetail.tsx         # Order details view
-│   ├── OrderForm.tsx           # Order creation/editing
-│   └── SurveyTypes.tsx         # Survey types management
-├── services/
-│   └── mockApi.ts              # Mock API service
-├── styles/
-│   ├── modern_app_foundation.css  # Design system
-│   └── app.css                 # Application-specific styles
-└── App.tsx                     # Main application component
+Layout/
+├── Layout.tsx              # Main application layout
+├── AppBar.tsx              # Top navigation bar
+├── Drawer.tsx              # Side navigation menu
+└── ProtectedRoute.tsx      # Authentication wrapper
 ```
 
-### Data Flow Architecture
+### 2. Page Components
 ```
-User Interface (React Components)
-    ↓
-Mock API Service (mockApi.ts)
-    ↓
-In-Memory Data (JavaScript Objects)
-    ↓
-Component State (React Hooks)
-    ↓
-UI Rendering (Material-UI Components)
+Pages/
+├── Dashboard.tsx           # Overview and statistics
+├── Orders.tsx              # Order listing and management
+├── OrderDetail.tsx         # Detailed order view
+├── OrderForm.tsx           # Order creation and editing
+├── SurveyTypes.tsx         # Survey type management
+└── Login.tsx               # Authentication page
 ```
 
-## Key Features
+### 3. Feature Components
+```
+Components/
+├── SplashScreen.tsx        # Loading screen
+├── DataTable.tsx           # Reusable table component
+├── FormStepper.tsx         # Multi-step form navigation
+├── PortSelector.tsx        # Port selection dropdown
+└── StatusChip.tsx          # Status display component
+```
 
-### 1. Hierarchical Order Management
-- **Main Orders**: Represent overall cargo movement projects
-- **Sub-Orders**: Individual ports/harbors within a main order
-- **Order Lines**: Specific cargo items per port/harbor
-- **Timelog**: Time tracking per order
-- **Sampling**: Laboratory analysis records per order
+### 4. Service Components
+```
+Services/
+├── mockApi.ts              # Mock API implementation
+├── authService.ts          # Authentication service
+├── orderService.ts         # Order management service
+└── validationService.ts    # Form validation utilities
+```
 
-### 2. User Interface Features
-- **Responsive Design**: Works on desktop and mobile
-- **Modern UI**: Material-UI components with custom theming
-- **Multi-step Forms**: Wizard-style order creation
-- **Real-time Updates**: Live data updates without page refresh
-- **Search & Filter**: Advanced filtering capabilities
-- **Export Functions**: Data export capabilities
+## Data Flow
 
-### 3. Authentication & Security
-- **Mock Authentication**: Demo login system
-- **Protected Routes**: Route-level access control
-- **User Context**: Global user state management
-- **Session Management**: Persistent login state
+### 1. Unidirectional Data Flow
+```
+User Action → Event Handler → State Update → Component Re-render → UI Update
+```
 
-## Data Models
+### 2. Data Fetching Flow
+```
+Component Mount → useEffect → API Call → State Update → Component Re-render
+```
 
-### Core Entities
+### 3. Form Submission Flow
+```
+Form Submit → Validation → API Call → Success/Error → State Update → Navigation
+```
 
-#### Order Entity
+### 4. Hierarchical Data Flow
+```
+Main Order → Sub-Orders → Order Lines/Timelog/Sampling/Remarks
+```
+
+## State Management
+
+### 1. Local Component State
 ```typescript
-interface Order {
-  id: number;
-  order_number: string;
-  client_name: string;
-  client_email: string;
-  vessel_name: string;
-  port: string;
-  survey_type: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  created_by: string;
-  created_at: string;
-  updated_at?: string;
-  created_by_name?: string;
-  parent_order_id?: number;
-  is_main_order: boolean;
-  sub_orders?: Order[];
-  total_ports?: number;
-  current_port_index?: number;
+// Component-level state
+const [order, setOrder] = useState<Order | null>(null);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState<string>('');
+```
+
+### 2. Context State
+```typescript
+// Global authentication state
+interface AuthContextType {
+  user: User | null;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  isAuthenticated: boolean;
 }
 ```
 
-#### Order Line Entity
+### 3. Form State
 ```typescript
-interface OrderLine {
-  id: number;
-  sub_order_id: number;  // Links to sub-order (port/harbor)
-  line_number: number;
-  description: string;
-  quantity: number;
-  unit: string;
-  unit_price: number;
-  total_price: number;
-  cargo_type?: string;
-  package_type?: string;
-  weight?: number;
-  volume?: number;
-  remarks?: string;
-  created_at: string;
-}
+// Complex form state management
+const [formData, setFormData] = useState<OrderFormData>({
+  customer_id: null,
+  customer_name: '',
+  vessel_name: '',
+  // ... other fields
+});
 ```
 
-#### Timelog Entry Entity
+### 4. Derived State
 ```typescript
-interface TimelogEntry {
-  id: number;
-  order_id: number;
-  activity: string;
-  start_time: string;
-  end_time?: string;
-  remarks?: string;
-  created_by: string;
-  created_at: string;
-  timestamp?: string;  // Legacy compatibility
-  created_by_name?: string;
-}
+// Computed values
+const totalPrice = orderLines.reduce((sum, line) => sum + line.total_price, 0);
+const isMultiPort = ports.length > 1;
 ```
 
 ## API Design
 
-### Mock API Endpoints
+### 1. RESTful API Structure
+```
+GET    /api/orders              # List all orders
+GET    /api/orders/:id          # Get specific order
+POST   /api/orders              # Create new order
+PUT    /api/orders/:id          # Update order
+DELETE /api/orders/:id          # Delete order
 
-#### Orders
-- `getOrders(params?)` - Get all orders with filtering
-- `getOrder(id)` - Get specific order with sub-orders
-- `createOrder(orderData)` - Create new order
-- `updateOrder(id, orderData)` - Update existing order
-- `deleteOrder(id)` - Delete order
+GET    /api/orders/:id/lines    # Get order lines
+POST   /api/order-lines         # Create order line
+PUT    /api/order-lines/:id     # Update order line
+DELETE /api/order-lines/:id     # Delete order line
+```
 
-#### Order Lines
-- `getOrderLines(subOrderId)` - Get order lines for specific sub-order
-- `createOrderLine(lineData)` - Create new order line
-- `updateOrderLine(id, lineData)` - Update order line
-- `deleteOrderLine(id)` - Delete order line
-
-#### Timelog
-- `getTimelogEntries(orderId)` - Get timelog for order
-- `createTimelogEntry(entryData)` - Create timelog entry
-- `updateTimelogEntry(id, entryData)` - Update timelog entry
-- `deleteTimelogEntry(id)` - Delete timelog entry
-
-#### Sampling
-- `getSamplingRecords(orderId)` - Get sampling records
-- `createSamplingRecord(recordData)` - Create sampling record
-- `updateSamplingRecord(id, recordData)` - Update sampling record
-- `deleteSamplingRecord(id)` - Delete sampling record
-
-#### Master Data
-- `getSurveyTypes()` - Get available survey types
-- `getCustomers()` - Get customer list
-- `getContactPersons(customerId?)` - Get contact persons
-- `getActivities()` - Get available activities
-
-## State Management
-
-### React Hooks Usage
-- **useState**: Local component state
-- **useEffect**: Side effects and data fetching
-- **useCallback**: Memoized functions for performance
-- **useContext**: Global state (authentication)
-
-### State Structure
+### 2. Mock API Implementation
 ```typescript
-// Authentication Context
-interface AuthContextType {
-  user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
-
-// Component State Examples
-const [orders, setOrders] = useState<Order[]>([]);
-const [loading, setLoading] = useState<boolean>(false);
-const [error, setError] = useState<string>('');
+// Mock API with realistic delays
+export const mockApi = {
+  getOrder: async (id: number): Promise<Order> => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return mockOrders.find(order => order.id === id)!;
+  },
+  
+  createOrder: async (data: OrderData): Promise<OrderResponse> => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    // Simulate order creation
+    return { orderId: Date.now(), orderNumber: `ORD-${Date.now()}` };
+  }
+};
 ```
 
-## Styling Architecture
+### 3. Type-Safe API Calls
+```typescript
+// TypeScript interfaces for API responses
+interface OrderResponse {
+  orderId: number;
+  orderNumber: string;
+  message: string;
+}
 
-### Design System
-- **CSS Variables**: Centralized design tokens
-- **Material-UI Theming**: Custom theme configuration
-- **Component Styling**: sx prop and styled components
-- **Responsive Design**: Mobile-first approach
-
-### CSS Structure
-```css
-:root {
-  /* Colors */
-  --color-primary: #2563eb;
-  --color-secondary: #dc2626;
-  --color-gray-50: #f8fafc;
-  
-  /* Spacing */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  
-  /* Typography */
-  --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.125rem;
+interface ApiError {
+  message: string;
+  code: string;
+  details?: any;
 }
 ```
 
-## Performance Optimizations
+## Security Architecture
 
-### React Optimizations
-- **useCallback**: Prevent unnecessary re-renders
-- **useMemo**: Memoize expensive calculations
-- **React.memo**: Prevent component re-renders
-- **Lazy Loading**: Code splitting for routes
+### 1. Authentication
+```typescript
+// JWT-based authentication (ready for implementation)
+interface AuthToken {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+}
+```
 
-### Data Optimizations
-- **Pagination**: Large dataset handling
-- **Debouncing**: Search input optimization
-- **Caching**: API response caching
-- **Virtual Scrolling**: Large list rendering
+### 2. Authorization
+```typescript
+// Role-based access control
+enum UserRole {
+  ADMIN = 'admin',
+  MANAGER = 'manager',
+  FIELD_WORKER = 'field_worker',
+  VIEWER = 'viewer'
+}
+```
 
-## Security Considerations
+### 3. Input Validation
+```typescript
+// Client-side validation
+const validateOrderData = (data: OrderFormData): ValidationResult => {
+  const errors: string[] = [];
+  
+  if (!data.customer_name) errors.push('Customer name is required');
+  if (!data.vessel_name) errors.push('Vessel name is required');
+  
+  return { isValid: errors.length === 0, errors };
+};
+```
 
-### Current Implementation
-- **Mock Authentication**: Demo purposes only
-- **Client-side Validation**: Input validation
-- **XSS Protection**: React's built-in protection
-- **CSRF Protection**: Not applicable for SPA
+### 4. Data Sanitization
+```typescript
+// XSS prevention
+const sanitizeInput = (input: string): string => {
+  return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+};
+```
 
-### Future Implementation (DataVerse)
-- **Entra ID Integration**: Enterprise authentication
-- **Role-based Access**: Granular permissions
-- **Data Encryption**: At rest and in transit
-- **Audit Logging**: User activity tracking
+## Performance Considerations
+
+### 1. Code Splitting
+```typescript
+// Lazy loading for large components
+const OrderForm = lazy(() => import('./pages/OrderForm'));
+const OrderDetail = lazy(() => import('./pages/OrderDetail'));
+```
+
+### 2. Memoization
+```typescript
+// Prevent unnecessary re-renders
+const MemoizedOrderList = memo(OrderList);
+const MemoizedOrderCard = memo(OrderCard);
+```
+
+### 3. Virtual Scrolling
+```typescript
+// For large data sets
+import { FixedSizeList as List } from 'react-window';
+
+const VirtualizedOrderList = ({ orders }: { orders: Order[] }) => (
+  <List
+    height={600}
+    itemCount={orders.length}
+    itemSize={80}
+    itemData={orders}
+  >
+    {OrderRow}
+  </List>
+);
+```
+
+### 4. Debouncing
+```typescript
+// Debounce search inputs
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  
+  return debouncedValue;
+};
+```
 
 ## Deployment Architecture
 
-### Current Deployment
-- **Static Hosting**: GitHub Pages / Netlify
-- **Build Process**: npm run build
-- **Environment**: Development/Production builds
-
-### Future Deployment (Azure)
-- **Frontend**: Azure Static Web Apps
-- **Backend**: Azure Functions / Power Platform
-- **Database**: DataVerse
-- **CDN**: Azure CDN for static assets
-- **Monitoring**: Application Insights
-
-## Development Workflow
-
-### Local Development
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm start
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
+### 1. Development Environment
+```
+Developer Machine
+├── Node.js 16+
+├── npm/yarn
+├── Git
+└── VS Code (recommended)
 ```
 
-### Code Quality
-- **TypeScript**: Type safety
-- **ESLint**: Code linting
-- **Prettier**: Code formatting
-- **Git Hooks**: Pre-commit validation
+### 2. Build Process
+```
+Source Code
+├── TypeScript Compilation
+├── React Build
+├── CSS Processing
+├── Asset Optimization
+└── Static Files
+```
 
-## Migration Strategy to DataVerse
+### 3. Production Deployment
+```
+Azure Static Web Apps
+├── Frontend (React SPA)
+├── API Functions (Future)
+├── CDN Distribution
+└── SSL/TLS Termination
+```
 
-### Phase 1: Data Model Mapping
-1. Map current interfaces to DataVerse entities
-2. Create custom entities in DataVerse
-3. Set up relationships and business rules
-4. Configure security roles
+### 4. CI/CD Pipeline
+```
+Git Repository
+├── Push Trigger
+├── Build Process
+├── Test Execution
+├── Deployment
+└── Health Check
+```
 
-### Phase 2: API Integration
-1. Replace mock API with DataVerse APIs
-2. Implement Power Platform connectors
-3. Set up authentication with Entra ID
-4. Migrate business logic
+## Scalability Considerations
 
-### Phase 3: UI Adaptation
-1. Update API calls to use DataVerse endpoints
-2. Adapt to DataVerse data formats
-3. Implement new authentication flow
-4. Test and validate functionality
+### 1. Frontend Scalability
+- **Component Library**: Reusable UI components
+- **State Management**: Context + Redux for complex state
+- **Code Splitting**: Lazy loading for performance
+- **Caching**: Service worker for offline capability
 
-### Phase 4: Deployment
-1. Deploy to Azure Static Web Apps
-2. Configure DataVerse environment
-3. Set up monitoring and logging
-4. User training and go-live
+### 2. Backend Integration
+- **API Gateway**: Centralized API management
+- **Microservices**: Service-oriented architecture
+- **Database**: PostgreSQL with proper indexing
+- **Caching**: Redis for session and data caching
 
-## Monitoring and Maintenance
+### 3. Performance Monitoring
+- **Error Tracking**: Sentry or similar
+- **Performance Metrics**: Web Vitals monitoring
+- **User Analytics**: Usage pattern analysis
+- **Health Checks**: System status monitoring
 
-### Application Monitoring
-- **Error Tracking**: JavaScript error monitoring
-- **Performance Monitoring**: Page load times
-- **User Analytics**: Usage patterns
-- **API Monitoring**: Response times and errors
+## Future Architecture Enhancements
 
-### Maintenance Tasks
-- **Regular Updates**: Dependencies and security patches
-- **Data Backup**: Regular data exports
-- **Performance Optimization**: Code and database optimization
-- **User Feedback**: Continuous improvement based on feedback
+### 1. Real-time Features
+```typescript
+// WebSocket integration
+const useWebSocket = (url: string) => {
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [lastMessage, setLastMessage] = useState<any>(null);
+  
+  useEffect(() => {
+    const ws = new WebSocket(url);
+    ws.onmessage = (event) => setLastMessage(JSON.parse(event.data));
+    setSocket(ws);
+    
+    return () => ws.close();
+  }, [url]);
+  
+  return { socket, lastMessage };
+};
+```
 
-This architecture provides a solid foundation for the NMS system and ensures smooth migration to DataVerse while maintaining all current functionality and adding enterprise-grade features.
+### 2. Offline Support
+```typescript
+// Service worker for offline capability
+const useOfflineSync = () => {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [pendingActions, setPendingActions] = useState<Action[]>([]);
+  
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      syncPendingActions();
+    };
+    
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+  
+  return { isOnline, pendingActions };
+};
+```
+
+### 3. Progressive Web App
+```typescript
+// PWA configuration
+const pwaConfig = {
+  name: 'NMS - Order Management System',
+  short_name: 'NMS',
+  description: 'Maritime cargo survey management system',
+  start_url: '/',
+  display: 'standalone',
+  background_color: '#ffffff',
+  theme_color: '#2563eb',
+  icons: [
+    {
+      src: '/icon-192.png',
+      sizes: '192x192',
+      type: 'image/png'
+    },
+    {
+      src: '/icon-512.png',
+      sizes: '512x512',
+      type: 'image/png'
+    }
+  ]
+};
+```
+
+## Monitoring and Observability
+
+### 1. Error Tracking
+```typescript
+// Error boundary for React components
+class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true };
+  }
+  
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+    // Send to error tracking service
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback />;
+    }
+    
+    return this.props.children;
+  }
+}
+```
+
+### 2. Performance Monitoring
+```typescript
+// Web Vitals tracking
+const reportWebVitals = (onPerfEntry?: (metric: any) => void) => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+```
+
+### 3. User Analytics
+```typescript
+// Custom analytics tracking
+const trackUserAction = (action: string, properties?: any) => {
+  if (process.env.NODE_ENV === 'production') {
+    // Send to analytics service
+    analytics.track(action, properties);
+  }
+};
+```
+
+---
+
+*This technical architecture documentation provides a comprehensive overview of the NMS system's technical implementation. It serves as a guide for developers, architects, and stakeholders involved in the system's development and maintenance.*
