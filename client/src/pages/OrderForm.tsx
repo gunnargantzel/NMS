@@ -689,7 +689,6 @@ const OrderForm: React.FC = () => {
                 value={formData.port}
                 label="Port"
                 onChange={(e) => setFormData(prev => ({ ...prev, port: e.target.value }))}
-                loading={portsLoading}
               >
                 {ports.map((port) => (
                   <MenuItem key={port.id} value={port.name}>
@@ -708,7 +707,6 @@ const OrderForm: React.FC = () => {
                   value={formData.port}
                   label="Select Port"
                   onChange={(e) => setFormData(prev => ({ ...prev, port: e.target.value }))}
-                  loading={portsLoading}
                 >
                   {ports.map((port) => (
                     <MenuItem key={port.id} value={port.name}>
