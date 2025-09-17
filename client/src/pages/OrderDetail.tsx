@@ -71,6 +71,7 @@ const OrderDetail: React.FC = () => {
   const [timelogEntries, setTimelogEntries] = useState<TimelogEntry[]>([]);
   const [samplingRecords, setSamplingRecords] = useState<SamplingRecord[]>([]);
   const [orderLines, setOrderLines] = useState<OrderLine[]>([]);
+  const [remarks, setRemarks] = useState<any[]>([]);
   const [activities, setActivities] = useState<string[]>([]);
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -116,6 +117,36 @@ const OrderDetail: React.FC = () => {
     selected_port: ''
   });
 
+  // Edit states for timelog entries
+  const [editingTimelogEntry, setEditingTimelogEntry] = useState<TimelogEntry | null>(null);
+  const [editTimelogDialog, setEditTimelogDialog] = useState(false);
+  const [editTimelogData, setEditTimelogData] = useState({
+    activity: '',
+    start_time: dayjs().format(),
+    end_time: dayjs().format(),
+    duration: 0,
+    description: '',
+    selected_port: ''
+  });
+
+  // Edit states for sampling records
+  const [editingSamplingRecord, setEditingSamplingRecord] = useState<SamplingRecord | null>(null);
+  const [editSamplingDialog, setEditSamplingDialog] = useState(false);
+  const [editSamplingData, setEditSamplingData] = useState({
+    sample_type: '',
+    quantity: '',
+    description: '',
+    selected_port: ''
+  });
+
+  // Edit states for remarks
+  const [editingRemark, setEditingRemark] = useState<any | null>(null);
+  const [editRemarkDialog, setEditRemarkDialog] = useState(false);
+  const [editRemarkData, setEditRemarkData] = useState({
+    content: '',
+    selected_port: ''
+  });
+
   const fetchOrderDetails = useCallback(async () => {
     try {
       const orderResponse = await mockApi.getOrder(parseInt(id!));
@@ -126,33 +157,39 @@ const OrderDetail: React.FC = () => {
         const allOrderLines = [];
         const allTimelogEntries = [];
         const allSamplingRecords = [];
+        const allRemarks = [];
         
         for (const subOrder of orderResponse.sub_orders) {
-          const [subOrderLines, timelogResponse, samplingResponse] = await Promise.all([
+          const [subOrderLines, timelogResponse, samplingResponse, remarksResponse] = await Promise.all([
             mockApi.getOrderLines(subOrder.id),
             mockApi.getTimelogEntries(subOrder.id),
-            mockApi.getSamplingRecords(subOrder.id)
+            mockApi.getSamplingRecords(subOrder.id),
+            mockApi.getRemarks(subOrder.id)
           ]);
           
           allOrderLines.push(...subOrderLines);
           allTimelogEntries.push(...timelogResponse.entries);
           allSamplingRecords.push(...samplingResponse);
+          allRemarks.push(...remarksResponse);
         }
         
         setOrderLines(allOrderLines);
         setTimelogEntries(allTimelogEntries);
         setSamplingRecords(allSamplingRecords);
+        setRemarks(allRemarks);
       } else {
         // For sub-orders, fetch data directly
-        const [orderLinesResponse, timelogResponse, samplingResponse] = await Promise.all([
+        const [orderLinesResponse, timelogResponse, samplingResponse, remarksResponse] = await Promise.all([
           mockApi.getOrderLines(parseInt(id!)),
           mockApi.getTimelogEntries(parseInt(id!)),
-          mockApi.getSamplingRecords(parseInt(id!))
+          mockApi.getSamplingRecords(parseInt(id!)),
+          mockApi.getRemarks(parseInt(id!))
         ]);
         
         setOrderLines(orderLinesResponse);
         setTimelogEntries(timelogResponse.entries);
         setSamplingRecords(samplingResponse);
+        setRemarks(remarksResponse);
       }
     } catch (error) {
       console.error('Error fetching order details:', error);
@@ -229,10 +266,14 @@ const OrderDetail: React.FC = () => {
 
   const handleAddRemark = async () => {
     try {
-      // For demo purposes, just show a success message
-      alert(`Remark added for port ${newRemark.selected_port || 'current port'}! (Demo mode)`);
+      await mockApi.createRemark({
+        content: newRemark.content,
+        sub_order_id: parseInt(newRemark.selected_port)
+      });
+      
       setOpenRemarksDialog(false);
       setNewRemark({ content: '', selected_port: '' });
+      fetchOrderDetails();
     } catch (error) {
       console.error('Error adding remark:', error);
     }
@@ -278,6 +319,99 @@ const OrderDetail: React.FC = () => {
       fetchOrderDetails();
     } catch (error) {
       console.error('Error updating order line:', error);
+    }
+  };
+
+  // Edit functions for timelog entries
+  const handleEditTimelogEntry = (entry: TimelogEntry) => {
+    setEditingTimelogEntry(entry);
+    setEditTimelogData({
+      activity: entry.activity,
+      start_time: entry.start_time,
+      end_time: entry.end_time || '',
+      duration: entry.duration || 0,
+      description: entry.remarks || '',
+      selected_port: entry.sub_order_id.toString()
+    });
+    setEditTimelogDialog(true);
+  };
+
+  const handleUpdateTimelogEntry = async () => {
+    if (!editingTimelogEntry) return;
+    
+    try {
+      await mockApi.updateTimelogEntry(editingTimelogEntry.id, {
+        activity: editTimelogData.activity,
+        start_time: editTimelogData.start_time,
+        end_time: editTimelogData.end_time,
+        duration: editTimelogData.duration,
+        remarks: editTimelogData.description,
+        sub_order_id: parseInt(editTimelogData.selected_port)
+      });
+      
+      setEditTimelogDialog(false);
+      setEditingTimelogEntry(null);
+      fetchOrderDetails();
+    } catch (error) {
+      console.error('Error updating timelog entry:', error);
+    }
+  };
+
+  // Edit functions for sampling records
+  const handleEditSamplingRecord = (record: SamplingRecord) => {
+    setEditingSamplingRecord(record);
+    setEditSamplingData({
+      sample_type: record.sample_type,
+      quantity: record.quantity || '',
+      description: record.remarks || '',
+      selected_port: record.sub_order_id.toString()
+    });
+    setEditSamplingDialog(true);
+  };
+
+  const handleUpdateSamplingRecord = async () => {
+    if (!editingSamplingRecord) return;
+    
+    try {
+      await mockApi.updateSamplingRecord(editingSamplingRecord.id, {
+        sample_type: editSamplingData.sample_type,
+        quantity: editSamplingData.quantity,
+        remarks: editSamplingData.description,
+        sub_order_id: parseInt(editSamplingData.selected_port)
+      });
+      
+      setEditSamplingDialog(false);
+      setEditingSamplingRecord(null);
+      fetchOrderDetails();
+    } catch (error) {
+      console.error('Error updating sampling record:', error);
+    }
+  };
+
+  // Edit functions for remarks
+  const handleEditRemark = (remark: any) => {
+    setEditingRemark(remark);
+    setEditRemarkData({
+      content: remark.content,
+      selected_port: remark.sub_order_id.toString()
+    });
+    setEditRemarkDialog(true);
+  };
+
+  const handleUpdateRemark = async () => {
+    if (!editingRemark) return;
+    
+    try {
+      await mockApi.updateRemark(editingRemark.id, {
+        content: editRemarkData.content,
+        sub_order_id: parseInt(editRemarkData.selected_port)
+      });
+      
+      setEditRemarkDialog(false);
+      setEditingRemark(null);
+      fetchOrderDetails();
+    } catch (error) {
+      console.error('Error updating remark:', error);
     }
   };
 
@@ -475,6 +609,7 @@ const OrderDetail: React.FC = () => {
                       <TableCell>Activity</TableCell>
                       <TableCell>Remarks</TableCell>
                       <TableCell>Created By</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
                   </TableHead>
               <TableBody>
@@ -507,6 +642,16 @@ const OrderDetail: React.FC = () => {
                       <TableCell>{entry.activity}</TableCell>
                       <TableCell>{entry.remarks || '-'}</TableCell>
                       <TableCell>{entry.created_by_name || entry.created_by}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<EditIcon />}
+                          onClick={() => handleEditTimelogEntry(entry)}
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -537,6 +682,7 @@ const OrderDetail: React.FC = () => {
                   <TableCell>Seal Number</TableCell>
                   <TableCell>Remarks</TableCell>
                   <TableCell>Created By</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -561,6 +707,16 @@ const OrderDetail: React.FC = () => {
                       <TableCell>{record.seal_number || record.sample_number || '-'}</TableCell>
                       <TableCell>{record.remarks || '-'}</TableCell>
                       <TableCell>{record.created_by_name || record.created_by}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<EditIcon />}
+                          onClick={() => handleEditSamplingRecord(record)}
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -651,9 +807,52 @@ const OrderDetail: React.FC = () => {
               Add Remark
             </Button>
           </Box>
-          <Alert severity="info">
-            Remarks functionality is now available! You can add port-specific remarks using the "Add Remark" button above.
-          </Alert>
+          <TableContainer component={Paper} variant="outlined">
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Port/Harbor</TableCell>
+                  <TableCell>Content</TableCell>
+                  <TableCell>Created By</TableCell>
+                  <TableCell>Created At</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {remarks.map((remark) => {
+                  // Find the port name for this remark
+                  const portName = order?.sub_orders?.find(sub => sub.id === parseInt(remark.sub_order_id.toString()))?.port || 
+                                   (order?.port || 'Unknown Port');
+                  
+                  return (
+                    <TableRow key={remark.id}>
+                      <TableCell>
+                        <Chip 
+                          label={portName} 
+                          size="small" 
+                          color="info" 
+                          variant="outlined"
+                        />
+                      </TableCell>
+                      <TableCell>{remark.content}</TableCell>
+                      <TableCell>{remark.created_by_name || remark.created_by}</TableCell>
+                      <TableCell>{formatDate(remark.created_at)}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<EditIcon />}
+                          onClick={() => handleEditRemark(remark)}
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </TabPanel>
       </Card>
 
@@ -946,6 +1145,177 @@ const OrderDetail: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setEditOrderLineDialog(false)}>Cancel</Button>
           <Button onClick={handleUpdateOrderLine} variant="contained">Update Order Line</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Timelog Entry Dialog */}
+      <Dialog open={editTimelogDialog} onClose={() => setEditTimelogDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Timelog Entry</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Port/Harbor</InputLabel>
+              <Select
+                value={editTimelogData.selected_port}
+                onChange={(e) => setEditTimelogData(prev => ({ ...prev, selected_port: e.target.value }))}
+                label="Port/Harbor"
+              >
+                {order?.sub_orders?.map((subOrder) => (
+                  <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
+                    {subOrder.port}
+                  </MenuItem>
+                )) || (
+                  <MenuItem value={order?.id?.toString() || ''}>
+                    {order?.port || 'Current Port'}
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Activity</InputLabel>
+              <Select
+                value={editTimelogData.activity}
+                onChange={(e) => setEditTimelogData(prev => ({ ...prev, activity: e.target.value }))}
+                label="Activity"
+              >
+                {activities.map((activity) => (
+                  <MenuItem key={activity} value={activity}>
+                    {activity}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <DateTimePicker
+              label="Start Time"
+              value={dayjs(editTimelogData.start_time)}
+              onChange={(newValue) => setEditTimelogData(prev => ({ 
+                ...prev, 
+                start_time: newValue?.format() || dayjs().format() 
+              }))}
+              sx={{ mb: 2, width: '100%' }}
+            />
+            <DateTimePicker
+              label="End Time"
+              value={editTimelogData.end_time ? dayjs(editTimelogData.end_time) : null}
+              onChange={(newValue) => setEditTimelogData(prev => ({ 
+                ...prev, 
+                end_time: newValue?.format() || '' 
+              }))}
+              sx={{ mb: 2, width: '100%' }}
+            />
+            <TextField
+              fullWidth
+              label="Duration (minutes)"
+              type="number"
+              value={editTimelogData.duration}
+              onChange={(e) => setEditTimelogData(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Description"
+              multiline
+              rows={3}
+              value={editTimelogData.description}
+              onChange={(e) => setEditTimelogData(prev => ({ ...prev, description: e.target.value }))}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditTimelogDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateTimelogEntry} variant="contained">Update Timelog Entry</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Sampling Record Dialog */}
+      <Dialog open={editSamplingDialog} onClose={() => setEditSamplingDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Sampling Record</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Port/Harbor</InputLabel>
+              <Select
+                value={editSamplingData.selected_port}
+                onChange={(e) => setEditSamplingData(prev => ({ ...prev, selected_port: e.target.value }))}
+                label="Port/Harbor"
+              >
+                {order?.sub_orders?.map((subOrder) => (
+                  <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
+                    {subOrder.port}
+                  </MenuItem>
+                )) || (
+                  <MenuItem value={order?.id?.toString() || ''}>
+                    {order?.port || 'Current Port'}
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Sample Type"
+              value={editSamplingData.sample_type}
+              onChange={(e) => setEditSamplingData(prev => ({ ...prev, sample_type: e.target.value }))}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Quantity"
+              value={editSamplingData.quantity}
+              onChange={(e) => setEditSamplingData(prev => ({ ...prev, quantity: e.target.value }))}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Description"
+              multiline
+              rows={3}
+              value={editSamplingData.description}
+              onChange={(e) => setEditSamplingData(prev => ({ ...prev, description: e.target.value }))}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditSamplingDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateSamplingRecord} variant="contained">Update Sampling Record</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Remark Dialog */}
+      <Dialog open={editRemarkDialog} onClose={() => setEditRemarkDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Remark</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Port/Harbor</InputLabel>
+              <Select
+                value={editRemarkData.selected_port}
+                onChange={(e) => setEditRemarkData(prev => ({ ...prev, selected_port: e.target.value }))}
+                label="Port/Harbor"
+              >
+                {order?.sub_orders?.map((subOrder) => (
+                  <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
+                    {subOrder.port}
+                  </MenuItem>
+                )) || (
+                  <MenuItem value={order?.id?.toString() || ''}>
+                    {order?.port || 'Current Port'}
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Content"
+              multiline
+              rows={4}
+              value={editRemarkData.content}
+              onChange={(e) => setEditRemarkData(prev => ({ ...prev, content: e.target.value }))}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditRemarkDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateRemark} variant="contained">Update Remark</Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -610,6 +610,50 @@ const mockSamplingRecords: SamplingRecord[] = [
   }
 ];
 
+// Mock remarks data
+const mockRemarks = [
+  {
+    id: 1,
+    sub_order_id: 11,
+    content: 'Cargo inspection completed successfully. No damage detected.',
+    created_by: 'admin',
+    created_by_name: 'admin',
+    created_at: '2024-12-01T10:30:00Z'
+  },
+  {
+    id: 2,
+    sub_order_id: 12,
+    content: 'Weather conditions were challenging during sampling. Extra precautions taken.',
+    created_by: 'admin',
+    created_by_name: 'admin',
+    created_at: '2024-12-01T14:15:00Z'
+  },
+  {
+    id: 3,
+    sub_order_id: 13,
+    content: 'Final inspection completed. All cargo properly secured.',
+    created_by: 'admin',
+    created_by_name: 'admin',
+    created_at: '2024-12-01T16:45:00Z'
+  },
+  {
+    id: 4,
+    sub_order_id: 21,
+    content: 'Initial survey completed. Minor issues noted in cargo hold.',
+    created_by: 'admin',
+    created_by_name: 'admin',
+    created_at: '2024-12-02T09:20:00Z'
+  },
+  {
+    id: 5,
+    sub_order_id: 22,
+    content: 'Follow-up inspection completed. All issues resolved.',
+    created_by: 'admin',
+    created_by_name: 'admin',
+    created_at: '2024-12-02T11:30:00Z'
+  }
+];
+
 const mockCustomers: Customer[] = [
   {
     id: 1,
@@ -1089,6 +1133,11 @@ export const mockApi = {
     return mockSamplingRecords.filter(record => record.sub_order_id === subOrderId);
   },
 
+  getRemarks: async (subOrderId: number) => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return mockRemarks.filter(remark => remark.sub_order_id === subOrderId);
+  },
+
   createSamplingRecord: async (recordData: Partial<SamplingRecord>) => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const newRecord: SamplingRecord = {
@@ -1110,6 +1159,71 @@ export const mockApi = {
     return {
       message: 'Sampling record created successfully',
       record: newRecord
+    };
+  },
+
+  createRemark: async (remarkData: Partial<any>) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newRemark = {
+      id: mockRemarks.length + 1,
+      sub_order_id: remarkData.sub_order_id || 0,
+      content: remarkData.content || '',
+      created_by: 'admin',
+      created_by_name: 'admin',
+      created_at: new Date().toISOString(),
+      ...remarkData
+    };
+    
+    mockRemarks.push(newRemark);
+    return {
+      message: 'Remark created successfully',
+      remark: newRemark
+    };
+  },
+
+  updateTimelogEntry: async (id: number, entryData: Partial<TimelogEntry>) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const entryIndex = mockTimelogEntries.findIndex(e => e.id === id);
+    if (entryIndex === -1) {
+      throw new Error('Timelog entry not found');
+    }
+    
+    mockTimelogEntries[entryIndex] = {
+      ...mockTimelogEntries[entryIndex],
+      ...entryData
+    };
+    
+    return {
+      message: 'Timelog entry updated successfully',
+      entry: mockTimelogEntries[entryIndex]
+    };
+  },
+
+  updateSamplingRecord: async (id: number, recordData: Partial<SamplingRecord>) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const recordIndex = mockSamplingRecords.findIndex(r => r.id === id);
+    if (recordIndex === -1) {
+      throw new Error('Sampling record not found');
+    }
+    
+    mockSamplingRecords[recordIndex] = {
+      ...mockSamplingRecords[recordIndex],
+      ...recordData
+    };
+    
+    return {
+      message: 'Sampling record updated successfully',
+      record: mockSamplingRecords[recordIndex]
+    };
+  },
+
+  updateRemark: async (id: number, remarkData: Partial<any>) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    // For now, we'll just return success since we don't have a mock remarks array
+    // In a real implementation, you would update the remarks in the database
+    return {
+      message: 'Remark updated successfully',
+      remark: { id, ...remarkData }
     };
   },
 
