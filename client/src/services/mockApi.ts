@@ -1,6 +1,8 @@
 // Mock API service for demo purposes
 // This replaces all backend API calls with mock data
 
+import { mockProducts } from '../data/mockProducts';
+
 export interface Order {
   id: number;
   order_number: string;
@@ -26,6 +28,16 @@ export interface SurveyType {
   id: number;
   name: string;
   description: string;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  description?: string;
+  category?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface TimelogEntry {
@@ -1197,5 +1209,66 @@ export const mockApi = {
     
     mockOrderLines.splice(lineIndex, 1);
     return { message: 'Order line deleted successfully' };
+  },
+
+  // Products
+  getProducts: async () => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return mockProducts.filter(product => product.is_active);
+  },
+
+  getProduct: async (id: number) => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const product = mockProducts.find(p => p.id === id);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+    return product;
+  },
+
+  createProduct: async (productData: any) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newProduct = {
+      id: mockProducts.length + 1,
+      created_at: new Date().toISOString(),
+      is_active: true,
+      ...productData
+    } as Product;
+    
+    mockProducts.push(newProduct);
+    return {
+      message: 'Product created successfully',
+      product: newProduct
+    };
+  },
+
+  updateProduct: async (id: number, productData: Partial<Product>) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const productIndex = mockProducts.findIndex(p => p.id === id);
+    if (productIndex === -1) {
+      throw new Error('Product not found');
+    }
+    
+    mockProducts[productIndex] = {
+      ...mockProducts[productIndex],
+      ...productData,
+      updated_at: new Date().toISOString()
+    };
+    
+    return {
+      message: 'Product updated successfully',
+      product: mockProducts[productIndex]
+    };
+  },
+
+  deleteProduct: async (id: number) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const productIndex = mockProducts.findIndex(p => p.id === id);
+    if (productIndex === -1) {
+      throw new Error('Product not found');
+    }
+    
+    mockProducts.splice(productIndex, 1);
+    return { message: 'Product deleted successfully' };
   }
 };

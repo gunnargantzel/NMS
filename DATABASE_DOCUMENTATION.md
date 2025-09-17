@@ -171,6 +171,22 @@ This document describes the complete database structure for the NMS (Order Manag
 **Relationships**:
 - Many-to-one: `sub_order_id` → `Orders.id` (where is_main_order = false)
 
+### 9. Products Table
+**Purpose**: Master data for available products that can be selected in order lines.
+
+| Field Name | Data Type | Required | Description | Notes |
+|------------|-----------|----------|-------------|-------|
+| id | Integer (Primary Key) | Yes | Unique identifier | Auto-increment |
+| name | String (200) | Yes | Product name | |
+| description | Text | No | Product description | |
+| category | String (100) | No | Product category | |
+| is_active | Boolean | Yes | Whether product is active | |
+| created_at | DateTime | Yes | Creation timestamp | |
+| updated_at | DateTime | No | Last update timestamp | |
+
+**Relationships**:
+- One-to-many: Products can be used in multiple order lines
+
 ## Data Relationships Diagram
 
 ```
@@ -184,7 +200,7 @@ Orders (Main Orders)
     │ (1)
     │
     ▼
-Orders (Sub-Orders) ──── (M) Order Lines
+Orders (Sub-Orders) ──── (M) Order Lines ──── (M) Products
     │
     │ (1) ──── (M) Timelog Entries
     │
@@ -201,9 +217,10 @@ Survey Types (1) ──────── (M) Orders
 1. **Main Orders**: Represent the overall project/cargo movement
 2. **Sub-Orders**: Represent individual ports/harbors within the main order
 3. **Order Lines**: Belong to specific sub-orders (ports), not main orders
-4. **Timelog Entries**: Belong to specific sub-orders (ports), not main orders
-5. **Sampling Records**: Belong to specific sub-orders (ports), not main orders
-6. **Remarks**: Belong to specific sub-orders (ports), not main orders
+4. **Products**: Master data referenced by order lines for consistent product naming
+5. **Timelog Entries**: Belong to specific sub-orders (ports), not main orders
+6. **Sampling Records**: Belong to specific sub-orders (ports), not main orders
+7. **Remarks**: Belong to specific sub-orders (ports), not main orders
 
 ### Data Integrity Rules
 1. `parent_order_id` must be NULL for main orders
@@ -215,6 +232,8 @@ Survey Types (1) ──────── (M) Orders
 7. `sub_order_id` in Sampling Records must reference a sub-order (is_main_order = false)
 8. `sub_order_id` in Remarks must reference a sub-order (is_main_order = false)
 9. Order line numbers must be sequential within each sub-order
+10. Product names must be unique and non-empty
+11. Only active products can be selected in order lines
 
 ### Status Workflow
 - **pending**: Order created but not started

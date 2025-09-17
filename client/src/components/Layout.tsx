@@ -23,6 +23,7 @@ import {
   Dashboard as DashboardIcon,
   Assignment as OrdersIcon,
   Category as SurveyTypesIcon,
+  Inventory as ProductsIcon,
   Logout,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
@@ -32,6 +33,7 @@ const drawerWidth = 240;
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { text: 'Orders', icon: <OrdersIcon />, path: '/orders' },
+  { text: 'Products', icon: <ProductsIcon />, path: '/products' },
   { text: 'Survey Types', icon: <SurveyTypesIcon />, path: '/survey-types' },
 ];
 

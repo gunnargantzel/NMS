@@ -38,7 +38,7 @@ import {
   PersonAdd as PersonAddIcon,
   Business as BusinessIcon,
 } from '@mui/icons-material';
-import { mockApi, Customer, ContactPerson, SurveyType, OrderLine } from '../services/mockApi';
+import { mockApi, Customer, ContactPerson, SurveyType, OrderLine, Product } from '../services/mockApi';
 
 interface OrderFormData {
   // Customer Information
@@ -142,8 +142,13 @@ const OrderForm: React.FC = () => {
     weight: 0,
     volume: 0,
     remarks: '',
-    selected_port: '' // Add port selection for order lines
+    selected_port: '', // Add port selection for order lines
+    product_id: null as number | null // Add product selection
   });
+
+  // Products state
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
 
   const steps = [
     'Customer & Contact',
@@ -162,16 +167,21 @@ const OrderForm: React.FC = () => {
 
   const fetchInitialData = async () => {
     try {
-      const [customersData, surveyTypesData] = await Promise.all([
+      setProductsLoading(true);
+      const [customersData, surveyTypesData, productsData] = await Promise.all([
         mockApi.getCustomers(),
-        mockApi.getSurveyTypes()
+        mockApi.getSurveyTypes(),
+        mockApi.getProducts()
       ]);
       
       setCustomers(customersData);
       setSurveyTypes(surveyTypesData);
+      setProducts(productsData);
     } catch (error) {
       console.error('Error fetching initial data:', error);
       setError('Failed to load form data');
+    } finally {
+      setProductsLoading(false);
     }
   };
 
@@ -339,12 +349,23 @@ const OrderForm: React.FC = () => {
       return;
     }
     
+    if (!newOrderLine.product_id) {
+      setError('Please select a product for this order line');
+      return;
+    }
+    
+    const selectedProduct = products.find(p => p.id === newOrderLine.product_id);
+    if (!selectedProduct) {
+      setError('Selected product not found');
+      return;
+    }
+    
     const totalPrice = newOrderLine.quantity * newOrderLine.unit_price;
     const orderLine: OrderLine = {
       id: Date.now(), // Temporary ID
       sub_order_id: 0, // Will be set when order is created - order lines belong to specific ports/harbors
       line_number: formData.order_lines.length + 1,
-      description: newOrderLine.description,
+      description: selectedProduct.name, // Use product name as description
       quantity: newOrderLine.quantity,
       unit: newOrderLine.unit,
       unit_price: newOrderLine.unit_price,
@@ -373,7 +394,8 @@ const OrderForm: React.FC = () => {
       weight: 0,
       volume: 0,
       remarks: '',
-      selected_port: ''
+      selected_port: '',
+      product_id: null
     });
     setOrderLineDialogOpen(false);
   };
@@ -1150,12 +1172,41 @@ const OrderForm: React.FC = () => {
               </FormControl>
             </Box>
             <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
-              <TextField
+              <Autocomplete
                 fullWidth
-                label="Description"
-                value={newOrderLine.description}
-                onChange={(e) => setNewOrderLine(prev => ({ ...prev, description: e.target.value }))}
-                required
+                options={products}
+                getOptionLabel={(option) => option.name}
+                value={products.find(p => p.id === newOrderLine.product_id) || null}
+                onChange={(event, newValue) => {
+                  setNewOrderLine(prev => ({ 
+                    ...prev, 
+                    product_id: newValue?.id || null,
+                    description: newValue?.name || ''
+                  }));
+                }}
+                loading={productsLoading}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Product"
+                    required
+                    placeholder="Select a product..."
+                  />
+                )}
+                renderOption={(props, option) => (
+                  <Box component="li" {...props}>
+                    <Box>
+                      <Typography variant="body2" fontWeight="medium">
+                        {option.name}
+                      </Typography>
+                      {option.description && (
+                        <Typography variant="caption" color="text.secondary">
+                          {option.description}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                )}
               />
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
