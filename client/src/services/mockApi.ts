@@ -20,21 +20,21 @@ import {
 
 // Mock data with multi-ship order structure
 const mockOrders: Order[] = [
-  // Order 1: Single ship, multi-port
+  // Order 1: Single ship, multi-port - Loading Survey (Completed)
   {
     id: 1,
     order_number: 'ORD-20241201-001',
     client_name: 'Statoil ASA',
     client_email: 'cargo@statoil.com',
-    survey_type: 'Cargo damage survey',
-    status: 'in_progress',
+    survey_type: 'Loading survey',
+    status: 'completed',
     total_ships: 1,
     total_ports: 2,
     created_by: 1,
     created_by_name: 'admin',
     created_at: '2024-12-01T08:00:00Z',
-    updated_at: '2024-12-01T10:00:00Z',
-    remarks: 'Multi-port cargo survey for crude oil transport',
+    updated_at: '2024-12-01T18:00:00Z',
+    remarks: 'Loading survey completed - crude oil cargo loaded successfully',
     ships: [
       {
         id: 1,
@@ -44,7 +44,7 @@ const mockOrders: Order[] = [
         vessel_flag: 'Norway',
         expected_arrival: '2024-12-01T08:00:00Z',
         expected_departure: '2024-12-03T18:00:00Z',
-        status: 'in_progress',
+        status: 'completed',
         created_at: '2024-12-01T08:00:00Z',
         updated_at: '2024-12-01T10:00:00Z',
         remarks: 'Primary vessel for cargo transport',
@@ -82,15 +82,15 @@ const mockOrders: Order[] = [
     order_number: 'ORD-20241201-002',
     client_name: 'Equinor',
     client_email: 'shipping@equinor.com',
-    survey_type: 'Loading and lashing survey',
-    status: 'pending',
+    survey_type: 'Discharging survey',
+    status: 'in_progress',
     total_ships: 1,
     total_ports: 1,
     created_by: 2,
     created_by_name: 'surveyor1',
     created_at: '2024-12-01T09:00:00Z',
-    updated_at: '2024-12-01T09:00:00Z',
-    remarks: 'Single port loading survey',
+    updated_at: '2024-12-01T14:00:00Z',
+    remarks: 'Discharging survey in progress - crude oil cargo',
     ships: [
       {
         id: 2,
@@ -210,6 +210,257 @@ const mockOrders: Order[] = [
             created_at: '2024-11-30T10:00:00Z',
             updated_at: '2024-12-01T20:00:00Z',
             remarks: 'Discharge completed'
+          }
+        ]
+      }
+    ]
+  },
+  // Order 4: Multi-ship loading operation (In Progress)
+  {
+    id: 4,
+    order_number: 'ORD-20241202-004',
+    client_name: 'ConocoPhillips',
+    client_email: 'operations@conocophillips.com',
+    survey_type: 'Loading survey',
+    status: 'in_progress',
+    total_ships: 2,
+    total_ports: 3,
+    created_by: 1,
+    created_by_name: 'admin',
+    created_at: '2024-12-02T06:00:00Z',
+    updated_at: '2024-12-02T12:00:00Z',
+    remarks: 'Multi-ship loading operation for refined products',
+    ships: [
+      {
+        id: 5,
+        order_id: 4,
+        vessel_name: 'M/T Arctic Explorer',
+        vessel_imo: 'IMO3456789',
+        vessel_flag: 'Norway',
+        expected_arrival: '2024-12-02T06:00:00Z',
+        expected_departure: '2024-12-02T20:00:00Z',
+        status: 'in_progress',
+        created_at: '2024-12-02T06:00:00Z',
+        updated_at: '2024-12-02T12:00:00Z',
+        remarks: 'Primary loading vessel',
+        ship_ports: [
+          {
+            id: 8,
+            ship_id: 5,
+            port_name: 'Bergen',
+            port_sequence: 1,
+            status: 'completed',
+            actual_arrival: '2024-12-02T06:00:00Z',
+            actual_departure: '2024-12-02T10:00:00Z',
+            created_at: '2024-12-02T06:00:00Z',
+            updated_at: '2024-12-02T10:00:00Z',
+            remarks: 'Loading completed - diesel fuel'
+          },
+          {
+            id: 9,
+            ship_id: 5,
+            port_name: 'Stavanger',
+            port_sequence: 2,
+            status: 'in_progress',
+            actual_arrival: '2024-12-02T12:00:00Z',
+            created_at: '2024-12-02T06:00:00Z',
+            updated_at: '2024-12-02T12:00:00Z',
+            remarks: 'Currently loading gasoline'
+          }
+        ]
+      },
+      {
+        id: 6,
+        order_id: 4,
+        vessel_name: 'M/T Nordic Pioneer',
+        vessel_imo: 'IMO4567890',
+        vessel_flag: 'Norway',
+        expected_arrival: '2024-12-02T08:00:00Z',
+        expected_departure: '2024-12-02T22:00:00Z',
+        status: 'pending',
+        created_at: '2024-12-02T06:00:00Z',
+        updated_at: '2024-12-02T06:00:00Z',
+        remarks: 'Secondary loading vessel',
+        ship_ports: [
+          {
+            id: 10,
+            ship_id: 6,
+            port_name: 'Bergen',
+            port_sequence: 1,
+            status: 'pending',
+            created_at: '2024-12-02T06:00:00Z',
+            updated_at: '2024-12-02T06:00:00Z',
+            remarks: 'Awaiting vessel arrival'
+          }
+        ]
+      }
+    ]
+  },
+  // Order 5: Discharging survey (Completed)
+  {
+    id: 5,
+    order_number: 'ORD-20241130-005',
+    client_name: 'Shell',
+    client_email: 'shipping@shell.com',
+    survey_type: 'Discharging survey',
+    status: 'completed',
+    total_ships: 1,
+    total_ports: 2,
+    created_by: 2,
+    created_by_name: 'surveyor1',
+    created_at: '2024-11-30T14:00:00Z',
+    updated_at: '2024-12-01T08:00:00Z',
+    remarks: 'Discharging survey completed - LNG cargo discharged successfully',
+    ships: [
+      {
+        id: 7,
+        order_id: 5,
+        vessel_name: 'M/T Arctic LNG',
+        vessel_imo: 'IMO5678901',
+        vessel_flag: 'Norway',
+        expected_arrival: '2024-11-30T14:00:00Z',
+        expected_departure: '2024-12-01T08:00:00Z',
+        status: 'completed',
+        created_at: '2024-11-30T14:00:00Z',
+        updated_at: '2024-12-01T08:00:00Z',
+        remarks: 'LNG carrier - specialized vessel',
+        ship_ports: [
+          {
+            id: 11,
+            ship_id: 7,
+            port_name: 'Hammerfest',
+            port_sequence: 1,
+            status: 'completed',
+            actual_arrival: '2024-11-30T14:00:00Z',
+            actual_departure: '2024-11-30T22:00:00Z',
+            created_at: '2024-11-30T14:00:00Z',
+            updated_at: '2024-11-30T22:00:00Z',
+            remarks: 'LNG discharge completed'
+          },
+          {
+            id: 12,
+            ship_id: 7,
+            port_name: 'Tromsø',
+            port_sequence: 2,
+            status: 'completed',
+            actual_arrival: '2024-12-01T02:00:00Z',
+            actual_departure: '2024-12-01T08:00:00Z',
+            created_at: '2024-11-30T14:00:00Z',
+            updated_at: '2024-12-01T08:00:00Z',
+            remarks: 'Final discharge completed'
+          }
+        ]
+      }
+    ]
+  },
+  // Order 6: Complex multi-ship operation (Pending)
+  {
+    id: 6,
+    order_number: 'ORD-20241203-006',
+    client_name: 'TotalEnergies',
+    client_email: 'logistics@totalenergies.com',
+    survey_type: 'Loading survey',
+    status: 'pending',
+    total_ships: 3,
+    total_ports: 5,
+    created_by: 1,
+    created_by_name: 'admin',
+    created_at: '2024-12-03T07:00:00Z',
+    updated_at: '2024-12-03T07:00:00Z',
+    remarks: 'Complex multi-ship loading operation for various petroleum products',
+    ships: [
+      {
+        id: 8,
+        order_id: 6,
+        vessel_name: 'M/T Total Energy',
+        vessel_imo: 'IMO6789012',
+        vessel_flag: 'France',
+        expected_arrival: '2024-12-03T08:00:00Z',
+        expected_departure: '2024-12-03T20:00:00Z',
+        status: 'pending',
+        created_at: '2024-12-03T07:00:00Z',
+        updated_at: '2024-12-03T07:00:00Z',
+        remarks: 'Main loading vessel',
+        ship_ports: [
+          {
+            id: 13,
+            ship_id: 8,
+            port_name: 'Bergen',
+            port_sequence: 1,
+            status: 'pending',
+            created_at: '2024-12-03T07:00:00Z',
+            updated_at: '2024-12-03T07:00:00Z',
+            remarks: 'Primary loading port'
+          },
+          {
+            id: 14,
+            ship_id: 8,
+            port_name: 'Stavanger',
+            port_sequence: 2,
+            status: 'pending',
+            created_at: '2024-12-03T07:00:00Z',
+            updated_at: '2024-12-03T07:00:00Z',
+            remarks: 'Secondary loading port'
+          }
+        ]
+      },
+      {
+        id: 9,
+        order_id: 6,
+        vessel_name: 'M/T Total Spirit',
+        vessel_imo: 'IMO7890123',
+        vessel_flag: 'France',
+        expected_arrival: '2024-12-03T10:00:00Z',
+        expected_departure: '2024-12-03T22:00:00Z',
+        status: 'pending',
+        created_at: '2024-12-03T07:00:00Z',
+        updated_at: '2024-12-03T07:00:00Z',
+        remarks: 'Secondary loading vessel',
+        ship_ports: [
+          {
+            id: 15,
+            ship_id: 9,
+            port_name: 'Bergen',
+            port_sequence: 1,
+            status: 'pending',
+            created_at: '2024-12-03T07:00:00Z',
+            updated_at: '2024-12-03T07:00:00Z',
+            remarks: 'Awaiting vessel arrival'
+          }
+        ]
+      },
+      {
+        id: 10,
+        order_id: 6,
+        vessel_name: 'M/T Total Power',
+        vessel_imo: 'IMO8901234',
+        vessel_flag: 'France',
+        expected_arrival: '2024-12-03T12:00:00Z',
+        expected_departure: '2024-12-04T00:00:00Z',
+        status: 'pending',
+        created_at: '2024-12-03T07:00:00Z',
+        updated_at: '2024-12-03T07:00:00Z',
+        remarks: 'Third loading vessel',
+        ship_ports: [
+          {
+            id: 16,
+            ship_id: 10,
+            port_name: 'Stavanger',
+            port_sequence: 1,
+            status: 'pending',
+            created_at: '2024-12-03T07:00:00Z',
+            updated_at: '2024-12-03T07:00:00Z',
+            remarks: 'Awaiting vessel arrival'
+          },
+          {
+            id: 17,
+            ship_id: 10,
+            port_name: 'Bergen',
+            port_sequence: 2,
+            status: 'pending',
+            created_at: '2024-12-03T07:00:00Z',
+            updated_at: '2024-12-03T07:00:00Z',
+            remarks: 'Final loading port'
           }
         ]
       }
