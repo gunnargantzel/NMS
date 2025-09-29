@@ -445,81 +445,13 @@ const OrderForm: React.FC = () => {
       
       // For now, we'll create a simple single-ship order
       // Multi-ship support can be added later with a more complex UI
-      if (false) { // Disabled for now
-        // Create sub-orders for each port
-        const subOrders = [];
-        const subOrderIds = [];
-        const selectedContact = contactPersons.find(c => c.id === formData.contact_person_id);
-        const contactPersonName = selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name}` : '';
-        
-        for (let i = 0; i < formData.ports.length; i++) {
-          const port = formData.ports[i];
-          const subOrderData = {
-            ...orderData,
-            port: port,
-            ports: [port],
-            is_multi_port: false,
-            is_main_order: false,
-            parent_order_id: response.orderId,
-            current_port_index: i + 1,
-            total_ports: formData.ports.length
-          };
-          
-          const subOrderResponse = await mockApi.createOrder(subOrderData);
-          subOrderIds.push(subOrderResponse.orderId);
-          
-          // Create the sub-order object for the main order
-          subOrders.push({
-            id: subOrderResponse.orderId,
-            order_number: `${response.orderNumber}-${i + 1}`,
-            client_name: formData.customer_name,
-            contact_person: contactPersonName,
-            vessel_name: formData.vessel_name,
-            vessel_imo: formData.vessel_imo,
-            vessel_flag: formData.vessel_flag,
-            port: port,
-            ports: [port],
-            is_multi_port: false,
-            expected_arrival: formData.expected_arrival,
-            expected_departure: formData.expected_departure,
-            survey_type: formData.survey_type,
-            order_lines: [],
-            created_at: new Date().toISOString(),
-            client_email: formData.customer_email,
-            status: 'pending' as const,
-            created_by: 'admin',
-            created_by_name: 'admin',
-            parent_order_id: response.orderId,
-            is_main_order: false,
-            current_port_index: i + 1,
-            total_ports: formData.ports.length
-          });
-        }
-        
-        // Update the main order with sub_orders
-        await mockApi.updateOrder(response.orderId, { sub_orders: subOrders });
-        
-        // Distribute order lines to sub-orders based on selected_port
-        for (const line of formData.order_lines) {
-          // Find the sub-order ID for the selected port
-          const portIndex = formData.ports.indexOf(line.selected_port || '');
-          const subOrderId = subOrderIds[portIndex];
-          
-          if (subOrderId) {
-            await mockApi.createOrderLine({
-              ...line,
-              sub_order_id: subOrderId
-            });
-          }
-        }
-      } else {
-        // Single port order - create order lines directly
-        for (const line of formData.order_lines) {
-          await mockApi.createOrderLine({
-            ...line,
-            sub_order_id: response.orderId
-          });
-        }
+      
+      // Create order lines for the main order
+      for (const line of formData.order_lines) {
+        await mockApi.createOrderLine({
+          ...line,
+          ship_port_id: response.orderId // Temporary - will be updated when ship ports are created
+        });
       }
       
       setSuccess(`Order ${response.orderNumber} created successfully!`);

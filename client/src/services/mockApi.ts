@@ -407,7 +407,7 @@ export const mockApi = {
     return order;
   },
 
-  createOrder: async (orderData: any): Promise<Order> => {
+  createOrder: async (orderData: any): Promise<Order & { orderId: number; orderNumber: string }> => {
     const newOrder: Order = {
       id: mockOrders.length + 1,
       order_number: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`,
@@ -418,6 +418,7 @@ export const mockApi = {
       total_ships: orderData.ships?.length || 1,
       total_ports: orderData.ships?.reduce((sum: number, ship: any) => sum + (ship.ports?.length || 0), 0) || 0,
       created_by: 1,
+      created_by_name: 'admin',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       remarks: orderData.remarks,
@@ -425,7 +426,11 @@ export const mockApi = {
     };
     
     mockOrders.push(newOrder);
-    return newOrder;
+    return {
+      ...newOrder,
+      orderId: newOrder.id,
+      orderNumber: newOrder.order_number
+    };
   },
 
   updateOrder: async (id: number, orderData: any): Promise<Order> => {
@@ -781,6 +786,88 @@ export const mockApi = {
     
     mockContactPersons.push(newContact);
     return { contact: newContact };
+  },
+
+  // Port methods
+  createPort: async (portData: any): Promise<Port> => {
+    const newPort: Port = {
+      id: mockPorts.length + 1,
+      name: portData.name,
+      country: portData.country || '',
+      region: portData.region || '',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    mockPorts.push(newPort);
+    return newPort;
+  },
+
+  updatePort: async (id: number, portData: any): Promise<Port> => {
+    const portIndex = mockPorts.findIndex(p => p.id === id);
+    if (portIndex === -1) {
+      throw new Error('Port not found');
+    }
+    
+    mockPorts[portIndex] = { ...mockPorts[portIndex], ...portData, updated_at: new Date().toISOString() };
+    return mockPorts[portIndex];
+  },
+
+  deletePort: async (id: number): Promise<void> => {
+    const portIndex = mockPorts.findIndex(p => p.id === id);
+    if (portIndex === -1) {
+      throw new Error('Port not found');
+    }
+    
+    mockPorts.splice(portIndex, 1);
+  },
+
+  // Product methods
+  createProduct: async (productData: any): Promise<Product> => {
+    const newProduct: Product = {
+      id: mockProducts.length + 1,
+      name: productData.name,
+      description: productData.description || '',
+      category: productData.category || '',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    mockProducts.push(newProduct);
+    return newProduct;
+  },
+
+  updateProduct: async (id: number, productData: any): Promise<Product> => {
+    const productIndex = mockProducts.findIndex(p => p.id === id);
+    if (productIndex === -1) {
+      throw new Error('Product not found');
+    }
+    
+    mockProducts[productIndex] = { ...mockProducts[productIndex], ...productData, updated_at: new Date().toISOString() };
+    return mockProducts[productIndex];
+  },
+
+  deleteProduct: async (id: number): Promise<void> => {
+    const productIndex = mockProducts.findIndex(p => p.id === id);
+    if (productIndex === -1) {
+      throw new Error('Product not found');
+    }
+    
+    mockProducts.splice(productIndex, 1);
+  },
+
+  // Survey Type methods
+  createSurveyType: async (typeData: any): Promise<SurveyType> => {
+    const newType: SurveyType = {
+      id: mockSurveyTypes.length + 1,
+      name: typeData.name,
+      description: typeData.description || ''
+    };
+    
+    mockSurveyTypes.push(newType);
+    return newType;
   }
 };
 
