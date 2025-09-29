@@ -157,8 +157,8 @@ const OrderForm: React.FC = () => {
 
   const steps = [
     'Customer & Contact',
-    'Vessel Information',
     'Survey Details',
+    'Vessel Information',
     'Order Lines',
     'Review & Submit'
   ];
@@ -976,8 +976,8 @@ const OrderForm: React.FC = () => {
                 <StepLabel>{label}</StepLabel>
                 <StepContent>
                   {index === 0 && renderCustomerStep()}
-                  {index === 1 && renderVesselStep()}
-                  {index === 2 && renderSurveyStep()}
+                  {index === 1 && renderSurveyStep()}
+                  {index === 2 && renderVesselStep()}
                   {index === 3 && renderOrderLinesStep()}
                   {index === 4 && renderReviewStep()}
                   
