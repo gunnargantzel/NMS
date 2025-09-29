@@ -513,7 +513,7 @@ const OrderDetail: React.FC = () => {
               {order.is_main_order && order.sub_orders && order.sub_orders.length > 0 && (
                 <Box sx={{ mt: 1 }}>
                   <Typography variant="caption" color="text.secondary">
-                    Subordrer:
+                    Sub-orders:
                   </Typography>
                   {order.sub_orders.map((subOrder, index) => (
                     <Box key={subOrder.id} sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>

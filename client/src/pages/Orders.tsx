@@ -207,7 +207,7 @@ const Orders: React.FC = () => {
                         </Typography>
                         {order.is_main_order && order.total_ports && order.total_ports > 1 && (
                           <Typography variant="caption" color="text.secondary">
-                            {order.total_ports} havner
+                            {order.total_ports} ports
                           </Typography>
                         )}
                       </Box>

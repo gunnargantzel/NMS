@@ -1,59 +1,59 @@
 # NMS Order Registration System
 
-En moderne webapplikasjon for Norwegian Marine & Cargo Survey (NMCS) som erstatter den gamle Access-databasen med et moderne system for ordreregistrering og skipssurveyer.
+A modern web application for Norwegian Marine & Cargo Survey (NMCS) that replaces the old Access database with a modern system for order registration and ship surveys.
 
-## Funksjoner
+## Features
 
-- **Ordreregistrering**: Opprett og administrer surveyordrer
-- **Timelog**: Registrer aktiviteter og hendelser under surveyer
-- **Sampling**: Administrer prøvetaking og laboratorieanalyser
-- **Remarks**: Forhåndsdefinerte merknader og maler
-- **Email-integrasjon**: Automatiske ordrebekreftelser
-- **Surveytyper**: Administrer forskjellige typer surveyer
-- **Moderne UI**: Responsiv design med Material-UI
+- **Order Registration**: Create and manage survey orders
+- **Timelog**: Register activities and events during surveys
+- **Sampling**: Manage sample taking and laboratory analyses
+- **Remarks**: Predefined comments and templates
+- **Email Integration**: Automatic order confirmations
+- **Survey Types**: Manage different types of surveys
+- **Modern UI**: Responsive design with Material-UI
 
-## Teknisk Stack
+## Technical Stack
 
 ### Backend
-- **Node.js** med Express.js
+- **Node.js** with Express.js
 - **SQLite** database
-- **JWT** autentisering
-- **Nodemailer** for email-funksjonalitet
-- **Helmet** for sikkerhet
+- **JWT** authentication
+- **Nodemailer** for email functionality
+- **Helmet** for security
 
 ### Frontend
-- **React 18** med TypeScript
-- **Material-UI (MUI)** for komponenter
-- **React Router** for navigasjon
-- **Axios** for API-kall
-- **Day.js** for dato-håndtering
+- **React 18** with TypeScript
+- **Material-UI (MUI)** for components
+- **React Router** for navigation
+- **Axios** for API calls
+- **Day.js** for date handling
 
-## Installasjon og Oppsett
+## Installation and Setup
 
-### Forutsetninger
-- Node.js (versjon 16 eller høyere)
-- npm eller yarn
+### Prerequisites
+- Node.js (version 16 or higher)
+- npm or yarn
 
-### 1. Klon repositoryet
+### 1. Clone the repository
 ```bash
 git clone <repository-url>
 cd NMS
 ```
 
-### 2. Installer backend-avhengigheter
+### 2. Install backend dependencies
 ```bash
 npm install
 ```
 
-### 3. Installer frontend-avhengigheter
+### 3. Install frontend dependencies
 ```bash
 cd client
 npm install
 cd ..
 ```
 
-### 4. Konfigurer miljøvariabler
-Opprett en `.env`-fil i rotmappen:
+### 4. Configure environment variables
+Create a `.env` file in the root directory:
 
 ```env
 NODE_ENV=development
@@ -67,9 +67,9 @@ EMAIL_PASS=your_app_password
 EMAIL_FROM=post@cargosurvey.com
 ```
 
-### 5. Start applikasjonen
+### 5. Start the application
 
-#### Enkel start med demodata (anbefalt)
+#### Simple start with demo data (recommended)
 ```bash
 # Windows
 start-demo.bat
@@ -78,189 +78,189 @@ start-demo.bat
 ./start-demo.sh
 ```
 
-#### Manuell start
+#### Manual start
 ```bash
 # Start backend
 npm run dev
 
-# I en ny terminal, start frontend
+# In a new terminal, start frontend
 cd client
 npm start
 ```
 
-#### Produksjonsmodus
+#### Production mode
 ```bash
-# Bygg frontend
+# Build frontend
 npm run build
 
-# Start backend (serverer også frontend)
+# Start backend (also serves frontend)
 npm start
 ```
 
-## Bruk av Applikasjonen
+## Using the Application
 
-### 1. Første gang
-- Gå til `http://localhost:3000`
-- **Logg inn med demodata (mock-autentisering):**
-  - **Brukernavn:** `admin` **Passord:** `admin123` (admin-bruker)
-  - **Brukernavn:** `surveyor1` **Passord:** `admin123` (vanlig bruker)
-  - **Brukernavn:** `surveyor2` **Passord:** `admin123` (vanlig bruker)
-  - **Merk:** Ethvert passord med 3+ tegn fungerer for demo-formål
-- Systemet bruker mock-autentisering (ingen ekte backend-autentisering)
+### 1. First time
+- Go to `http://localhost:3000`
+- **Login with demo data (mock authentication):**
+  - **Username:** `admin` **Password:** `admin123` (admin user)
+  - **Username:** `surveyor1` **Password:** `admin123` (regular user)
+  - **Username:** `surveyor2` **Password:** `admin123` (regular user)
+  - **Note:** Any password with 3+ characters works for demo purposes
+- The system uses mock authentication (no real backend authentication)
 
-### 2. Hovedfunksjoner
+### 2. Main Features
 
 #### Dashboard
-- Oversikt over alle ordrer
-- Statistikk over ordrestatus
-- Rask tilgang til nye ordrer
+- Overview of all orders
+- Order status statistics
+- Quick access to new orders
 
-#### Ordreregistrering
-- Opprett nye surveyordrer
-- Fyll inn kundeinformasjon, skip, havn
-- Velg surveytype
-- Spor ordrestatus
+#### Order Registration
+- Create new survey orders
+- Fill in customer information, ship, port
+- Select survey type
+- Track order status
 
 #### Timelog
-- Registrer aktiviteter under surveyer
-- Forhåndsdefinerte aktiviteter (auto-complete)
-- Tidsstempling av hendelser
-- Merknader og kommentarer
+- Register activities during surveys
+- Predefined activities (auto-complete)
+- Time stamping of events
+- Notes and comments
 
 #### Sampling
-- Administrer prøvetaking
-- Spor prøver til laboratorier
-- Registrer seglnummer
-- Dokumenter prøvehåndtering
+- Manage sample taking
+- Track samples to laboratories
+- Register seal numbers
+- Document sample handling
 
-#### Email-funksjonalitet
-- Automatiske ordrebekreftelser
-- Tilpassede email-maler
-- Integrasjon med kundekommunikasjon
+#### Email Functionality
+- Automatic order confirmations
+- Custom email templates
+- Integration with customer communication
 
-## Database-struktur
+## Database Structure
 
-Applikasjonen bruker SQLite (in-memory for demo) med følgende hovedtabeller:
+The application uses SQLite (in-memory for demo) with the following main tables:
 
-- **users**: Brukeradministrasjon
-- **orders**: Ordreinformasjon
-- **survey_types**: Typer av surveyer
-- **timelog_entries**: Tidsregistrering
-- **timelog_activities**: Forhåndsdefinerte aktiviteter
-- **remarks_templates**: Merknadsmaler
-- **sampling_records**: Prøvetakingsregistrering
+- **users**: User administration
+- **orders**: Order information
+- **survey_types**: Types of surveys
+- **timelog_entries**: Time registration
+- **timelog_activities**: Predefined activities
+- **remarks_templates**: Comment templates
+- **sampling_records**: Sample taking registration
 
-## Demodata
+## Demo Data
 
-Applikasjonen kommer med forhåndsutfylte demodata:
+The application comes with pre-filled demo data:
 
-### Demo-brukere (Mock-autentisering)
-- **admin** (admin-bruker) - Passord: `admin123` (eller ethvert passord med 3+ tegn)
-- **surveyor1** (vanlig bruker) - Passord: `admin123` (eller ethvert passord med 3+ tegn)
-- **surveyor2** (vanlig bruker) - Passord: `admin123` (eller ethvert passord med 3+ tegn)
+### Demo Users (Mock Authentication)
+- **admin** (admin user) - Password: `admin123` (or any password with 3+ characters)
+- **surveyor1** (regular user) - Password: `admin123` (or any password with 3+ characters)
+- **surveyor2** (regular user) - Password: `admin123` (or any password with 3+ characters)
 
-**Merk:** Applikasjonen bruker mock-autentisering for demo-formål. Ingen ekte backend-autentisering er implementert.
+**Note:** The application uses mock authentication for demo purposes. No real backend authentication is implemented.
 
-### Demo-ordrer
-- 5 eksempelordrer fra norske oljeselskaper (Statoil, Equinor, Aker BP, etc.)
-- Forskjellige surveytyper og statuser
-- Realistiske skipnavn og havner
+### Demo Orders
+- 5 sample orders from Norwegian oil companies (Statoil, Equinor, Aker BP, etc.)
+- Various survey types and statuses
+- Realistic ship names and ports
 
-### Demo-timelog
-- Tidsregistreringer for aktive ordrer
-- Forhåndsdefinerte aktiviteter som "Vessel berthed", "Surveyor on board", etc.
+### Demo Timelog
+- Time registrations for active orders
+- Predefined activities such as "Vessel berthed", "Surveyor on board", etc.
 
-### Demo-sampling
-- Prøvetakingsregistreringer
-- Laboratorieanalyser (Denofa, Eurofins)
-- Seglnummer og prøvehåndtering
+### Demo Sampling
+- Sample taking registrations
+- Laboratory analyses (Denofa, Eurofins)
+- Seal numbers and sample handling
 
-## API-endepunkter
+## API Endpoints
 
-### Autentisering
-- `POST /api/auth/register` - Registrer ny bruker
-- `POST /api/auth/login` - Logg inn
-- `GET /api/auth/verify` - Verifiser token
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login
+- `GET /api/auth/verify` - Verify token
 
-### Ordre
-- `GET /api/orders` - Hent alle ordrer
-- `POST /api/orders` - Opprett ny ordre
-- `GET /api/orders/:id` - Hent spesifikk ordre
-- `PUT /api/orders/:id` - Oppdater ordre
-- `DELETE /api/orders/:id` - Slett ordre
+### Orders
+- `GET /api/orders` - Get all orders
+- `POST /api/orders` - Create new order
+- `GET /api/orders/:id` - Get specific order
+- `PUT /api/orders/:id` - Update order
+- `DELETE /api/orders/:id` - Delete order
 
-### Surveytyper
-- `GET /api/surveys/types` - Hent alle surveytyper
-- `POST /api/surveys/types` - Opprett ny surveytype
-- `PUT /api/surveys/types/:id` - Oppdater surveytype
-- `DELETE /api/surveys/types/:id` - Slett surveytype
+### Survey Types
+- `GET /api/surveys/types` - Get all survey types
+- `POST /api/surveys/types` - Create new survey type
+- `PUT /api/surveys/types/:id` - Update survey type
+- `DELETE /api/surveys/types/:id` - Delete survey type
 
 ### Timelog
-- `GET /api/timelog/activities` - Hent aktiviteter
-- `GET /api/timelog/order/:orderId` - Hent timelog for ordre
-- `POST /api/timelog` - Opprett timelog-oppføring
+- `GET /api/timelog/activities` - Get activities
+- `GET /api/timelog/order/:orderId` - Get timelog for order
+- `POST /api/timelog` - Create timelog entry
 
 ### Sampling
-- `GET /api/sampling/order/:orderId` - Hent sampling for ordre
-- `POST /api/sampling` - Opprett sampling-oppføring
+- `GET /api/sampling/order/:orderId` - Get sampling for order
+- `POST /api/sampling` - Create sampling entry
 
 ### Email
-- `POST /api/email/order-confirmation/:orderId` - Send ordrebekreftelse
-- `POST /api/email/send` - Send tilpasset email
+- `POST /api/email/order-confirmation/:orderId` - Send order confirmation
+- `POST /api/email/send` - Send custom email
 
-## Sikkerhet
+## Security
 
-- JWT-basert autentisering
+- JWT-based authentication
 - Rate limiting
-- Helmet for sikkerhetsheaders
-- Input-validering
-- SQL injection-beskyttelse
+- Helmet for security headers
+- Input validation
+- SQL injection protection
 
-## Utvikling
+## Development
 
-### Kode-struktur
+### Code Structure
 ```
 NMS/
-├── server.js              # Hovedserver-fil
+├── server.js              # Main server file
 ├── config/
-│   └── database.js        # Database-konfigurasjon
-├── routes/                # API-ruter
-├── middleware/            # Middleware-funksjoner
+│   └── database.js        # Database configuration
+├── routes/                # API routes
+├── middleware/            # Middleware functions
 ├── client/                # React frontend
 │   ├── src/
-│   │   ├── components/    # React-komponenter
-│   │   ├── pages/         # Sider
+│   │   ├── components/    # React components
+│   │   ├── pages/         # Pages
 │   │   ├── contexts/      # React contexts
-│   │   └── App.tsx        # Hovedapp
+│   │   └── App.tsx        # Main app
 └── package.json
 ```
 
-### Utviklingskommandoer
+### Development Commands
 ```bash
-# Start backend i utviklingsmodus
+# Start backend in development mode
 npm run dev
 
 # Start frontend
 cd client && npm start
 
-# Bygg frontend for produksjon
+# Build frontend for production
 npm run build
 
-# Kjør tester (hvis implementert)
+# Run tests (if implemented)
 npm test
 ```
 
 ## Deployment
 
 ### Heroku
-1. Opprett Heroku-app
-2. Sett miljøvariabler i Heroku dashboard
-3. Deploy med Git:
+1. Create Heroku app
+2. Set environment variables in Heroku dashboard
+3. Deploy with Git:
 ```bash
 git push heroku main
 ```
 
-### Docker (valgfritt)
+### Docker (optional)
 ```dockerfile
 FROM node:16-alpine
 WORKDIR /app
@@ -272,31 +272,31 @@ EXPOSE 5000
 CMD ["npm", "start"]
 ```
 
-## Feilsøking
+## Troubleshooting
 
-### Vanlige problemer
+### Common Issues
 
-1. **Database-feil**: Sjekk at SQLite-filen kan opprettes
-2. **Email-feil**: Verifiser email-konfigurasjon
-3. **CORS-feil**: Sjekk at frontend kjører på riktig port
-4. **Token-feil**: Sjekk JWT_SECRET i .env
+1. **Database errors**: Check that SQLite file can be created
+2. **Email errors**: Verify email configuration
+3. **CORS errors**: Check that frontend runs on correct port
+4. **Token errors**: Check JWT_SECRET in .env
 
-### Logger
-Backend logger til konsoll. For produksjon, vurder å implementere en proper logging-løsning.
+### Logging
+Backend logs to console. For production, consider implementing a proper logging solution.
 
-## Bidrag
+## Contributing
 
-1. Fork repositoryet
-2. Opprett feature branch
-3. Commit endringer
-4. Push til branch
-5. Opprett Pull Request
+1. Fork the repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Create Pull Request
 
-## Lisens
+## License
 
-MIT License - se LICENSE-fil for detaljer.
+MIT License - see LICENSE file for details.
 
-## Kontakt
+## Contact
 
 Norwegian Marine & Cargo Survey AS
 Email: post@cargosurvey.com
