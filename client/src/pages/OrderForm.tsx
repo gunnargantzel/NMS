@@ -201,12 +201,12 @@ const OrderForm: React.FC = () => {
         customer_name: order.client_name || '',
         customer_email: order.client_email || '',
         contact_person_id: null,
-        vessel_name: order.vessel_name || '',
+        vessel_name: order.ships?.[0]?.vessel_name || '',
         vessel_imo: '', // Not available in Order interface
         vessel_flag: '', // Not available in Order interface
         expected_arrival: '', // Not available in Order interface
         expected_departure: '', // Not available in Order interface
-        port: order.port || '',
+        port: order.ships?.[0]?.ship_ports?.[0]?.port_name || '',
         is_multi_port: (order.total_ports || 0) > 1,
         ports: order.ships?.flatMap(ship => ship.ship_ports?.map(sp => sp.port_name) || []) || [order.ships?.[0]?.vessel_name || ''],
         survey_type: order.survey_type || '',
@@ -238,7 +238,7 @@ const OrderForm: React.FC = () => {
 
   const fetchContactPersons = async (customerId: number) => {
     try {
-      const contacts = await mockApi.getContactPersons(customerId);
+      const contacts = await mockApi.getContactPersons();
       setContactPersons(contacts);
     } catch (error) {
       console.error('Error fetching contact persons:', error);
@@ -371,7 +371,7 @@ const OrderForm: React.FC = () => {
     const totalPrice = newOrderLine.quantity * newOrderLine.unit_price;
     const orderLine: OrderLine = {
       id: Date.now(), // Temporary ID
-      sub_order_id: 0, // Will be set when order is created - order lines belong to specific ports/harbors
+      ship_port_id: 0, // Will be set when order is created - order lines belong to specific ports/harbors
       line_number: formData.order_lines.length + 1,
       description: selectedProduct.name, // Use product name as description
       quantity: newOrderLine.quantity,

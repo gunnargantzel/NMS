@@ -29,6 +29,7 @@ export interface Order {
   total_ships: number;
   total_ports: number;
   created_by?: number;
+  created_by_name?: string;
   created_at: string;
   updated_at?: string;
   remarks?: string;

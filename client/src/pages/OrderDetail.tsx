@@ -1182,7 +1182,7 @@ const OrderDetail: React.FC = () => {
                   </MenuItem>
                 )) || (
                   <MenuItem value={order?.id?.toString() || ''}>
-                    {order?.port || 'Current Port'}
+                    {order?.ships?.[0]?.vessel_name || 'Current Port'}
                   </MenuItem>
                 )}
               </Select>
@@ -1261,7 +1261,7 @@ const OrderDetail: React.FC = () => {
                   </MenuItem>
                 )) || (
                   <MenuItem value={order?.id?.toString() || ''}>
-                    {order?.port || 'Current Port'}
+                    {order?.ships?.[0]?.vessel_name || 'Current Port'}
                   </MenuItem>
                 )}
               </Select>
@@ -1314,7 +1314,7 @@ const OrderDetail: React.FC = () => {
                   </MenuItem>
                 )) || (
                   <MenuItem value={order?.id?.toString() || ''}>
-                    {order?.port || 'Current Port'}
+                    {order?.ships?.[0]?.vessel_name || 'Current Port'}
                   </MenuItem>
                 )}
               </Select>

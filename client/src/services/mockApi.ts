@@ -31,6 +31,7 @@ const mockOrders: Order[] = [
     total_ships: 1,
     total_ports: 2,
     created_by: 1,
+    created_by_name: 'admin',
     created_at: '2024-12-01T08:00:00Z',
     updated_at: '2024-12-01T10:00:00Z',
     remarks: 'Multi-port cargo survey for crude oil transport',
@@ -86,6 +87,7 @@ const mockOrders: Order[] = [
     total_ships: 1,
     total_ports: 1,
     created_by: 2,
+    created_by_name: 'surveyor1',
     created_at: '2024-12-01T09:00:00Z',
     updated_at: '2024-12-01T09:00:00Z',
     remarks: 'Single port loading survey',
@@ -128,6 +130,7 @@ const mockOrders: Order[] = [
     total_ships: 2,
     total_ports: 4,
     created_by: 1,
+    created_by_name: 'admin',
     created_at: '2024-11-30T10:00:00Z',
     updated_at: '2024-11-30T20:00:00Z',
     remarks: 'Multi-ship, multi-port cargo operation',
@@ -730,6 +733,54 @@ export const mockApi = {
       created_at: new Date().toISOString()
     };
     return updatedLine;
+  },
+
+  // Customer methods
+  createCustomer: async (customerData: any): Promise<{ customer: Customer }> => {
+    const newCustomer: Customer = {
+      id: mockCustomers.length + 1,
+      name: customerData.name,
+      email: customerData.email,
+      phone: customerData.phone || '',
+      address: customerData.address || '',
+      created_at: new Date().toISOString(),
+      type: customerData.type || 'other',
+      postal_code: customerData.postal_code || '',
+      city: customerData.city || '',
+      country: customerData.country || '',
+      website: customerData.website || '',
+      vat_number: customerData.vat_number || '',
+      notes: customerData.notes || '',
+      updated_at: new Date().toISOString(),
+      is_active: true
+    };
+    
+    mockCustomers.push(newCustomer);
+    return { customer: newCustomer };
+  },
+
+  createContactPerson: async (contactData: any): Promise<{ contact: ContactPerson }> => {
+    const newContact: ContactPerson = {
+      id: mockContactPersons.length + 1,
+      customer_id: contactData.customer_id,
+      name: contactData.name,
+      email: contactData.email,
+      phone: contactData.phone || '',
+      position: contactData.position || '',
+      created_at: new Date().toISOString(),
+      first_name: contactData.first_name || contactData.name?.split(' ')[0] || '',
+      last_name: contactData.last_name || contactData.name?.split(' ')[1] || '',
+      title: contactData.title || '',
+      department: contactData.department || '',
+      mobile: contactData.mobile || '',
+      is_primary: contactData.is_primary || false,
+      is_active: true,
+      notes: contactData.notes || '',
+      updated_at: new Date().toISOString()
+    };
+    
+    mockContactPersons.push(newContact);
+    return { contact: newContact };
   }
 };
 
