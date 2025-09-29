@@ -62,10 +62,11 @@ router.get('/', authenticateToken, (req, res) => {
   });
 });
 
-// Get single order
+// Get single order with ships and ship ports
 router.get('/:id', authenticateToken, (req, res) => {
   const { id } = req.params;
 
+  // Get order details
   db.get(`
     SELECT o.*, u.username as created_by_name 
     FROM orders o 
@@ -80,34 +81,147 @@ router.get('/:id', authenticateToken, (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    res.json(order);
+    // Get ships for this order
+    db.all(`
+      SELECT s.*, 
+             GROUP_CONCAT(sp.id) as ship_port_ids,
+             GROUP_CONCAT(sp.port_name) as port_names,
+             GROUP_CONCAT(sp.port_sequence) as port_sequences
+      FROM ships s
+      LEFT JOIN ship_ports sp ON s.id = sp.ship_id
+      WHERE s.order_id = ?
+      GROUP BY s.id
+      ORDER BY s.created_at
+    `, [id], (err, ships) => {
+      if (err) {
+        return res.status(500).json({ message: 'Database error' });
+      }
+
+      // Get detailed ship ports for each ship
+      const getShipPorts = (shipId) => {
+        return new Promise((resolve, reject) => {
+          db.all(`
+            SELECT sp.*, 
+                   COUNT(ol.id) as order_lines_count,
+                   COUNT(te.id) as timelog_count,
+                   COUNT(sr.id) as sampling_count
+            FROM ship_ports sp
+            LEFT JOIN order_lines ol ON sp.id = ol.ship_port_id
+            LEFT JOIN timelog_entries te ON sp.id = te.ship_port_id
+            LEFT JOIN sampling_records sr ON sp.id = sr.ship_port_id
+            WHERE sp.ship_id = ?
+            GROUP BY sp.id
+            ORDER BY sp.port_sequence
+          `, [shipId], (err, shipPorts) => {
+            if (err) reject(err);
+            else resolve(shipPorts);
+          });
+        });
+      };
+
+      // Get all ship ports for all ships
+      Promise.all(ships.map(ship => getShipPorts(ship.id)))
+        .then(shipPortsArrays => {
+          // Attach ship ports to ships
+          ships.forEach((ship, index) => {
+            ship.ship_ports = shipPortsArrays[index];
+          });
+
+          order.ships = ships;
+          res.json(order);
+        })
+        .catch(err => {
+          res.status(500).json({ message: 'Database error' });
+        });
+    });
   });
 });
 
 // Create new order
 router.post('/', authenticateToken, (req, res) => {
-  const { client_name, client_email, vessel_name, port, survey_type } = req.body;
+  const { client_name, client_email, survey_type, ships, remarks } = req.body;
 
   if (!client_name || !survey_type) {
     return res.status(400).json({ message: 'Client name and survey type are required' });
   }
 
+  if (!ships || !Array.isArray(ships) || ships.length === 0) {
+    return res.status(400).json({ message: 'At least one ship is required' });
+  }
+
   // Generate order number
   const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
 
+  // Calculate total ships and ports
+  const totalShips = ships.length;
+  const totalPorts = ships.reduce((sum, ship) => sum + (ship.ports ? ship.ports.length : 0), 0);
+
   db.run(`
-    INSERT INTO orders (order_number, client_name, client_email, vessel_name, port, survey_type, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `, [orderNumber, client_name, client_email, vessel_name, port, survey_type, req.user.userId], function(err) {
+    INSERT INTO orders (order_number, client_name, client_email, survey_type, total_ships, total_ports, created_by, remarks)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `, [orderNumber, client_name, client_email, survey_type, totalShips, totalPorts, req.user.userId, remarks], function(err) {
     if (err) {
       return res.status(500).json({ message: 'Error creating order' });
     }
 
-    res.status(201).json({
-      message: 'Order created successfully',
-      orderId: this.lastID,
-      orderNumber
-    });
+    const orderId = this.lastID;
+
+    // Create ships and ship ports
+    const createShips = () => {
+      return new Promise((resolve, reject) => {
+        let completed = 0;
+        let hasError = false;
+
+        ships.forEach((ship, shipIndex) => {
+          // Create ship
+          db.run(`
+            INSERT INTO ships (order_id, vessel_name, vessel_imo, vessel_flag, expected_arrival, expected_departure, remarks)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `, [orderId, ship.vessel_name, ship.vessel_imo, ship.vessel_flag, ship.expected_arrival, ship.expected_departure, ship.remarks], function(err) {
+            if (err && !hasError) {
+              hasError = true;
+              reject(err);
+              return;
+            }
+
+            const shipId = this.lastID;
+
+            // Create ship ports
+            if (ship.ports && ship.ports.length > 0) {
+              ship.ports.forEach((port, portIndex) => {
+                db.run(`
+                  INSERT INTO ship_ports (ship_id, port_name, port_sequence, remarks)
+                  VALUES (?, ?, ?, ?)
+                `, [shipId, port.name, portIndex + 1, port.remarks], (err) => {
+                  if (err && !hasError) {
+                    hasError = true;
+                    reject(err);
+                    return;
+                  }
+                });
+              });
+            }
+
+            completed++;
+            if (completed === ships.length && !hasError) {
+              resolve();
+            }
+          });
+        });
+      });
+    };
+
+    createShips()
+      .then(() => {
+        res.status(201).json({
+          message: 'Order created successfully',
+          orderId,
+          orderNumber
+        });
+      })
+      .catch(err => {
+        res.status(500).json({ message: 'Error creating ships and ports' });
+      });
   });
 });
 

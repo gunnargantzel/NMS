@@ -29,6 +29,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/ships', require('./routes/ships'));
+app.use('/api/ship-ports', require('./routes/ship-ports'));
 app.use('/api/surveys', require('./routes/surveys'));
 app.use('/api/timelog', require('./routes/timelog'));
 app.use('/api/remarks', require('./routes/remarks'));

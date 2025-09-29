@@ -189,8 +189,8 @@ const Orders: React.FC = () => {
                 <TableRow>
                   <TableCell>Order Number</TableCell>
                   <TableCell>Client</TableCell>
-                  <TableCell>Vessel</TableCell>
-                  <TableCell>Port</TableCell>
+                  <TableCell>Ships</TableCell>
+                  <TableCell>Ports</TableCell>
                   <TableCell>Survey Type</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Created</TableCell>
@@ -205,11 +205,6 @@ const Orders: React.FC = () => {
                         <Typography variant="body2" fontWeight="bold">
                           {order.order_number}
                         </Typography>
-                        {order.is_main_order && order.total_ports && order.total_ports > 1 && (
-                          <Typography variant="caption" color="text.secondary">
-                            {order.total_ports} ports
-                          </Typography>
-                        )}
                       </Box>
                     </TableCell>
                     <TableCell>
@@ -222,18 +217,21 @@ const Orders: React.FC = () => {
                         )}
                       </Box>
                     </TableCell>
-                    <TableCell>{order.vessel_name || '-'}</TableCell>
                     <TableCell>
-                      <Box>
-                        <Typography variant="body2">
-                          {order.port || '-'}
-                        </Typography>
-                        {order.is_main_order && order.sub_orders && order.sub_orders.length > 0 && (
-                          <Typography variant="caption" color="text.secondary">
-                            {order.sub_orders.map(sub => sub.port).join(', ')}
-                          </Typography>
-                        )}
-                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        {order.ships?.length || 0} ship{order.ships?.length !== 1 ? 's' : ''}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {order.ships?.map(ship => ship.vessel_name).join(', ') || '-'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" color="text.secondary">
+                        {order.total_ports} port{order.total_ports !== 1 ? 's' : ''}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {order.ships?.flatMap(ship => ship.ship_ports?.map(sp => sp.port_name) || []).join(', ') || '-'}
+                      </Typography>
                     </TableCell>
                     <TableCell>{order.survey_type}</TableCell>
                     <TableCell>

@@ -23,34 +23,57 @@ export interface Order {
   id: number;
   order_number: string;
   client_name: string;
-  contact_person: string;
-  vessel_name: string;
-  vessel_imo: string;
-  vessel_flag: string;
-  port: string;
-  ports: string[];
-  is_multi_port: boolean;
-  expected_arrival: string;
-  expected_departure: string;
+  client_email?: string;
   survey_type: string;
-  order_lines: OrderLine[];
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  total_ships: number;
+  total_ports: number;
+  created_by?: number;
   created_at: string;
   updated_at?: string;
-  // Extended fields for compatibility
-  client_email?: string;
-  status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  created_by?: string;
-  created_by_name?: string;
-  parent_order_id?: number;
-  is_main_order?: boolean;
-  sub_orders?: Order[];
-  total_ports?: number;
-  current_port_index?: number;
+  remarks?: string;
+  // Related data
+  ships?: Ship[];
+}
+
+export interface Ship {
+  id: number;
+  order_id: number;
+  vessel_name: string;
+  vessel_imo?: string;
+  vessel_flag?: string;
+  expected_arrival?: string;
+  expected_departure?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  created_at: string;
+  updated_at?: string;
+  remarks?: string;
+  // Related data
+  ship_ports?: ShipPort[];
+}
+
+export interface ShipPort {
+  id: number;
+  ship_id: number;
+  port_id?: number;
+  port_name: string;
+  port_sequence: number;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  actual_arrival?: string;
+  actual_departure?: string;
+  created_at: string;
+  updated_at?: string;
+  remarks?: string;
+  // Related data
+  order_lines?: OrderLine[];
+  timelog_entries?: TimelogEntry[];
+  sampling_records?: SamplingRecord[];
+  remarks_list?: Remark[];
 }
 
 export interface OrderLine {
   id: number;
-  sub_order_id: number;
+  ship_port_id: number;
   line_number: number;
   description: string;
   quantity: number;
@@ -63,6 +86,8 @@ export interface OrderLine {
   volume?: number;
   remarks?: string;
   created_at: string;
+  // Legacy fields for compatibility
+  sub_order_id?: number;
   selected_port?: string;
 }
 
@@ -113,44 +138,49 @@ export interface SurveyType {
 
 export interface TimelogEntry {
   id: number;
-  sub_order_id: number;
+  ship_port_id: number;
   activity: string;
   start_time: string;
   end_time?: string;
   duration?: number;
-  created_by: string;
+  created_by: number;
   created_at: string;
-  // Extended fields for compatibility
-  remarks?: string;
-  timestamp?: string;
   created_by_name?: string;
+  remarks?: string;
+  // Legacy fields for compatibility
+  sub_order_id?: number;
+  timestamp?: string;
 }
 
 export interface SamplingRecord {
   id: number;
-  sub_order_id: number;
-  sample_type: string;
+  ship_port_id: number;
   sample_number: string;
-  location?: string;
-  timestamp?: string;
-  created_by: string;
-  created_at: string;
-  // Extended fields for compatibility
-  laboratory?: string;
-  analysis_type?: string;
-  status?: string;
+  sample_type: string;
   quantity?: string;
   destination?: string;
   seal_number?: string;
+  laboratory?: string;
+  analysis_type?: string;
+  status?: string;
   remarks?: string;
+  created_by: number;
+  created_at: string;
   created_by_name?: string;
+  updated_at?: string;
+  // Legacy fields for compatibility
+  sub_order_id?: number;
+  location?: string;
+  timestamp?: string;
 }
 
 export interface Remark {
   id: number;
-  sub_order_id: number;
+  ship_port_id: number;
   content: string;
-  created_by: string;
+  created_by: number;
   created_at: string;
   updated_at?: string;
+  // Legacy fields for compatibility
+  sub_order_id?: number;
 }

@@ -501,32 +501,19 @@ const OrderDetail: React.FC = () => {
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Vessel
+                Ships ({order.ships?.length || 0})
               </Typography>
-              <Typography variant="body1">{order.vessel_name || '-'}</Typography>
+              <Typography variant="body1">
+                {order.ships?.map(ship => ship.vessel_name).join(', ') || '-'}
+              </Typography>
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Port{order.is_main_order && order.total_ports && order.total_ports > 1 ? 's' : ''}
+                Ports ({order.total_ports || 0})
               </Typography>
-              <Typography variant="body1">{order.port || '-'}</Typography>
-              {order.is_main_order && order.sub_orders && order.sub_orders.length > 0 && (
-                <Box sx={{ mt: 1 }}>
-                  <Typography variant="caption" color="text.secondary">
-                    Sub-orders:
-                  </Typography>
-                  {order.sub_orders.map((subOrder, index) => (
-                    <Box key={subOrder.id} sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                      <Typography variant="caption" sx={{ mr: 1 }}>
-                        {index + 1}.
-                      </Typography>
-                      <Typography variant="caption">
-                        {subOrder.port} ({subOrder.status})
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              )}
+              <Typography variant="body1">
+                {order.ships?.flatMap(ship => ship.ship_ports?.map(sp => sp.port_name) || []).join(', ') || '-'}
+              </Typography>
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
               <Typography variant="subtitle2" color="text.secondary">
