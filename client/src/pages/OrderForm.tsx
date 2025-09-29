@@ -505,36 +505,44 @@ const OrderForm: React.FC = () => {
         }))
       };
       
-      const response = await mockApi.createOrder(orderData);
-      
-      // Create order lines for each ship port
-      let shipPortIndex = 0;
-      for (const ship of formData.ships) {
-        for (const port of ship.ports) {
-          // Find order lines assigned to this ship/port combination
-          const relevantLines = formData.order_lines.filter(line => 
-            line.selected_port === `${ship.vessel_name} - ${port}` || 
-            line.selected_port === '' // Default to first ship port if no selection
-          );
-          
-          for (const line of relevantLines) {
-            await mockApi.createOrderLine({
-              ...line,
-              ship_port_id: shipPortIndex + 1 // This would be the actual ship_port_id in real implementation
-            });
+      if (isEditMode && id) {
+        // Update existing order
+        await mockApi.updateOrder(parseInt(id), orderData);
+        setSuccess('Order updated successfully!');
+      } else {
+        // Create new order
+        const response = await mockApi.createOrder(orderData);
+        
+        // Create order lines for each ship port
+        let shipPortIndex = 0;
+        for (const ship of formData.ships) {
+          for (const port of ship.ports) {
+            // Find order lines assigned to this ship/port combination
+            const relevantLines = formData.order_lines.filter(line => 
+              line.selected_port === `${ship.vessel_name} - ${port}` || 
+              line.selected_port === '' // Default to first ship port if no selection
+            );
+            
+            for (const line of relevantLines) {
+              await mockApi.createOrderLine({
+                ...line,
+                ship_port_id: shipPortIndex + 1 // This would be the actual ship_port_id in real implementation
+              });
+            }
+            shipPortIndex++;
           }
-          shipPortIndex++;
         }
+        
+        setSuccess(`Order ${response.orderNumber} created successfully with ${formData.ships.length} ship(s)!`);
       }
       
-      setSuccess(`Order ${response.orderNumber} created successfully with ${formData.ships.length} ship(s)!`);
       setTimeout(() => {
         navigate('/orders');
       }, 2000);
       
     } catch (error) {
-      console.error('Error creating order:', error);
-      setError('Failed to create order');
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} order:`, error);
+      setError(`Failed to ${isEditMode ? 'update' : 'create'} order`);
     } finally {
       setLoading(false);
     }
@@ -953,7 +961,7 @@ const OrderForm: React.FC = () => {
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Create New Order
+        {isEditMode ? 'Edit Order' : 'Create New Order'}
       </Typography>
       
       {error && (
@@ -968,55 +976,125 @@ const OrderForm: React.FC = () => {
         </Alert>
       )}
       
-      <Card>
-        <CardContent>
-          <Stepper activeStep={activeStep} orientation="vertical">
-            {steps.map((label, index) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-                <StepContent>
-                  {index === 0 && renderCustomerStep()}
-                  {index === 1 && renderSurveyStep()}
-                  {index === 2 && renderVesselStep()}
-                  {index === 3 && renderOrderLinesStep()}
-                  {index === 4 && renderReviewStep()}
-                  
-                  <Box sx={{ mb: 2, mt: 2 }}>
-                    <div>
-                      {index === steps.length - 1 ? (
-                        <Button
-                          variant="contained"
-                          onClick={handleSubmit}
-                          disabled={loading}
-                          startIcon={<SaveIcon />}
-                        >
-                          {loading ? 'Creating Order...' : 'Create Order'}
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          onClick={handleNext}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          Continue
-                        </Button>
-                      )}
-                      {index > 0 && (
-                        <Button
-                          onClick={handleBack}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          Back
-                        </Button>
-                      )}
-                    </div>
-                  </Box>
-                </StepContent>
-              </Step>
-            ))}
-          </Stepper>
-        </CardContent>
-      </Card>
+      {isEditMode ? (
+        // Edit mode: Show all sections in a single view
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Customer & Contact Information
+              </Typography>
+              {renderCustomerStep()}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Survey Details
+              </Typography>
+              {renderSurveyStep()}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Ships Information
+              </Typography>
+              {renderVesselStep()}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Order Lines
+              </Typography>
+              {renderOrderLinesStep()}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Review & Submit
+              </Typography>
+              {renderReviewStep()}
+            </CardContent>
+          </Card>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={loading}
+              startIcon={<SaveIcon />}
+              size="large"
+            >
+              {loading ? 'Saving Changes...' : 'Save Changes'}
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/orders')}
+              size="large"
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        // Create mode: Use stepper
+        <Card>
+          <CardContent>
+            <Stepper activeStep={activeStep} orientation="vertical">
+              {steps.map((label, index) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                  <StepContent>
+                    {index === 0 && renderCustomerStep()}
+                    {index === 1 && renderSurveyStep()}
+                    {index === 2 && renderVesselStep()}
+                    {index === 3 && renderOrderLinesStep()}
+                    {index === 4 && renderReviewStep()}
+                    
+                    <Box sx={{ mb: 2, mt: 2 }}>
+                      <div>
+                        {index === steps.length - 1 ? (
+                          <Button
+                            variant="contained"
+                            onClick={handleSubmit}
+                            disabled={loading}
+                            startIcon={<SaveIcon />}
+                          >
+                            {loading ? 'Creating Order...' : 'Create Order'}
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            onClick={handleNext}
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            Continue
+                          </Button>
+                        )}
+                        {index > 0 && (
+                          <Button
+                            onClick={handleBack}
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            Back
+                          </Button>
+                        )}
+                      </div>
+                    </Box>
+                  </StepContent>
+                </Step>
+              ))}
+            </Stepper>
+          </CardContent>
+        </Card>
+      )}
       
       {/* Customer Dialog */}
       <Dialog open={customerDialogOpen} onClose={() => setCustomerDialogOpen(false)} maxWidth="md" fullWidth>
