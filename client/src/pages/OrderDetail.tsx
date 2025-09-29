@@ -152,25 +152,29 @@ const OrderDetail: React.FC = () => {
       const orderResponse = await mockApi.getOrder(parseInt(id!));
       setOrder(orderResponse);
 
-      // Fetch order lines, timelog, and sampling for all sub-orders if this is a main order
-      if (orderResponse.is_main_order && orderResponse.sub_orders) {
+      // Fetch order lines, timelog, and sampling for all ship ports
+      if (orderResponse.ships) {
         const allOrderLines = [];
         const allTimelogEntries = [];
         const allSamplingRecords = [];
         const allRemarks = [];
         
-        for (const subOrder of orderResponse.sub_orders) {
-          const [subOrderLines, timelogResponse, samplingResponse, remarksResponse] = await Promise.all([
-            mockApi.getOrderLines(subOrder.id),
-            mockApi.getTimelogEntries(subOrder.id),
-            mockApi.getSamplingRecords(subOrder.id),
-            mockApi.getRemarks(subOrder.id)
-          ]);
+        for (const ship of orderResponse.ships) {
+          if (ship.ship_ports) {
+            for (const shipPort of ship.ship_ports) {
+              const [shipPortLines, timelogResponse, samplingResponse, remarksResponse] = await Promise.all([
+                mockApi.getOrderLines(shipPort.id),
+                mockApi.getTimelogEntries(shipPort.id),
+                mockApi.getSamplingRecords(shipPort.id),
+                mockApi.getRemarks(shipPort.id)
+              ]);
           
-          allOrderLines.push(...subOrderLines);
-          allTimelogEntries.push(...timelogResponse.entries);
-          allSamplingRecords.push(...samplingResponse);
-          allRemarks.push(...remarksResponse);
+              allOrderLines.push(...shipPortLines);
+              allTimelogEntries.push(...timelogResponse.entries);
+              allSamplingRecords.push(...samplingResponse);
+              allRemarks.push(...remarksResponse);
+            }
+          }
         }
         
         setOrderLines(allOrderLines);
@@ -178,7 +182,7 @@ const OrderDetail: React.FC = () => {
         setSamplingRecords(allSamplingRecords);
         setRemarks(allRemarks);
       } else {
-        // For sub-orders, fetch data directly
+        // Fallback for orders without ships (legacy support)
         const [orderLinesResponse, timelogResponse, samplingResponse, remarksResponse] = await Promise.all([
           mockApi.getOrderLines(parseInt(id!)),
           mockApi.getTimelogEntries(parseInt(id!)),
@@ -608,8 +612,8 @@ const OrderDetail: React.FC = () => {
                     : null;
                   
                   // Find the port name for this timelog entry
-                  const portName = order?.sub_orders?.find(sub => sub.id === parseInt(entry.sub_order_id.toString()))?.port || 
-                                  (order?.port || 'Unknown Port');
+                  const portName = order?.ships?.flatMap(ship => ship.ship_ports || [])
+                    .find(sp => sp.id === entry.ship_port_id)?.port_name || 'Unknown Port';
                   
                   return (
                     <TableRow 
@@ -682,8 +686,8 @@ const OrderDetail: React.FC = () => {
               <TableBody>
                 {samplingRecords.map((record) => {
                   // Find the port name for this sampling record
-                  const portName = order?.sub_orders?.find(sub => sub.id === parseInt(record.sub_order_id.toString()))?.port || 
-                                  (order?.port || 'Unknown Port');
+                  const portName = order?.ships?.flatMap(ship => ship.ship_ports || [])
+                    .find(sp => sp.id === record.ship_port_id)?.port_name || 'Unknown Port';
                   
                   return (
                     <TableRow 
@@ -755,8 +759,8 @@ const OrderDetail: React.FC = () => {
                 <TableBody>
                   {orderLines.map((line) => {
                     // Find the port name for this order line
-                    const portName = order?.sub_orders?.find(sub => sub.id === parseInt(line.sub_order_id.toString()))?.port || 
-                                    (order?.port || 'Unknown Port');
+                    const portName = order?.ships?.flatMap(ship => ship.ship_ports || [])
+                      .find(sp => sp.id === line.ship_port_id)?.port_name || 'Unknown Port';
                     
                     return (
                       <TableRow 
@@ -829,8 +833,8 @@ const OrderDetail: React.FC = () => {
               <TableBody>
                 {remarks.map((remark) => {
                   // Find the port name for this remark
-                  const portName = order?.sub_orders?.find(sub => sub.id === parseInt(remark.sub_order_id.toString()))?.port || 
-                                   (order?.port || 'Unknown Port');
+                  const portName = order?.ships?.flatMap(ship => ship.ship_ports || [])
+                    .find(sp => sp.id === remark.ship_port_id)?.port_name || 'Unknown Port';
                   
                   return (
                     <TableRow 
@@ -883,16 +887,15 @@ const OrderDetail: React.FC = () => {
                 label="Port/Harbor"
                 onChange={(e) => setNewTimelogEntry(prev => ({ ...prev, selected_port: e.target.value }))}
               >
-                {order?.is_main_order && order?.sub_orders && order.sub_orders.length > 0 ? 
-                  order.sub_orders.map((subOrder) => (
-                    <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
-                      {subOrder.port}
-                    </MenuItem>
-                  )) :
-                  <MenuItem value={id || ''}>
-                    {order?.port || 'Current Port'}
+                {order?.ships?.flatMap(ship => ship.ship_ports || []).map((shipPort) => (
+                  <MenuItem key={shipPort.id} value={shipPort.id.toString()}>
+                    {shipPort.port_name}
                   </MenuItem>
-                }
+                )) || (
+                  <MenuItem value={id || ''}>
+                    {order?.ships?.[0]?.vessel_name || 'Current Port'}
+                  </MenuItem>
+                )}
               </Select>
             </FormControl>
             <DateTimePicker
@@ -955,16 +958,15 @@ const OrderDetail: React.FC = () => {
                 label="Port/Harbor"
                 onChange={(e) => setNewSamplingRecord(prev => ({ ...prev, selected_port: e.target.value }))}
               >
-                {order?.is_main_order && order?.sub_orders && order.sub_orders.length > 0 ? 
-                  order.sub_orders.map((subOrder) => (
-                    <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
-                      {subOrder.port}
-                    </MenuItem>
-                  )) :
-                  <MenuItem value={id || ''}>
-                    {order?.port || 'Current Port'}
+                {order?.ships?.flatMap(ship => ship.ship_ports || []).map((shipPort) => (
+                  <MenuItem key={shipPort.id} value={shipPort.id.toString()}>
+                    {shipPort.port_name}
                   </MenuItem>
-                }
+                )) || (
+                  <MenuItem value={id || ''}>
+                    {order?.ships?.[0]?.vessel_name || 'Current Port'}
+                  </MenuItem>
+                )}
               </Select>
             </FormControl>
             <TextField
@@ -1023,16 +1025,15 @@ const OrderDetail: React.FC = () => {
                 label="Port/Harbor"
                 onChange={(e) => setNewRemark(prev => ({ ...prev, selected_port: e.target.value }))}
               >
-                {order?.is_main_order && order?.sub_orders && order.sub_orders.length > 0 ? 
-                  order.sub_orders.map((subOrder) => (
-                    <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
-                      {subOrder.port}
-                    </MenuItem>
-                  )) :
-                  <MenuItem value={id || ''}>
-                    {order?.port || 'Current Port'}
+                {order?.ships?.flatMap(ship => ship.ship_ports || []).map((shipPort) => (
+                  <MenuItem key={shipPort.id} value={shipPort.id.toString()}>
+                    {shipPort.port_name}
                   </MenuItem>
-                }
+                )) || (
+                  <MenuItem value={id || ''}>
+                    {order?.ships?.[0]?.vessel_name || 'Current Port'}
+                  </MenuItem>
+                )}
               </Select>
             </FormControl>
             <TextField
@@ -1175,9 +1176,9 @@ const OrderDetail: React.FC = () => {
                 onChange={(e) => setEditTimelogData(prev => ({ ...prev, selected_port: e.target.value }))}
                 label="Port/Harbor"
               >
-                {order?.sub_orders?.map((subOrder) => (
-                  <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
-                    {subOrder.port}
+                {order?.ships?.flatMap(ship => ship.ship_ports || []).map((shipPort) => (
+                  <MenuItem key={shipPort.id} value={shipPort.id.toString()}>
+                    {shipPort.port_name}
                   </MenuItem>
                 )) || (
                   <MenuItem value={order?.id?.toString() || ''}>
@@ -1254,9 +1255,9 @@ const OrderDetail: React.FC = () => {
                 onChange={(e) => setEditSamplingData(prev => ({ ...prev, selected_port: e.target.value }))}
                 label="Port/Harbor"
               >
-                {order?.sub_orders?.map((subOrder) => (
-                  <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
-                    {subOrder.port}
+                {order?.ships?.flatMap(ship => ship.ship_ports || []).map((shipPort) => (
+                  <MenuItem key={shipPort.id} value={shipPort.id.toString()}>
+                    {shipPort.port_name}
                   </MenuItem>
                 )) || (
                   <MenuItem value={order?.id?.toString() || ''}>
@@ -1307,9 +1308,9 @@ const OrderDetail: React.FC = () => {
                 onChange={(e) => setEditRemarkData(prev => ({ ...prev, selected_port: e.target.value }))}
                 label="Port/Harbor"
               >
-                {order?.sub_orders?.map((subOrder) => (
-                  <MenuItem key={subOrder.id} value={subOrder.id.toString()}>
-                    {subOrder.port}
+                {order?.ships?.flatMap(ship => ship.ship_ports || []).map((shipPort) => (
+                  <MenuItem key={shipPort.id} value={shipPort.id.toString()}>
+                    {shipPort.port_name}
                   </MenuItem>
                 )) || (
                   <MenuItem value={order?.id?.toString() || ''}>

@@ -207,21 +207,23 @@ const OrderForm: React.FC = () => {
         expected_arrival: '', // Not available in Order interface
         expected_departure: '', // Not available in Order interface
         port: order.port || '',
-        is_multi_port: (order.is_main_order && (order.total_ports || 0) > 1) || false,
-        ports: order.is_main_order && order.sub_orders 
-          ? order.sub_orders.map(sub => sub.port)
-          : [order.port || ''],
+        is_multi_port: (order.total_ports || 0) > 1,
+        ports: order.ships?.flatMap(ship => ship.ship_ports?.map(sp => sp.port_name) || []) || [order.ships?.[0]?.vessel_name || ''],
         survey_type: order.survey_type || '',
         remarks: '', // Not available in Order interface
         order_lines: [] // Will be populated from sub-orders
       });
 
-      // Load order lines from sub-orders
-      if (order.is_main_order && order.sub_orders) {
+      // Load order lines from ship ports
+      if (order.ships) {
         const allOrderLines: OrderLine[] = [];
-        for (const subOrder of order.sub_orders) {
-          const subOrderLines = await mockApi.getOrderLines(subOrder.id);
-          allOrderLines.push(...subOrderLines);
+        for (const ship of order.ships) {
+          if (ship.ship_ports) {
+            for (const shipPort of ship.ship_ports) {
+              const shipPortLines = await mockApi.getOrderLines(shipPort.id);
+              allOrderLines.push(...shipPortLines);
+            }
+          }
         }
         setFormData(prev => ({ ...prev, order_lines: allOrderLines }));
       } else {
@@ -434,16 +436,16 @@ const OrderForm: React.FC = () => {
         port: formData.is_multi_port ? formData.ports.join(', ') : formData.port,
         survey_type: formData.survey_type,
         status: 'pending' as const,
-        is_main_order: true,
-        parent_order_id: undefined,
+        total_ships: 1, // Default to single ship for now
         total_ports: formData.is_multi_port ? formData.ports.length : 1,
         remarks: formData.remarks
       };
       
       const response = await mockApi.createOrder(orderData);
       
-      // If multi-port order, create sub-orders and distribute order lines
-      if (formData.is_multi_port && formData.ports.length > 1) {
+      // For now, we'll create a simple single-ship order
+      // Multi-ship support can be added later with a more complex UI
+      if (false) { // Disabled for now
         // Create sub-orders for each port
         const subOrders = [];
         const subOrderIds = [];
