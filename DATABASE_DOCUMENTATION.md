@@ -1,7 +1,7 @@
-# NMS - Database Structure Documentation
+# NMS - Database Structure Documentation for Dataverse
 
 ## Overview
-This document describes the complete database structure for the NMS (Order Management System) application. The system is designed to handle hierarchical orders where a main order can contain multiple sub-orders (ports/harbors), each with their own order lines, timelog entries, and sampling records.
+This document provides a complete master specification for implementing the NMS (Order Management System) database structure in Microsoft Dataverse. The system is designed to handle multi-ship orders where each order can contain multiple ships, and each ship can visit multiple ports, with associated order lines, timelog entries, and sampling records.
 
 ## Table Structure
 
