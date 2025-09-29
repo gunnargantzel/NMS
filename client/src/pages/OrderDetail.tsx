@@ -225,7 +225,7 @@ const OrderDetail: React.FC = () => {
         parseInt(id!);
         
       await mockApi.createTimelogEntry({
-        sub_order_id: subOrderId,
+        ship_port_id: subOrderId,
         activity: newTimelogEntry.activity,
         start_time: newTimelogEntry.start_time,
         end_time: newTimelogEntry.end_time || undefined,
@@ -246,7 +246,7 @@ const OrderDetail: React.FC = () => {
         parseInt(id!);
         
       await mockApi.createSamplingRecord({
-        sub_order_id: subOrderId,
+        ship_port_id: subOrderId,
         sample_number: `S-${Date.now()}`,
         sample_type: newSamplingRecord.sample_type,
         laboratory: 'Demo Lab',
@@ -272,7 +272,7 @@ const OrderDetail: React.FC = () => {
     try {
       await mockApi.createRemark({
         content: newRemark.content,
-        sub_order_id: parseInt(newRemark.selected_port)
+        ship_port_id: parseInt(newRemark.selected_port)
       });
       
       setOpenRemarksDialog(false);
@@ -335,7 +335,7 @@ const OrderDetail: React.FC = () => {
       end_time: entry.end_time || '',
       duration: entry.duration || 0,
       description: entry.remarks || '',
-      selected_port: entry.sub_order_id.toString()
+      selected_port: entry.ship_port_id.toString()
     });
     setEditTimelogDialog(true);
   };
@@ -350,7 +350,7 @@ const OrderDetail: React.FC = () => {
         end_time: editTimelogData.end_time,
         duration: editTimelogData.duration,
         remarks: editTimelogData.description,
-        sub_order_id: parseInt(editTimelogData.selected_port)
+        ship_port_id: parseInt(editTimelogData.selected_port)
       });
       
       setEditTimelogDialog(false);
@@ -368,7 +368,7 @@ const OrderDetail: React.FC = () => {
       sample_type: record.sample_type,
       quantity: record.quantity || '',
       description: record.remarks || '',
-      selected_port: record.sub_order_id.toString()
+      selected_port: record.ship_port_id.toString()
     });
     setEditSamplingDialog(true);
   };
@@ -381,7 +381,7 @@ const OrderDetail: React.FC = () => {
         sample_type: editSamplingData.sample_type,
         quantity: editSamplingData.quantity,
         remarks: editSamplingData.description,
-        sub_order_id: parseInt(editSamplingData.selected_port)
+        ship_port_id: parseInt(editSamplingData.selected_port)
       });
       
       setEditSamplingDialog(false);
@@ -397,7 +397,7 @@ const OrderDetail: React.FC = () => {
     setEditingRemark(remark);
     setEditRemarkData({
       content: remark.content,
-      selected_port: remark.sub_order_id.toString()
+      selected_port: remark.ship_port_id.toString()
     });
     setEditRemarkDialog(true);
   };
@@ -408,7 +408,7 @@ const OrderDetail: React.FC = () => {
     try {
       await mockApi.updateRemark(editingRemark.id, {
         content: editRemarkData.content,
-        sub_order_id: parseInt(editRemarkData.selected_port)
+        ship_port_id: parseInt(editRemarkData.selected_port)
       });
       
       setEditRemarkDialog(false);

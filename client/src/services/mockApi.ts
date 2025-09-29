@@ -53,7 +53,7 @@ const mockOrders: Order[] = [
             ship_id: 1,
             port_name: 'Bergen',
             port_sequence: 1,
-            status: 'completed',
+        status: 'completed',
             actual_arrival: '2024-12-01T08:00:00Z',
             actual_departure: '2024-12-01T16:00:00Z',
             created_at: '2024-12-01T08:00:00Z',
@@ -65,7 +65,7 @@ const mockOrders: Order[] = [
             ship_id: 1,
             port_name: 'Stavanger',
             port_sequence: 2,
-            status: 'in_progress',
+        status: 'in_progress',
             actual_arrival: '2024-12-01T18:00:00Z',
             created_at: '2024-12-01T08:00:00Z',
             updated_at: '2024-12-01T18:00:00Z',
@@ -136,11 +136,11 @@ const mockOrders: Order[] = [
         id: 3,
         order_id: 3,
         vessel_name: 'M/T Atlantic Explorer',
-        vessel_imo: 'IMO3456789',
-        vessel_flag: 'Norway',
+    vessel_imo: 'IMO3456789',
+    vessel_flag: 'Norway',
         expected_arrival: '2024-11-30T10:00:00Z',
-        expected_departure: '2024-12-01T18:00:00Z',
-        status: 'completed',
+    expected_departure: '2024-12-01T18:00:00Z',
+    status: 'completed',
         created_at: '2024-11-30T10:00:00Z',
         updated_at: '2024-12-01T18:00:00Z',
         remarks: 'Primary vessel - completed',
@@ -150,7 +150,7 @@ const mockOrders: Order[] = [
             ship_id: 3,
             port_name: 'Trondheim',
             port_sequence: 1,
-            status: 'completed',
+        status: 'completed',
             actual_arrival: '2024-11-30T10:00:00Z',
             actual_departure: '2024-11-30T16:00:00Z',
             created_at: '2024-11-30T10:00:00Z',
@@ -162,7 +162,7 @@ const mockOrders: Order[] = [
             ship_id: 3,
             port_name: 'Oslo',
             port_sequence: 2,
-            status: 'completed',
+        status: 'completed',
             actual_arrival: '2024-12-01T08:00:00Z',
             actual_departure: '2024-12-01T18:00:00Z',
             created_at: '2024-11-30T10:00:00Z',
@@ -171,12 +171,12 @@ const mockOrders: Order[] = [
           }
         ]
       },
-      {
-        id: 4,
+  {
+    id: 4,
         order_id: 3,
         vessel_name: 'M/T Pacific Voyager',
-        vessel_imo: 'IMO4567890',
-        vessel_flag: 'Norway',
+    vessel_imo: 'IMO4567890',
+    vessel_flag: 'Norway',
         expected_arrival: '2024-11-30T12:00:00Z',
         expected_departure: '2024-12-01T20:00:00Z',
         status: 'completed',
@@ -334,6 +334,18 @@ const mockCustomers: Customer[] = [
     notes: 'Norwegian energy company',
     updated_at: '2024-01-01T00:00:00Z',
     is_active: true
+  }
+];
+
+// Mock remarks
+const mockRemarks: Remark[] = [
+  {
+    id: 1,
+    ship_port_id: 1,
+    content: 'Sample remark for port operations',
+    created_by: 1,
+    created_at: '2024-12-01T10:00:00Z',
+    updated_at: '2024-12-01T10:00:00Z'
   }
 ];
 
@@ -515,8 +527,9 @@ export const mockApi = {
   },
 
   // Timelog
-  getTimelogEntries: async (shipPortId: number): Promise<TimelogEntry[]> => {
-    return mockTimelogEntries.filter(entry => entry.ship_port_id === shipPortId);
+  getTimelogEntries: async (shipPortId: number): Promise<{ entries: TimelogEntry[] }> => {
+    const entries = mockTimelogEntries.filter(entry => entry.ship_port_id === shipPortId);
+    return { entries };
   },
 
   createTimelogEntry: async (entryData: any): Promise<TimelogEntry> => {
@@ -587,6 +600,136 @@ export const mockApi = {
   // Contact Persons
   getContactPersons: async (): Promise<ContactPerson[]> => {
     return mockContactPersons;
+  },
+
+  // Order Lines
+  getOrderLines: async (shipPortId: number): Promise<OrderLine[]> => {
+    // Mock order lines for ship ports
+    return [
+      {
+        id: 1,
+        ship_port_id: shipPortId,
+        line_number: 1,
+        description: 'Sample cargo line',
+        quantity: 100,
+        unit: 'MT',
+        unit_price: 50.00,
+        total_price: 5000.00,
+        cargo_type: 'General',
+        package_type: 'Bulk',
+        weight: 100,
+        volume: 120,
+        remarks: 'Sample order line',
+        created_at: new Date().toISOString()
+      }
+    ];
+  },
+
+  // Remarks
+  getRemarks: async (shipPortId: number): Promise<Remark[]> => {
+    // Mock remarks for ship ports
+    return [
+      {
+        id: 1,
+        ship_port_id: shipPortId,
+        content: 'Sample remark for this port',
+        created_by: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+  },
+
+  // Activities
+  getActivities: async (): Promise<{ activity: string }[]> => {
+    return [
+      { activity: 'Vessel berthed, all fast' },
+      { activity: 'Surveyor on board' },
+      { activity: 'Commenced loading' },
+      { activity: 'Completed loading' },
+      { activity: 'Commenced discharging' },
+      { activity: 'Completed discharging' },
+      { activity: 'Vessel departed' }
+    ];
+  },
+
+  // Create methods
+  createRemark: async (remarkData: any): Promise<Remark> => {
+    const newRemark: Remark = {
+      id: Date.now(),
+      ship_port_id: remarkData.ship_port_id || remarkData.sub_order_id,
+      content: remarkData.content,
+      created_by: 1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    return newRemark;
+  },
+
+  createOrderLine: async (lineData: any): Promise<OrderLine> => {
+    const newLine: OrderLine = {
+      id: Date.now(),
+      ship_port_id: lineData.ship_port_id || lineData.sub_order_id,
+      line_number: lineData.line_number || 1,
+      description: lineData.description,
+      quantity: lineData.quantity,
+      unit: lineData.unit,
+      unit_price: lineData.unit_price,
+      total_price: lineData.total_price,
+      cargo_type: lineData.cargo_type,
+      package_type: lineData.package_type,
+      weight: lineData.weight,
+      volume: lineData.volume,
+      remarks: lineData.remarks,
+      created_at: new Date().toISOString()
+    };
+    return newLine;
+  },
+
+  // Update methods
+  updateTimelogEntry: async (id: number, entryData: any): Promise<TimelogEntry> => {
+    const entry = mockTimelogEntries.find(e => e.id === id);
+    if (!entry) throw new Error('Timelog entry not found');
+    
+    Object.assign(entry, entryData, { updated_at: new Date().toISOString() });
+    return entry;
+  },
+
+  updateSamplingRecord: async (id: number, recordData: any): Promise<SamplingRecord> => {
+    const record = mockSamplingRecords.find(r => r.id === id);
+    if (!record) throw new Error('Sampling record not found');
+    
+    Object.assign(record, recordData, { updated_at: new Date().toISOString() });
+    return record;
+  },
+
+  updateRemark: async (id: number, remarkData: any): Promise<Remark> => {
+    const remark = mockRemarks.find(r => r.id === id);
+    if (!remark) throw new Error('Remark not found');
+    
+    Object.assign(remark, remarkData, { updated_at: new Date().toISOString() });
+    return remark;
+  },
+
+  updateOrderLine: async (id: number, lineData: any): Promise<OrderLine> => {
+    // Mock implementation - in real app this would update the database
+    const updatedLine: OrderLine = {
+      id,
+      ship_port_id: lineData.ship_port_id || 1,
+      line_number: lineData.line_number || 1,
+      description: lineData.description,
+      quantity: lineData.quantity,
+      unit: lineData.unit,
+      unit_price: lineData.unit_price,
+      total_price: lineData.total_price,
+      cargo_type: lineData.cargo_type,
+      package_type: lineData.package_type,
+      weight: lineData.weight,
+      volume: lineData.volume,
+      remarks: lineData.remarks,
+      created_at: new Date().toISOString()
+    };
+    return updatedLine;
   }
 };
 
