@@ -39,7 +39,18 @@ import {
   Business as BusinessIcon,
 } from '@mui/icons-material';
 import { mockApi } from '../services/mockApi';
-import { Customer, ContactPerson, SurveyType, OrderLine, Product, Port } from '../types';
+import { Customer, ContactPerson, SurveyType, OrderLine, Product } from '../types';
+import { mockPorts } from '../data/mockPorts';
+
+interface ShipFormData {
+  vessel_name: string;
+  vessel_imo: string;
+  vessel_flag: string;
+  expected_arrival: string;
+  expected_departure: string;
+  ports: string[];
+  remarks: string;
+}
 
 interface OrderFormData {
   // Customer Information
@@ -48,21 +59,12 @@ interface OrderFormData {
   customer_email: string;
   contact_person_id: number | null;
   
-  // Vessel Information
-  vessel_name: string;
-  vessel_imo: string;
-  vessel_flag: string;
-  
   // Survey Information
   survey_type: string;
-  port: string;
-  expected_arrival: string;
-  expected_departure: string;
-  
-  // Order Details
-  is_multi_port: boolean;
-  ports: string[];
   remarks: string;
+  
+  // Ships Information
+  ships: ShipFormData[];
   
   // Order Lines
   order_lines: OrderLine[];
@@ -89,16 +91,17 @@ const OrderForm: React.FC = () => {
     customer_name: '',
     customer_email: '',
     contact_person_id: null,
-    vessel_name: '',
-    vessel_imo: '',
-    vessel_flag: 'NO',
     survey_type: '',
-    port: '',
-    expected_arrival: '',
-    expected_departure: '',
-    is_multi_port: false,
-    ports: [],
     remarks: '',
+    ships: [{
+      vessel_name: '',
+      vessel_imo: '',
+      vessel_flag: 'NO',
+      expected_arrival: '',
+      expected_departure: '',
+      ports: [],
+      remarks: ''
+    }],
     order_lines: []
   });
   
@@ -151,8 +154,6 @@ const OrderForm: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
 
-  // Ports state
-  const [ports, setPorts] = useState<Port[]>([]);
 
   const steps = [
     'Customer & Contact',
@@ -172,17 +173,15 @@ const OrderForm: React.FC = () => {
   const fetchInitialData = async () => {
     try {
       setProductsLoading(true);
-      const [customersData, surveyTypesData, productsData, portsData] = await Promise.all([
+      const [customersData, surveyTypesData, productsData] = await Promise.all([
         mockApi.getCustomers(),
         mockApi.getSurveyTypes(),
-        mockApi.getProducts(),
-        mockApi.getPorts()
+        mockApi.getProducts()
       ]);
       
       setCustomers(customersData);
       setSurveyTypes(surveyTypesData);
       setProducts(productsData);
-      setPorts(portsData);
     } catch (error) {
       console.error('Error fetching initial data:', error);
       setError('Failed to load form data');
@@ -196,22 +195,33 @@ const OrderForm: React.FC = () => {
       const order = await mockApi.getOrder(orderId);
       
       // Populate form data with existing order data
+      const shipsData: ShipFormData[] = order.ships?.map(ship => ({
+        vessel_name: ship.vessel_name || '',
+        vessel_imo: ship.vessel_imo || '',
+        vessel_flag: ship.vessel_flag || 'NO',
+        expected_arrival: ship.expected_arrival || '',
+        expected_departure: ship.expected_departure || '',
+        ports: ship.ship_ports?.map(sp => sp.port_name) || [],
+        remarks: ship.remarks || ''
+      })) || [{
+        vessel_name: '',
+        vessel_imo: '',
+        vessel_flag: 'NO',
+        expected_arrival: '',
+        expected_departure: '',
+        ports: [],
+        remarks: ''
+      }];
+
       setFormData({
         customer_id: null, // Will be set based on customer name
         customer_name: order.client_name || '',
         customer_email: order.client_email || '',
         contact_person_id: null,
-        vessel_name: order.ships?.[0]?.vessel_name || '',
-        vessel_imo: '', // Not available in Order interface
-        vessel_flag: '', // Not available in Order interface
-        expected_arrival: '', // Not available in Order interface
-        expected_departure: '', // Not available in Order interface
-        port: order.ships?.[0]?.ship_ports?.[0]?.port_name || '',
-        is_multi_port: (order.total_ports || 0) > 1,
-        ports: order.ships?.flatMap(ship => ship.ship_ports?.map(sp => sp.port_name) || []) || [order.ships?.[0]?.vessel_name || ''],
         survey_type: order.survey_type || '',
-        remarks: '', // Not available in Order interface
-        order_lines: [] // Will be populated from sub-orders
+        remarks: order.remarks || '',
+        ships: shipsData,
+        order_lines: [] // Will be populated from ship ports
       });
 
       // Load order lines from ship ports
@@ -274,20 +284,60 @@ const OrderForm: React.FC = () => {
     }));
   };
 
-  const handleAddPort = () => {
-    if (formData.port && !formData.ports.includes(formData.port)) {
+
+  // Ship management functions
+  const handleAddShip = () => {
+    setFormData(prev => ({
+      ...prev,
+      ships: [...prev.ships, {
+        vessel_name: '',
+        vessel_imo: '',
+        vessel_flag: 'NO',
+        expected_arrival: '',
+        expected_departure: '',
+        ports: [],
+        remarks: ''
+      }]
+    }));
+  };
+
+  const handleRemoveShip = (shipIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      ships: prev.ships.filter((_, index) => index !== shipIndex)
+    }));
+  };
+
+  const handleShipChange = (shipIndex: number, field: keyof ShipFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      ships: prev.ships.map((ship, index) => 
+        index === shipIndex ? { ...ship, [field]: value } : ship
+      )
+    }));
+  };
+
+  const handleAddPortToShip = (shipIndex: number, port: string) => {
+    if (port && !formData.ships[shipIndex].ports.includes(port)) {
       setFormData(prev => ({
         ...prev,
-        ports: [...prev.ports, prev.port],
-        port: ''
+        ships: prev.ships.map((ship, index) => 
+          index === shipIndex 
+            ? { ...ship, ports: [...ship.ports, port] }
+            : ship
+        )
       }));
     }
   };
 
-  const handleRemovePort = (portToRemove: string) => {
+  const handleRemovePortFromShip = (shipIndex: number, portToRemove: string) => {
     setFormData(prev => ({
       ...prev,
-      ports: prev.ports.filter(port => port !== portToRemove)
+      ships: prev.ships.map((ship, index) => 
+        index === shipIndex 
+          ? { ...ship, ports: ship.ports.filter(port => port !== portToRemove) }
+          : ship
+      )
     }));
   };
 
@@ -428,33 +478,56 @@ const OrderForm: React.FC = () => {
     setError('');
     
     try {
-      // Create the order
+      // Calculate total ports across all ships
+      const totalPorts = formData.ships.reduce((sum, ship) => sum + ship.ports.length, 0);
+      
+      // Create the order with ships data
       const orderData = {
         client_name: formData.customer_name,
         client_email: formData.customer_email,
-        vessel_name: formData.vessel_name,
-        port: formData.is_multi_port ? formData.ports.join(', ') : formData.port,
         survey_type: formData.survey_type,
         status: 'pending' as const,
-        total_ships: 1, // Default to single ship for now
-        total_ports: formData.is_multi_port ? formData.ports.length : 1,
-        remarks: formData.remarks
+        total_ships: formData.ships.length,
+        total_ports: totalPorts,
+        remarks: formData.remarks,
+        ships: formData.ships.map(ship => ({
+          vessel_name: ship.vessel_name,
+          vessel_imo: ship.vessel_imo,
+          vessel_flag: ship.vessel_flag,
+          expected_arrival: ship.expected_arrival,
+          expected_departure: ship.expected_departure,
+          remarks: ship.remarks,
+          ports: ship.ports.map((portName, index) => ({
+            port_name: portName,
+            port_sequence: index + 1,
+            status: 'pending'
+          }))
+        }))
       };
       
       const response = await mockApi.createOrder(orderData);
       
-      // For now, we'll create a simple single-ship order
-      // Multi-ship support can be added later with a more complex UI
-      
-      // Create order lines for the main order
-      for (const line of formData.order_lines) {
-        await mockApi.createOrderLine({
-          ...line,
-          ship_port_id: response.orderId // Temporary - will be updated when ship ports are created
-        });
+      // Create order lines for each ship port
+      let shipPortIndex = 0;
+      for (const ship of formData.ships) {
+        for (const port of ship.ports) {
+          // Find order lines assigned to this ship/port combination
+          const relevantLines = formData.order_lines.filter(line => 
+            line.selected_port === `${ship.vessel_name} - ${port}` || 
+            line.selected_port === '' // Default to first ship port if no selection
+          );
+          
+          for (const line of relevantLines) {
+            await mockApi.createOrderLine({
+              ...line,
+              ship_port_id: shipPortIndex + 1 // This would be the actual ship_port_id in real implementation
+            });
+          }
+          shipPortIndex++;
+        }
       }
       
-      setSuccess(`Order ${response.orderNumber} created successfully!`);
+      setSuccess(`Order ${response.orderNumber} created successfully with ${formData.ships.length} ship(s)!`);
       setTimeout(() => {
         navigate('/orders');
       }, 2000);
@@ -560,39 +633,134 @@ const OrderForm: React.FC = () => {
 
   const renderVesselStep = () => (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        Vessel Information
-      </Typography>
-      
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-        <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
-          <TextField
-            fullWidth
-            label="Vessel Name"
-            value={formData.vessel_name}
-            onChange={(e) => setFormData(prev => ({ ...prev, vessel_name: e.target.value }))}
-            required
-          />
-        </Box>
-        
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <TextField
-            fullWidth
-            label="IMO Number"
-            value={formData.vessel_imo}
-            onChange={(e) => setFormData(prev => ({ ...prev, vessel_imo: e.target.value }))}
-          />
-        </Box>
-        
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <TextField
-            fullWidth
-            label="Flag State"
-            value={formData.vessel_flag}
-            onChange={(e) => setFormData(prev => ({ ...prev, vessel_flag: e.target.value }))}
-          />
-        </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h6">
+          Ships Information ({formData.ships.length} ship{formData.ships.length !== 1 ? 's' : ''})
+        </Typography>
+        <Button
+          variant="outlined"
+          startIcon={<AddIcon />}
+          onClick={handleAddShip}
+          size="small"
+        >
+          Add Ship
+        </Button>
       </Box>
+      
+      {formData.ships.map((ship, shipIndex) => (
+        <Card key={shipIndex} sx={{ mb: 3, p: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="subtitle1">
+              Ship {shipIndex + 1}: {ship.vessel_name || 'Unnamed Vessel'}
+            </Typography>
+            {formData.ships.length > 1 && (
+              <IconButton
+                color="error"
+                onClick={() => handleRemoveShip(shipIndex)}
+                size="small"
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
+          </Box>
+          
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+            <TextField
+              fullWidth
+              label="Vessel Name"
+              value={ship.vessel_name}
+              onChange={(e) => handleShipChange(shipIndex, 'vessel_name', e.target.value)}
+              required
+              sx={{ flex: '1 1 300px', minWidth: '300px' }}
+            />
+            
+            <TextField
+              fullWidth
+              label="IMO Number"
+              value={ship.vessel_imo}
+              onChange={(e) => handleShipChange(shipIndex, 'vessel_imo', e.target.value)}
+              sx={{ flex: '1 1 200px', minWidth: '200px' }}
+            />
+            
+            <TextField
+              fullWidth
+              label="Flag State"
+              value={ship.vessel_flag}
+              onChange={(e) => handleShipChange(shipIndex, 'vessel_flag', e.target.value)}
+              sx={{ flex: '1 1 150px', minWidth: '150px' }}
+            />
+          </Box>
+          
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+            <TextField
+              fullWidth
+              label="Expected Arrival"
+              type="datetime-local"
+              value={ship.expected_arrival}
+              onChange={(e) => handleShipChange(shipIndex, 'expected_arrival', e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ flex: '1 1 250px', minWidth: '250px' }}
+            />
+            
+            <TextField
+              fullWidth
+              label="Expected Departure"
+              type="datetime-local"
+              value={ship.expected_departure}
+              onChange={(e) => handleShipChange(shipIndex, 'expected_departure', e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ flex: '1 1 250px', minWidth: '250px' }}
+            />
+          </Box>
+          
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Ports for this ship ({ship.ports.length} port{ship.ports.length !== 1 ? 's' : ''})
+            </Typography>
+            
+            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel>Add Port</InputLabel>
+                <Select
+                  value=""
+                  label="Add Port"
+                  onChange={(e) => handleAddPortToShip(shipIndex, e.target.value)}
+                >
+                  {mockPorts.filter(port => !ship.ports.includes(port.name)).map((port) => (
+                    <MenuItem key={port.id} value={port.name}>
+                      {port.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            
+            {ship.ports.length > 0 && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {ship.ports.map((port, portIndex) => (
+                  <Chip
+                    key={portIndex}
+                    label={`${portIndex + 1}. ${port}`}
+                    onDelete={() => handleRemovePortFromShip(shipIndex, port)}
+                    color="primary"
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
+          
+          <TextField
+            fullWidth
+            label="Ship Remarks"
+            value={ship.remarks}
+            onChange={(e) => handleShipChange(shipIndex, 'remarks', e.target.value)}
+            multiline
+            rows={2}
+            placeholder="Additional notes for this ship..."
+          />
+        </Card>
+      ))}
     </Box>
   );
 
@@ -620,111 +788,15 @@ const OrderForm: React.FC = () => {
           </FormControl>
         </Box>
         
-        <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
-          <TextField
-            fullWidth
-            label="Expected Arrival"
-            type="datetime-local"
-            value={formData.expected_arrival}
-            onChange={(e) => setFormData(prev => ({ ...prev, expected_arrival: e.target.value }))}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Box>
-        
-        <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
-          <FormControl fullWidth>
-            <InputLabel>Port Configuration</InputLabel>
-            <Select
-              value={formData.is_multi_port ? 'multi' : 'single'}
-              label="Port Configuration"
-              onChange={(e) => setFormData(prev => ({ 
-                ...prev, 
-                is_multi_port: e.target.value === 'multi',
-                ports: e.target.value === 'single' ? [] : prev.ports
-              }))}
-            >
-              <MenuItem value="single">Single Port</MenuItem>
-              <MenuItem value="multi">Multi-Port</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-        
-        {!formData.is_multi_port ? (
-          <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
-            <FormControl fullWidth required>
-              <InputLabel>Port</InputLabel>
-              <Select
-                value={formData.port}
-                label="Port"
-                onChange={(e) => setFormData(prev => ({ ...prev, port: e.target.value }))}
-              >
-                {ports.map((port) => (
-                  <MenuItem key={port.id} value={port.name}>
-                    {port.name} - {port.country}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        ) : (
-          <>
-            <Box sx={{ flex: '2 1 400px', minWidth: '400px' }}>
-              <FormControl fullWidth>
-                <InputLabel>Select Port</InputLabel>
-                <Select
-                  value={formData.port}
-                  label="Select Port"
-                  onChange={(e) => setFormData(prev => ({ ...prev, port: e.target.value }))}
-                >
-                  {ports.map((port) => (
-                    <MenuItem key={port.id} value={port.name}>
-                      {port.name} - {port.country}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={handleAddPort}
-                disabled={!formData.port}
-              >
-                Add Port
-              </Button>
-            </Box>
-            
-            {formData.ports.length > 0 && (
-              <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Ports ({formData.ports.length}):
-                </Typography>
-                <Box display="flex" flexWrap="wrap" gap={1}>
-                  {formData.ports.map((port, index) => (
-                    <Chip
-                      key={index}
-                      label={`${index + 1}. ${port}`}
-                      onDelete={() => handleRemovePort(port)}
-                      color="primary"
-                      variant="outlined"
-                    />
-                  ))}
-                </Box>
-              </Box>
-            )}
-          </>
-        )}
-        
         <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
           <TextField
             fullWidth
-            label="Remarks"
-            multiline
-            rows={3}
+            label="Order Remarks"
             value={formData.remarks}
             onChange={(e) => setFormData(prev => ({ ...prev, remarks: e.target.value }))}
+            multiline
+            rows={3}
+            placeholder="Additional notes for this order..."
           />
         </Box>
       </Box>
@@ -819,15 +891,27 @@ const OrderForm: React.FC = () => {
           </Card>
         </Box>
         
-        <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+        <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
           <Card variant="outlined">
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Vessel Information
+                Ships Information ({formData.ships.length} ship{formData.ships.length !== 1 ? 's' : ''})
               </Typography>
-              <Typography><strong>Vessel:</strong> {formData.vessel_name}</Typography>
-              <Typography><strong>IMO:</strong> {formData.vessel_imo}</Typography>
-              <Typography><strong>Flag:</strong> {formData.vessel_flag}</Typography>
+              {formData.ships.map((ship, index) => (
+                <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    <strong>Ship {index + 1}: {ship.vessel_name || 'Unnamed Vessel'}</strong>
+                  </Typography>
+                  <Typography><strong>IMO:</strong> {ship.vessel_imo || 'N/A'}</Typography>
+                  <Typography><strong>Flag:</strong> {ship.vessel_flag}</Typography>
+                  <Typography><strong>Expected Arrival:</strong> {ship.expected_arrival || 'N/A'}</Typography>
+                  <Typography><strong>Expected Departure:</strong> {ship.expected_departure || 'N/A'}</Typography>
+                  <Typography><strong>Ports ({ship.ports.length}):</strong> {ship.ports.join(', ') || 'None'}</Typography>
+                  {ship.remarks && (
+                    <Typography><strong>Ship Remarks:</strong> {ship.remarks}</Typography>
+                  )}
+                </Box>
+              ))}
             </CardContent>
           </Card>
         </Box>
@@ -839,14 +923,8 @@ const OrderForm: React.FC = () => {
                 Survey Details
               </Typography>
               <Typography><strong>Survey Type:</strong> {formData.survey_type}</Typography>
-              <Typography><strong>Port(s):</strong> {
-                formData.is_multi_port 
-                  ? formData.ports.join(', ') 
-                  : formData.port
-              }</Typography>
-              <Typography><strong>Expected Arrival:</strong> {formData.expected_arrival}</Typography>
               {formData.remarks && (
-                <Typography><strong>Remarks:</strong> {formData.remarks}</Typography>
+                <Typography><strong>Order Remarks:</strong> {formData.remarks}</Typography>
               )}
             </CardContent>
           </Card>
@@ -1146,18 +1224,19 @@ const OrderForm: React.FC = () => {
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
             <Box sx={{ flex: '1 1 100%', minWidth: '100%' }}>
               <FormControl fullWidth required>
-                <InputLabel>Port/Harbor</InputLabel>
+                <InputLabel>Ship & Port</InputLabel>
                 <Select
                   value={newOrderLine.selected_port}
-                  label="Port/Harbor"
+                  label="Ship & Port"
                   onChange={(e) => setNewOrderLine(prev => ({ ...prev, selected_port: e.target.value }))}
                 >
-                  {formData.is_multi_port ? 
-                    formData.ports.map((port) => (
-                      <MenuItem key={port} value={port}>{port}</MenuItem>
-                    )) :
-                    <MenuItem value={formData.port}>{formData.port}</MenuItem>
-                  }
+                  {formData.ships.map((ship, shipIndex) => 
+                    ship.ports.map((port, portIndex) => (
+                      <MenuItem key={`${shipIndex}-${portIndex}`} value={`${ship.vessel_name} - ${port}`}>
+                        {ship.vessel_name} - {port}
+                      </MenuItem>
+                    ))
+                  ).flat()}
                 </Select>
               </FormControl>
             </Box>
